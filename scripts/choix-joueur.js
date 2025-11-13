@@ -5,12 +5,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const statutJ2 = document.getElementById("statut-j2");
   const gestionPartieContainer = document.getElementById("gestion-partie");
   const quitterPartieBouton = document.getElementById("quitter-partie");
+  const compteAReboursMessage = document.getElementById(
+    "compte-a-rebours-message"
+  );
 
   let pollingInterval;
+  let countdownStarted = false;
+  let isRedirectingToGame = false;
 
   const majStatut = (statuts) => {
     statutJ1.textContent = statuts.joueur1_pret ? "Prêt" : "En attente...";
     statutJ2.textContent = statuts.joueur2_pret ? "Prêt" : "En attente...";
+
+    if (statuts.joueur1_pret && statuts.joueur2_pret && !countdownStarted) {
+      countdownStarted = true;
+      if (compteAReboursMessage) {
+        compteAReboursMessage.style.display = "block";
+        let secondes = 3;
+        compteAReboursMessage.textContent = `La partie commence dans ${secondes} secondes...`;
+        const interval = setInterval(() => {
+          secondes--;
+          if (secondes > 0) {
+            compteAReboursMessage.textContent = `La partie commence dans ${secondes} secondes...`;
+          } else {
+            compteAReboursMessage.textContent = "Lancement de la partie...";
+            clearInterval(interval);
+            isRedirectingToGame = true;
+            window.location.href = "game.php";
+          }
+        }, 1000);
+      }
+      return;
+    }
 
     const boutonJoueur1 = selectionForm.querySelector(
       'button[value="joueur1"]'
@@ -107,8 +133,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Deco automatique quand un joueur quitte la page
   window.addEventListener("beforeunload", () => {
+    if (isRedirectingToGame) {
+      return;
+    }
     const monChoix = sessionStorage.getItem("mon_choix");
     if (monChoix) {
       const formData = new URLSearchParams();

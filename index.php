@@ -3,43 +3,99 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Le jeu de michou</title>
+    <title>Bienvenue sur Nova Protocol</title>
     <link rel="stylesheet" href="styles/style.css">
-    <link rel="shortcut icon" href="images/logo/image.png" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
     <style>
+        html,
         body {
             margin: 0;
             padding: 0;
-            background-image: url('assets/images/landing-screen.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            height: 100vh;
-            width: 100vw;
+            height: 100%;
+            width: 100%;
             overflow: hidden;
-            position: relative;
+            background: black;
+        }
+
+        #myVideo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+            background: black;
+        }
+
+        .start-title {
+            font-size: 8rem;
+            color: white;
         }
 
         .launch-button {
-            position: absolute;
-            top: 66%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 220px;
-            height: 65px;
-            display: block;
-            border-radius: 35px;
-            background: transparent;
+            background-color: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            border-radius: 50px;
             cursor: pointer;
-            z-index: 10;
+            font-weight: bold;
+            margin-top: 20px
+        }
+
+        .launch-button:hover {
+            background-color: #b9b9b9ff;
+            color: #000000ff;
         }
     </style>
 </head>
 
 <body>
-    <a href="choix-joueur.php" class="launch-button"></a>
+    <video autoplay muted loop id="myVideo">
+        <source src="assets/video/space.mp4" type="video/mp4">
+    </video>
+
+    <audio id="background-audio" src="assets/audio/space-sound.mp3" autoplay loop muted></audio>
+
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; text-align: center; width: 100%;">
+        <p style="color: white; font-size: 1.8rem;">Bienvenue sur:</p>
+        <h1 class="start-title">Nova Protocol</h1>
+        <button id="launchGameButton" class="launch-button">Lancer le jeu</button>
+    </div>
+
     <script src="scripts/choix-joueur.js" defer></script>
     <script src="scripts/taille-ecran.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var audio = document.getElementById('background-audio');
+            var launchButton = document.getElementById('launchGameButton');
+
+            function playAndUnmuteAudio() {
+                audio.muted = false;
+                var playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(function(error) {
+                        console.error("Échec de la lecture audio sur interaction utilisateur:", error);
+                    });
+                }
+            }
+
+            var initialPlayPromise = audio.play();
+            if (initialPlayPromise !== undefined) {
+                initialPlayPromise.then(function() {
+                    console.log("Lecture audio automatique démarrée (muette).");
+                }).catch(function(error) {
+                    console.error("Échec de la lecture audio automatique:", error);
+                });
+            }
+
+            launchButton.addEventListener('click', function() {
+                playAndUnmuteAudio();
+                window.location.href = 'choix-joueur.php';
+            });
+        });
+    </script>
 </body>
 
 </html>

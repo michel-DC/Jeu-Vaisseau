@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Veillez choisir votre joueur...</title>
+    <title>Veuillez choisir votre joueur...</title>
     <link rel="stylesheet" href="styles/style.css">
-    <link rel="shortcut icon" href="images/logo/image.png" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
 </head>
 
 <body>
@@ -16,6 +16,8 @@
             <p>Statut Joueur 1: <span id="statut-j1">En attente...</span></p>
             <p>Statut Joueur 2: <span id="statut-j2">En attente...</span></p>
         </div>
+
+        <div id="compte-a-rebours-message" style="display: none;"></div>
 
         <div id="gestion-partie" style="display: none;">
             <button id="quitter-partie">Quitter la partie</button>

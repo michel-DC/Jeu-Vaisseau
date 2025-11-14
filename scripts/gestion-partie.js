@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let pollingInterval;
 
-    // --- FONCTIONS UTILITAIRES ---
     const genererPartieId = (longueur = 6) => {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let resultat = '';
@@ -78,7 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 1000);
     };
 
-    // --- GESTIONNAIRES D'ÉVÉNEMENTS ---
     formCreer.addEventListener("submit", async (e) => {
         e.preventDefault();
         const idPartie = genererPartieId();
@@ -119,8 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
             if (response.ok) {
-                // Le joueur qui rejoint est directement redirigé car la partie est complète
-                lancerCompteARebours();
+                afficherSalleAttente(idPartie);
             } else {
                 alert(`Erreur: ${data.erreur}`);
             }

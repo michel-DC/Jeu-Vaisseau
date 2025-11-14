@@ -1,18 +1,28 @@
+<?php
+session_start();
+
+if (isset($_SESSION['partie_id'])) {
+    header('Location: game.php');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <title>Veuillez choisir votre joueur...</title>
-    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/choix-joueur.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
 </head>
 
 <body>
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    <div class="stars3"></div>
     <div class="container">
-        <h1>Bienvenue dans le jeu de vaisseaux !</h1>
+        <h1>Bienvenue sur Nova Protocol </h1>
 
-        <!-- Section pour créer ou rejoindre une partie -->
         <div id="choix-initial">
             <h2>Créer une nouvelle partie</h2>
             <form id="form-creer-partie">
@@ -28,7 +38,6 @@
             </form>
         </div>
 
-        <!-- Section qui s'affiche après avoir créé/rejoint une partie -->
         <div id="salle-attente" style="display: none;">
             <h2>Votre partie est prête !</h2>
             <p>Partagez cet ID avec votre ami :</p>
@@ -36,7 +45,7 @@
                 <span id="id-partie-affiche"></span>
                 <button id="copier-id">Copier l'ID</button>
             </div>
-            
+
             <div id="statut-joueurs">
                 <p>Statut Joueur 1: <span id="statut-j1">En attente...</span></p>
                 <p>Statut Joueur 2: <span id="statut-j2">En attente...</span></p>

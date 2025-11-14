@@ -13,7 +13,7 @@ if (!$partie_id) {
 
 $link = connexionDB();
 
-$sql = "SELECT joueur1_id, joueur2_id, statut FROM parties WHERE partie_id = ?";
+$sql = "SELECT p.joueur1_id, p.joueur2_id, p.statut, gs.joueur1_hp, gs.joueur2_hp, gs.duree_partie FROM parties p JOIN game_state gs ON p.partie_id = gs.partie_id WHERE p.partie_id = ?";
 $stmt = mysqli_prepare($link, $sql);
 mysqli_stmt_bind_param($stmt, "s", $partie_id);
 mysqli_stmt_execute($stmt);

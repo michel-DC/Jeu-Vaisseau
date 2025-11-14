@@ -20,13 +20,11 @@ if (!$partie_id || !$joueur_role) {
 $link = connexionDB();
 $colonne_a_reinitialiser = ($joueur_role === 'joueur1') ? 'joueur1_id' : 'joueur2_id';
 
-// Mettre à jour le statut du joueur à NULL et le statut de la partie à 'en_attente'
 $sql = "UPDATE parties SET $colonne_a_reinitialiser = NULL, statut = 'en_attente' WHERE partie_id = ?";
 $stmt = mysqli_prepare($link, $sql);
 mysqli_stmt_bind_param($stmt, "s", $partie_id);
 
 if (mysqli_stmt_execute($stmt)) {
-    // Nettoyer les variables de session
     unset($_SESSION['partie_id']);
     unset($_SESSION['joueur_role']);
     http_response_code(200);

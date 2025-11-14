@@ -18,13 +18,18 @@ if (!$partie_id) {
 $link = connexionDB();
 $joueur_id = session_id();
 
-// Insérer la nouvelle partie
 $sql = "INSERT INTO parties (partie_id, joueur1_id, statut) VALUES (?, ?, 'en_attente')";
 $stmt = mysqli_prepare($link, $sql);
+
+if ($stmt === false) {
+    http_response_code(500);
+    echo json_encode(['erreur' => 'Erreur de préparation de la requête: ' . mysqli_error($link)]);
+    exit();
+}
+
 mysqli_stmt_bind_param($stmt, "ss", $partie_id, $joueur_id);
 
-if (mysqli_stmt_execute($stmt_parties)) {
-    // Insérer l'état initial du jeu dans la table game_state
+if (mysqli_stmt_execute($stmt)) {
     $sql_game_state = "INSERT INTO game_state (partie_id, joueur1_hp, joueur2_hp, duree_partie) VALUES (?, 1000, 1000, 0)";
     $stmt_game_state = mysqli_prepare($link, $sql_game_state);
     mysqli_stmt_bind_param($stmt_game_state, "s", $partie_id);
@@ -35,8 +40,6 @@ if (mysqli_stmt_execute($stmt_parties)) {
         http_response_code(201);
         echo json_encode(['succes' => 'Partie créée avec succès.', 'partie_id' => $partie_id]);
     } else {
-        // If game_state insertion fails, rollback parties insertion (optional but good practice)
-        // For simplicity, I'll just report the error for now.
         http_response_code(500);
         echo json_encode(['erreur' => 'Erreur lors de l\'initialisation de l\'état du jeu: ' . mysqli_error($link)]);
     }

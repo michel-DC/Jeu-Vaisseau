@@ -15,8 +15,15 @@ $stmt = mysqli_prepare($link, $sql);
 mysqli_stmt_bind_param($stmt, "s", $partie_id_session);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
-$partie = mysqli_fetch_assoc($result_partie_status);
-mysqli_stmt_close($stmt_partie_status);
+if (!$result) {
+    error_log("Erreur: " . mysqli_stmt_error($stmt));
+    mysqli_stmt_close($stmt);
+    mysqli_close($link);
+    header('Location: choix-joueur.php');
+    exit();
+}
+$partie = mysqli_fetch_assoc($result);
+mysqli_stmt_close($stmt);
 
 if (!$partie || $partie['statut'] !== 'complete') {
     mysqli_close($link);
@@ -30,12 +37,18 @@ $stmt_game_state = mysqli_prepare($link, $sql_game_state);
 mysqli_stmt_bind_param($stmt_game_state, "s", $partie_id_session);
 mysqli_stmt_execute($stmt_game_state);
 $result_game_state = mysqli_stmt_get_result($stmt_game_state);
+if (!$result_game_state) {
+    error_log("Erreur: " . mysqli_stmt_error($stmt_game_state));
+    mysqli_stmt_close($stmt_game_state);
+    mysqli_close($link);
+    header('Location: choix-joueur.php');
+    exit();
+}
 $gameState = mysqli_fetch_assoc($result_game_state);
 mysqli_stmt_close($stmt_game_state);
 mysqli_close($link);
 
 if (!$gameState) {
-    // Handle case where game state is not found (shouldn't happen if creer-partie.php works)
     header('Location: choix-joueur.php');
     exit();
 }
@@ -58,18 +71,12 @@ $initial_duree_partie = $gameState['duree_partie'];
 
 <body>
 
-    <div id="game-state-bar">
-        <div class="player-hp">
-            Joueur 1: <span id="player1-hp"><?php echo $initial_joueur1_hp; ?> HP</span>
-        </div>
+    <!-- <div id="game-state-bar">
         <div class="game-timer">
-            Temps: <span id="game-timer-value">00:00</span>
-        </div>
-        <div class="player-hp">
-            Joueur 2: <span id="player2-hp"><?php echo $initial_joueur2_hp; ?> HP</span>
+            Durée: <span id="game-timer-value">00:00</span>
         </div>
         <button id="quitter-game-button">Quitter</button>
-    </div>
+    </div> -->
 
     <div id="game-container">
         <div class="column"></div>
@@ -84,7 +91,9 @@ $initial_duree_partie = $gameState['duree_partie'];
         const initialGameState = {
             joueur1Hp: <?php echo $initial_joueur1_hp; ?>,
             joueur2Hp: <?php echo $initial_joueur2_hp; ?>,
-            dureePartie: <?php echo $initial_duree_partie; ?>
+            dureePartie: <?php echo $initial_duree_partie; ?>,
+            joueurRole: '<?php echo $_SESSION['joueur_role']; ?>',
+            partieId: '<?php echo $partie_id_session; ?>'
         };
     </script>
     <script src="scripts/taille-ecran.js" defer></script>

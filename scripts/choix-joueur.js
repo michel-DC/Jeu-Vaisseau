@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
             compteAReboursMessage.textContent = "Lancement de la partie...";
             clearInterval(interval);
             isRedirectingToGame = true;
-            window.location.href = "game.php";
+            window.location.href = "game/index.php";
           }
         }, 1000);
       }

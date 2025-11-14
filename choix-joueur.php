@@ -12,27 +12,41 @@
     <div class="container">
         <h1>Bienvenue dans le jeu de vaisseaux !</h1>
 
-        <div id="statut-joueurs">
-            <p>Statut Joueur 1: <span id="statut-j1">En attente...</span></p>
-            <p>Statut Joueur 2: <span id="statut-j2">En attente...</span></p>
-        </div>
+        <!-- Section pour créer ou rejoindre une partie -->
+        <div id="choix-initial">
+            <h2>Créer une nouvelle partie</h2>
+            <form id="form-creer-partie">
+                <button type="submit">Créer une partie</button>
+            </form>
 
-        <div id="compte-a-rebours-message" style="display: none;"></div>
+            <hr>
 
-        <div id="gestion-partie" style="display: none;">
-            <button id="quitter-partie">Quitter la partie</button>
-        </div>
-
-        <div id="selection-joueur">
-            <p>Êtes-vous le Joueur 1 ou le Joueur 2 ?</p>
-            <form method="post">
-                <button type="submit" name="choix_joueur" value="joueur1">Joueur 1</button>
-                <button type="submit" name="choix_joueur" value="joueur2">Joueur 2</button>
+            <h2>Rejoindre une partie existante</h2>
+            <form id="form-rejoindre-partie">
+                <input type="text" id="id-partie-input" placeholder="Entrez l'ID de la partie" maxlength="10" required>
+                <button type="submit">Rejoindre</button>
             </form>
         </div>
 
+        <!-- Section qui s'affiche après avoir créé/rejoint une partie -->
+        <div id="salle-attente" style="display: none;">
+            <h2>Votre partie est prête !</h2>
+            <p>Partagez cet ID avec votre ami :</p>
+            <div class="id-container">
+                <span id="id-partie-affiche"></span>
+                <button id="copier-id">Copier l'ID</button>
+            </div>
+            
+            <div id="statut-joueurs">
+                <p>Statut Joueur 1: <span id="statut-j1">En attente...</span></p>
+                <p>Statut Joueur 2: <span id="statut-j2">En attente...</span></p>
+            </div>
+
+            <div id="compte-a-rebours-message" style="display: none;"></div>
+        </div>
+
     </div>
-    <script src="scripts/choix-joueur.js" defer></script>
+    <script src="scripts/gestion-partie.js" defer></script>
     <script src="scripts/taille-ecran.js" defer></script>
 </body>
 

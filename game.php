@@ -71,20 +71,45 @@ $initial_duree_partie = $gameState['duree_partie'];
 
 <body>
 
-    <!-- <div id="game-state-bar">
+    <div id="game-state-bar">
         <div class="game-timer">
             Durée: <span id="game-timer-value">00:00</span>
         </div>
         <button id="quitter-game-button">Quitter</button>
-    </div> -->
+    </div>
 
     <div id="game-container">
-        <div class="column"></div>
-        <div class="column"></div>
-        <div class="column"></div>
-        <div class="column"></div>
-        <div class="column"></div>
-        <div class="column"></div>
+        <div class="column zone-starry">
+            <div class="stars"></div>
+            <div class="stars2"></div>
+            <div class="stars3"></div>
+        </div>
+        <div class="column zone-starry">
+            <div class="stars"></div>
+            <div class="stars2"></div>
+            <div class="stars3"></div>
+        </div>
+        <div class="column zone-starry">
+            <div class="stars"></div>
+            <div class="stars2"></div>
+            <div class="stars3"></div>
+        </div>
+        <div class="column zone-starry">
+            <div class="stars"></div>
+            <div class="stars2"></div>
+            <div class="stars3"></div>
+        </div>
+        <div class="column zone-starry">
+            <div class="stars"></div>
+            <div class="stars2"></div>
+            <div class="stars3"></div>
+        </div>
+        <div class="column zone-starry">
+            <div class="stars"></div>
+            <div class="stars2"></div>
+            <div class="stars3"></div>
+            yannco
+        </div>
     </div>
 
     <script>

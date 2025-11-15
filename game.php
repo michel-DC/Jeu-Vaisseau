@@ -77,6 +77,7 @@ $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
     <title>Nova Protocol</title>
     <link rel="stylesheet" href="styles/game.css">
     <link rel="stylesheet" href="styles/game-state.css">
+    <link rel="stylesheet" href="styles/coin-flip-popup.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
 </head>
 
@@ -90,9 +91,6 @@ $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
     </div>
 
     <div id="game-container">
-        <div id="vaisseau-joueur1" class="vaisseau-container"></div>
-        <div id="vaisseau-joueur2" class="vaisseau-container"></div>
-
         <div class="column zone-starry">
             <div class="stars"></div>
             <div class="stars2"></div>
@@ -126,6 +124,32 @@ $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
         </div>
     </div>
 
+    <!-- Popup Pile ou Face -->
+    <div id="coin-flip-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <h2>Pile ou Face</h2>
+            <div id="player-assignments">
+                <p>Vous: <span id="my-side"></span></p>
+                <p>Adversaire: <span id="opponent-side"></span></p>
+            </div>
+            <div id="coin-container">
+                <div id="coin">
+                    <div class="side-a"></div> <!-- Pile -->
+                    <div class="side-b"></div> <!-- Face -->
+                </div>
+            </div>
+            <p id="flip-result"></p>
+        </div>
+    </div>
+
+    <!-- Popup Résultat du Tour -->
+    <div id="turn-result-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <h2 id="turn-result-title"></h2>
+            <button id="close-turn-popup">Compris</button>
+        </div>
+    </div>
+
     <script>
         const initialGameState = {
             joueur1Hp: <?php echo $initial_joueur1_hp; ?>,
@@ -140,6 +164,7 @@ $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
     <script src="scripts/taille-ecran.js" defer></script>
     <script src="scripts/game.js" defer></script>
     <script src="scripts/game-state.js" defer></script>
+    <script src="scripts/coin-flip.js" defer></script>
 </body>
 
 </html>

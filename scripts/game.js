@@ -1,21 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
     const quitterGameButton = document.getElementById("quitter-game-button");
-    const conteneurVaisseau1 = document.getElementById("vaisseau-joueur1");
-    const conteneurVaisseau2 = document.getElementById("vaisseau-joueur2");
+    const gameContainer = document.getElementById("game-container");
 
-    // Afficher les vaisseaux choisis
-    if (initialGameState.joueur1Vaisseau && conteneurVaisseau1) {
-        const img1 = document.createElement('img');
-        img1.src = initialGameState.joueur1Vaisseau;
-        img1.alt = "Vaisseau du joueur 1";
-        conteneurVaisseau1.appendChild(img1);
+    // Afficher les vaisseaux choisis en fonction du rôle du joueur
+    const myVaisseauSrc = initialGameState.joueurRole === 'joueur1' ? initialGameState.joueur1Vaisseau : initialGameState.joueur2Vaisseau;
+    const opponentVaisseauSrc = initialGameState.joueurRole === 'joueur1' ? initialGameState.joueur2Vaisseau : initialGameState.joueur1Vaisseau;
+
+    if (myVaisseauSrc && gameContainer) {
+        const myShipImg = document.createElement('img');
+        myShipImg.src = myVaisseauSrc;
+        myShipImg.alt = "Mon vaisseau";
+        myShipImg.id = "my-ship";
+        myShipImg.classList.add("player-ship");
+        gameContainer.appendChild(myShipImg);
     }
 
-    if (initialGameState.joueur2Vaisseau && conteneurVaisseau2) {
-        const img2 = document.createElement('img');
-        img2.src = initialGameState.joueur2Vaisseau;
-        img2.alt = "Vaisseau du joueur 2";
-        conteneurVaisseau2.appendChild(img2);
+    if (opponentVaisseauSrc && gameContainer) {
+        const opponentShipImg = document.createElement('img');
+        opponentShipImg.src = opponentVaisseauSrc;
+        opponentShipImg.alt = "Vaisseau de l'adversaire";
+        opponentShipImg.id = "opponent-ship";
+        opponentShipImg.classList.add("player-ship");
+        gameContainer.appendChild(opponentShipImg);
     }
 
 

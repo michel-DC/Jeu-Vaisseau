@@ -158,7 +158,8 @@ $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
             joueur1Vaisseau: '<?php echo $joueur1_vaisseau; ?>',
             joueur2Vaisseau: '<?php echo $joueur2_vaisseau; ?>',
             joueurRole: '<?php echo $_SESSION['joueur_role']; ?>',
-            partieId: '<?php echo $partie_id_session; ?>'
+            partieId: '<?php echo $partie_id_session; ?>',
+            sessionId: '<?php echo session_id(); ?>'
         };
     </script>
     <script src="scripts/taille-ecran.js" defer></script>

@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let timerInterval = null;
     let saveInterval = null;
     let fetchStateInterval = null;
+    let coinFlipHasRun = false;
 
     // Create player HP display elements
     const playerHpDivYou = document.createElement('div');
@@ -98,6 +99,15 @@ document.addEventListener("DOMContentLoaded", () => {
             seconds = result.duree_partie; // Update timer as well
             updateHpDisplay();
             updateTimerDisplay();
+
+            // --- Synchronized Coin Flip Logic ---
+            if (result.premier_joueur && !coinFlipHasRun) {
+                coinFlipHasRun = true;
+                const iStart = result.premier_joueur === initialGameState.sessionId;
+                runCoinFlipAnimation(iStart);
+            }
+            // ------------------------------------
+
         } catch (error) {
             console.error("Erreur de connexion lors de la récupération de l'état du jeu:", error);
         }

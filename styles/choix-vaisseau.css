@@ -1,0 +1,161 @@
+@font-face {
+  font-family: "Harlow";
+  src: url("../assets/font/HARLOWSI_1.woff");
+}
+
+body {
+  background-color: #000;
+  color: #fff;
+  font-family: "Arial", sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  padding: 40px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 700px;
+}
+
+.title {
+  font-family: "Harlow", sans-serif;
+  font-size: 4.5em;
+  color: #ffffff;
+  margin-bottom: 40px;
+  text-shadow: 2px 2px 4px #000;
+}
+
+#selection-vaisseau {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.carousel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.vaisseau-image {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  object-fit: contain;
+  margin: 0 20px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-button {
+  background: transparent;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  font-size: 2em;
+  cursor: pointer;
+  padding: 10px 20px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.nav-button:hover {
+  background: #ffffff;
+  color: #000;
+}
+
+.valider-button {
+  background-color: #ffffff;
+  color: #000;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.2em;
+  font-weight: bold;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-transform: uppercase;
+  margin-top: 20px;
+}
+
+.valider-button:hover {
+  background-color: #cccccc;
+}
+
+.stars,
+.stars2,
+.stars3 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.stars {
+  background-image: radial-gradient(1px 1px at 20px 30px, white, transparent),
+    radial-gradient(1px 1px at 40px 70px, white, transparent),
+    radial-gradient(1px 1px at 90px 40px, white, transparent),
+    radial-gradient(1px 1px at 130px 80px, white, transparent),
+    radial-gradient(1px 1px at 160px 120px, white, transparent);
+  background-size: 200px 200px;
+  animation: moveStars 15s linear infinite;
+}
+
+.stars2 {
+  background-image: radial-gradient(2px 2px at 50px 150px, white, transparent),
+    radial-gradient(2px 2px at 100px 50px, white, transparent),
+    radial-gradient(2px 2px at 150px 180px, white, transparent);
+  background-size: 250px 250px;
+  animation: moveStars 30s linear infinite;
+}
+
+.stars3 {
+  background-image: radial-gradient(3px 3px at 80px 100px, white, transparent),
+    radial-gradient(3px 3px at 180px 80px, white, transparent);
+  background-size: 300px 300px;
+  animation: moveStars 45s linear infinite;
+}
+
+@keyframes moveStars {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-200px);
+  }
+}
+
+/* --- Salle d'attente --- */
+#salle-attente-vaisseau h2 {
+  color: #ffffff;
+}
+
+.loader {
+  border: 8px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 8px solid #ffffff;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

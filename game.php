@@ -32,7 +32,7 @@ if (!$partie || $partie['statut'] !== 'complete') {
 }
 
 // Fetch game state
-$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie FROM game_state WHERE partie_id = ?";
+$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie, joueur1_choix_vaisseau, joueur2_choix_vaisseau FROM game_state WHERE partie_id = ?";
 $stmt_game_state = mysqli_prepare($link, $sql_game_state);
 mysqli_stmt_bind_param($stmt_game_state, "s", $partie_id_session);
 mysqli_stmt_execute($stmt_game_state);
@@ -49,13 +49,24 @@ mysqli_stmt_close($stmt_game_state);
 mysqli_close($link);
 
 if (!$gameState) {
+    // Si l'état du jeu n'existe pas, c'est une erreur critique.
     header('Location: choix-joueur.php');
     exit();
 }
 
+// Vérification que les deux joueurs ont choisi leur vaisseau
+if (empty($gameState['joueur1_choix_vaisseau']) || empty($gameState['joueur2_choix_vaisseau'])) {
+    // Rediriger vers la page de choix si un des choix est manquant
+    header('Location: choix-vaisseau.php');
+    exit();
+}
+
+
 $initial_joueur1_hp = $gameState['joueur1_hp'];
 $initial_joueur2_hp = $gameState['joueur2_hp'];
 $initial_duree_partie = $gameState['duree_partie'];
+$joueur1_vaisseau = $gameState['joueur1_choix_vaisseau'];
+$joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
 
 ?>
 <!DOCTYPE html>
@@ -79,6 +90,9 @@ $initial_duree_partie = $gameState['duree_partie'];
     </div>
 
     <div id="game-container">
+        <div id="vaisseau-joueur1" class="vaisseau-container"></div>
+        <div id="vaisseau-joueur2" class="vaisseau-container"></div>
+
         <div class="column zone-starry">
             <div class="stars"></div>
             <div class="stars2"></div>
@@ -117,6 +131,8 @@ $initial_duree_partie = $gameState['duree_partie'];
             joueur1Hp: <?php echo $initial_joueur1_hp; ?>,
             joueur2Hp: <?php echo $initial_joueur2_hp; ?>,
             dureePartie: <?php echo $initial_duree_partie; ?>,
+            joueur1Vaisseau: '<?php echo $joueur1_vaisseau; ?>',
+            joueur2Vaisseau: '<?php echo $joueur2_vaisseau; ?>',
             joueurRole: '<?php echo $_SESSION['joueur_role']; ?>',
             partieId: '<?php echo $partie_id_session; ?>'
         };

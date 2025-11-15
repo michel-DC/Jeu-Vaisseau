@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 compteAReboursMessage.textContent = "Lancement de la partie...";
                 clearInterval(interval);
-                window.location.href = "game.php";
+                window.location.href = "choix-vaisseau.php";
             }
         }, 1000);
     };

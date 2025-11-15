@@ -21,7 +21,7 @@ if (isset($_SESSION['partie_id'])) {
     <div class="stars2"></div>
     <div class="stars3"></div>
     <div class="container">
-        <h1>Bienvenue sur Nova Protocol </h1>
+        <h1 class="title">Nova Protocol </h1>
 
         <div id="choix-initial">
             <h2>Créer une nouvelle partie</h2>

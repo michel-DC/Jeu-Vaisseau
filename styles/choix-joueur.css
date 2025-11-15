@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Harlow Solid Italic";
+  src: url("../assets/font/HARLOWSI_1.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
 html {
   height: 100%;
   background: #000;
@@ -14,6 +21,12 @@ body {
   align-items: center;
   min-height: 100vh;
   background: #000;
+}
+
+.title {
+  font-family: "Harlow Solid Italic", cursive;
+  font-size: 5.5em;
+  margin-bottom: 20px;
 }
 
 .stars,

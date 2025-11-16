@@ -78,6 +78,8 @@ $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
     <link rel="stylesheet" href="styles/game.css">
     <link rel="stylesheet" href="styles/game-state.css">
     <link rel="stylesheet" href="styles/coin-flip-popup.css">
+    <link rel="stylesheet" href="styles/action-buttons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
 </head>
 
@@ -121,6 +123,27 @@ $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
             <div class="stars2"></div>
             <div class="stars3"></div>
             yannco
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <div class="action-button-container">
+            <button id="btn-backward" class="action-button" data-tooltip="Reculer"><i class="fas fa-arrow-left"></i></button>
+        </div>
+        <div class="action-button-container">
+            <button id="btn-forward" class="action-button" data-tooltip="Avancer"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="action-button-container">
+            <button id="btn-shoot" class="action-button" data-tooltip="Tirer"><i class="fas fa-crosshairs"></i></button>
+        </div>
+        <div class="action-button-container">
+            <button id="btn-drone" class="action-button" data-tooltip="Lancer un drone"><i class="fas fa-robot"></i></button>
+        </div>
+        <div class="action-button-container">
+            <button id="btn-magic" class="action-button" data-tooltip="Utiliser sa magie"><i class="fas fa-wand-magic-sparkles"></i></button>
+        </div>
+        <div class="action-button-container">
+            <button id="btn-heal" class="action-button" data-tooltip="Recharger sa vie"><i class="fas fa-heart-pulse"></i></button>
         </div>
     </div>
 

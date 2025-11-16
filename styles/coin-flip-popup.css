@@ -1,112 +1,117 @@
 .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    color: white;
-    font-family: "Poppins", sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  color: white;
+  font-family: "Poppins", sans-serif;
 }
 
 .popup-content {
-    background-color: #1a1a1a;
-    padding: 30px 50px;
-    border-radius: 10px;
-    text-align: center;
-    border: 2px solid white;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  background-color: #1a1a1a;
+  padding: 30px 50px;
+  border-radius: 10px;
+  text-align: center;
+  border: 2px solid white;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
 }
 
 .popup-content h2 {
-    font-family: "Poppins", sans-serif;
-    color: white;
-    margin-bottom: 20px;
-    font-size: 2.2em;
+  font-family: "Poppins", sans-serif;
+  color: white;
+  margin-bottom: 20px;
+  font-size: 2em;
 }
 
 #player-assignments {
-    margin-bottom: 20px;
-    font-size: 1.1em;
+  margin-bottom: 20px;
+  font-size: 1.1em;
 }
 
 #coin-container {
-    width: 120px;
-    height: 120px;
-    perspective: 1000px;
-    margin: 20px auto;
+  width: 120px;
+  height: 120px;
+  perspective: 1000px;
+  margin: 20px auto;
 }
 
 #coin {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 1s;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 1s;
 }
 
 #coin.flipping {
-    animation: spin 6s forwards;
+  animation: spin 6s forwards;
 }
 
-.side-a, .side-b {
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    backface-visibility: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.8em;
-    font-weight: bold;
-    border: 2px solid white;
+.side-a,
+.side-b {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8em;
+  font-weight: bold;
+  border: 2px solid white;
 }
 
 .side-a {
-    background-color: #ffd700;
-    color: #4d2c02;
-    content: 'P';
+  background-color: #ffd700;
+  color: #4d2c02;
+  content: "P";
 }
 
 .side-b {
-    background-color: #c0c0c0;
-    color: #333;
-    transform: rotateY(180deg);
-    content: 'F';
+  background-color: #c0c0c0;
+  color: #333;
+  transform: rotateY(180deg);
+  content: "F";
 }
 
 @keyframes spin {
-    0% { transform: rotateY(0); }
-    100% { transform: rotateY(1800deg); }
+  0% {
+    transform: rotateY(0);
+  }
+  100% {
+    transform: rotateY(1800deg);
+  }
 }
 
 #flip-result {
-    font-size: 1.3em;
-    margin-top: 25px;
-    min-height: 25px;
-    color: #fff;
+  font-size: 1.3em;
+  margin-top: 25px;
+  min-height: 25px;
+  color: #fff;
 }
 
 #close-turn-popup {
-    margin-top: 30px;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 50px;
-    background-color: white;
-    color: #000;
-    font-size: 1.1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  margin-top: 30px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 50px;
+  background-color: white;
+  color: #000;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #close-turn-popup:hover {
-    background-color: #e0e0e0;
-    color: #000;
+  background-color: #e0e0e0;
+  color: #000;
 }

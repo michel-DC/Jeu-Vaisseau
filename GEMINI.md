@@ -40,6 +40,7 @@ This project does not appear to have explicit build scripts or commands. It is a
           joueur1_id VARCHAR(255),
           joueur2_id VARCHAR(255),
           statut VARCHAR(50) DEFAULT 'en_attente'
+          created_at TIMESTAMP
       );
 
       CREATE TABLE game_state (
@@ -47,6 +48,9 @@ This project does not appear to have explicit build scripts or commands. It is a
           joueur1_hp INT DEFAULT 1000,
           joueur2_hp INT DEFAULT 1000,
           duree_partie INT DEFAULT 0,
+          joueur1_choix_vaisseau VARCHAR(255) DEFAULT NULL,
+          joueur2_choix_vaisseau VARCHAR(255) DEFAULT NULL,
+          premier_joueur VARCHAR(255) DEFAULT NULL,
           FOREIGN KEY (partie_id) REFERENCES parties(partie_id)
       );
       ```

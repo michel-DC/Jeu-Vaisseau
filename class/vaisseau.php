@@ -1,31 +1,68 @@
 <?php
 
-require_once './personne.php';
+require_once './magicien.php';
 require_once './drone.php';
 
 class Vaisseau
 {
     private $nom;
-    private $equipage = [];
-    private $propre = true;
-    private $enEtatDeMarche = true;
+    private $magicien;
 
     private $position;
-    private $energie;
+    private $pointDeVie;
     private $puissanceDeTir;
     private $drones = [];
+
+    private $cooldown_attaque_speciale = 0;
+    private $modificateur_degats_infliges = 1.0;
+    private $modificateur_degats_subis = 1.0;
+    private $status_effects = [];
 
     public function __construct($nom)
     {
         $this->nom = $nom;
-
-        // Initialisation des attributs de jeu
+        $this->magicien = new Magicien("Merlin", 100, 30);
         $this->position = ['x' => 0, 'y' => 0];
-        $this->energie = 100;
-        $this->puissanceDeTir = 10;
+        $this->pointDeVie = 1000;
+        $this->puissanceDeTir = 50;
     }
 
-    // --- Méthodes existantes ---
+    // --- Getters et Setters ---
+
+    public function getMagicien()
+    {
+        return $this->magicien;
+    }
+
+    public function getCooldownAttaqueSpeciale()
+    {
+        return $this->cooldown_attaque_speciale;
+    }
+
+    public function setCooldownAttaqueSpeciale($cooldown)
+    {
+        $this->cooldown_attaque_speciale = $cooldown;
+    }
+
+    public function getModificateurDegatsInfliges()
+    {
+        return $this->modificateur_degats_infliges;
+    }
+
+    public function setModificateurDegatsInfliges($modificateur)
+    {
+        $this->modificateur_degats_infliges = $modificateur;
+    }
+
+    public function getModificateurDegatsSubis()
+    {
+        return $this->modificateur_degats_subis;
+    }
+
+    public function setModificateurDegatsSubis($modificateur)
+    {
+        $this->modificateur_degats_subis = $modificateur;
+    }
 
     public function getNom()
     {
@@ -37,114 +74,9 @@ class Vaisseau
         $this->nom = $nouveauNom;
     }
 
-    public function estPareADecoller()
+    public function getPointDeVie()
     {
-        $nb = count($this->equipage);
-        if ($nb < 2 || $nb > 10) {
-            return false;
-        }
-        if (!$this->propre) {
-            return false;
-        }
-        if (!$this->enEtatDeMarche) {
-            return false;
-        }
-        return true;
-    }
-
-    public function remettreEnEtat()
-    {
-        $roles = array_map(function ($p) {
-            return $p->getRole();
-        }, $this->equipage);
-
-        if (!$this->propre) {
-            if (!in_array('agent d\'entretien', $roles, true)) {
-                return 0;
-            }
-            $this->propre = true;
-        }
-
-        if (!$this->enEtatDeMarche) {
-            if (!in_array('mécanicien', $roles, true)) {
-                return 0;
-            }
-            $this->enEtatDeMarche = true;
-        }
-
-        return 1;
-    }
-
-    public function decoller()
-    {
-        if (!$this->estPareADecoller()) {
-            $ok = $this->remettreEnEtat();
-            if ($ok === 0) {
-                return 0;
-            }
-            if (!$this->estPareADecoller()) {
-                return 0;
-            }
-        }
-
-        $aPilote = false;
-        foreach ($this->equipage as $personne) {
-            if ($personne->getRole() === 'pilote') {
-                $aPilote = true;
-                break;
-            }
-        }
-
-        if (!$aPilote) {
-            return 0;
-        }
-
-        return 1;
-    }
-
-    public function affecterMembre($personne)
-    {
-        if (count($this->equipage) >= 10) {
-            return false;
-        }
-        foreach ($this->equipage as $membre) {
-            if ($membre->getNom() === $personne->getNom()) {
-                return false;
-            }
-        }
-        $this->equipage[] = $personne;
-        return true;
-    }
-
-    public function retirerMembre($nom)
-    {
-        foreach ($this->equipage as $index => $membre) {
-            if ($membre->getNom() === $nom) {
-                array_splice($this->equipage, $index, 1);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function salir()
-    {
-        $this->propre = false;
-    }
-
-    public function avarier()
-    {
-        $this->enEtatDeMarche = false;
-    }
-
-    public function getEquipage()
-    {
-        return $this->equipage;
-    }
-
-    public function getEnergie()
-    {
-        return $this->energie;
+        return $this->pointDeVie;
     }
 
     public function getPosition()
@@ -157,6 +89,65 @@ class Vaisseau
         return $this->drones;
     }
 
+    public function getPuissanceDeTir()
+    {
+        return $this->puissanceDeTir;
+    }
+
+    public function setPuissanceDeTir($nouvellePuissance)
+    {
+        $this->puissanceDeTir = $nouvellePuissance;
+    }
+
+    // --- Gestion des effets de statut ---
+
+    public function appliquerEffet($effet)
+    {
+        $this->status_effects[] = $effet;
+    }
+
+    public function gererEffetsDebutTour()
+    {
+        $peutJouer = true;
+        $messages = [];
+
+        foreach ($this->status_effects as $key => &$effet) {
+            if (isset($effet['type'])) {
+                switch ($effet['type']) {
+                    case 'dot':
+                        $this->recevoirDegats($effet['damage']);
+                        $messages[] = $this->getNom() . " subit " . $effet['damage'] . " dégâts de poison.";
+                        break;
+                    case 'stun':
+                        if (mt_rand(1, 100) <= $effet['chance']) {
+                            $peutJouer = false;
+                            $messages[] = $this->getNom() . " est étourdi et ne peut pas jouer ce tour !";
+                        }
+                        if (isset($effet['duration'])) {
+                            $effet['duration']--;
+                        }
+                        break;
+                }
+            }
+
+            if (isset($effet['duration']) && $effet['duration'] <= 0) {
+                unset($this->status_effects[$key]);
+            }
+        }
+
+        $this->status_effects = array_values($this->status_effects);
+
+        return ['peut_jouer' => $peutJouer, 'messages' => $messages];
+    }
+
+    public function recevoirSoins($quantite)
+    {
+        $this->pointDeVie += $quantite;
+        if ($this->pointDeVie > 1000) {
+            $this->pointDeVie = 1000;
+        }
+    }
+
     public function deplacer($x, $y)
     {
         $this->position['x'] = $x;
@@ -165,22 +156,17 @@ class Vaisseau
 
     public function recevoirDegats($quantite)
     {
-        $this->energie -= $quantite;
-        if ($this->energie < 0) {
-            $this->energie = 0;
+        $this->pointDeVie -= $quantite * $this->modificateur_degats_subis;
+        if ($this->pointDeVie < 0) {
+            $this->pointDeVie = 0;
         }
-    }
-
-    public function tirer($cible)
-    {
-        $cible->recevoirDegats($this->puissanceDeTir);
     }
 
     public function lancerDrone($type)
     {
         $coutEnergie = 25;
-        if ($this->energie >= $coutEnergie) {
-            $this->energie -= $coutEnergie;
+        if ($this->pointDeVie >= $coutEnergie) {
+            $this->pointDeVie -= $coutEnergie;
             $nouveauDrone = new Drone($type, $this->position);
             $this->drones[] = $nouveauDrone;
             return $nouveauDrone;

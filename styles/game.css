@@ -77,7 +77,7 @@ html {
 
 .player-ship {
   position: absolute;
-  width: 250px;
+  width: 200px;
   height: auto;
   object-fit: contain;
   z-index: 5;
@@ -85,13 +85,13 @@ html {
 }
 
 #opponent-ship {
-    left: calc(100% * 11 / 12); /* Centré dans la 6ème colonne */
-    top: 50%;
-    transform: translate(-50%, -50%) scaleX(-1); /* Effet miroir pour l'adversaire */
+  left: calc(100% * 11 / 12); /* Centré dans la 6ème colonne */
+  top: 50%;
+  transform: translate(-50%, -50%) scaleX(-1); /* Effet miroir pour l'adversaire */
 }
 
 #my-ship {
-    left: calc(100% * 1 / 12); /* Centré dans la 1ère colonne */
-    top: 50%;
-    transform: translate(-50%, -50%);
+  left: calc(100% * 1 / 12); /* Centré dans la 1ère colonne */
+  top: 50%;
+  transform: translate(-50%, -50%);
 }

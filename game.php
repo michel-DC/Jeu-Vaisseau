@@ -32,7 +32,7 @@ if (!$partie || $partie['statut'] !== 'complete') {
 }
 
 // Fetch game state
-$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie, joueur1_choix_vaisseau, joueur2_choix_vaisseau FROM game_state WHERE partie_id = ?";
+$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie, joueur1_choix_vaisseau, joueur2_choix_vaisseau, joueur1_position, joueur2_position FROM game_state WHERE partie_id = ?";
 $stmt_game_state = mysqli_prepare($link, $sql_game_state);
 mysqli_stmt_bind_param($stmt_game_state, "s", $partie_id_session);
 mysqli_stmt_execute($stmt_game_state);
@@ -67,6 +67,8 @@ $initial_joueur2_hp = $gameState['joueur2_hp'];
 $initial_duree_partie = $gameState['duree_partie'];
 $joueur1_vaisseau = $gameState['joueur1_choix_vaisseau'];
 $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
+$initial_joueur1_pos = $gameState['joueur1_position'];
+$initial_joueur2_pos = $gameState['joueur2_position'];
 
 ?>
 <!DOCTYPE html>
@@ -93,36 +95,35 @@ $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
     </div>
 
     <div id="game-container">
-        <div class="column zone-starry">
+        <div id="zone-1" class="column zone-starry">
             <div class="stars"></div>
             <div class="stars2"></div>
             <div class="stars3"></div>
         </div>
-        <div class="column zone-starry">
+        <div id="zone-2" class="column zone-starry">
             <div class="stars"></div>
             <div class="stars2"></div>
             <div class="stars3"></div>
         </div>
-        <div class="column zone-starry">
+        <div id="zone-3" class="column zone-starry">
             <div class="stars"></div>
             <div class="stars2"></div>
             <div class="stars3"></div>
         </div>
-        <div class="column zone-starry">
+        <div id="zone-4" class="column zone-starry">
             <div class="stars"></div>
             <div class="stars2"></div>
             <div class="stars3"></div>
         </div>
-        <div class="column zone-starry">
+        <div id="zone-5" class="column zone-starry">
             <div class="stars"></div>
             <div class="stars2"></div>
             <div class="stars3"></div>
         </div>
-        <div class="column zone-starry">
+        <div id="zone-6" class="column zone-starry">
             <div class="stars"></div>
             <div class="stars2"></div>
             <div class="stars3"></div>
-            yannco
         </div>
     </div>
 
@@ -180,6 +181,8 @@ $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
             dureePartie: <?php echo $initial_duree_partie; ?>,
             joueur1Vaisseau: '<?php echo $joueur1_vaisseau; ?>',
             joueur2Vaisseau: '<?php echo $joueur2_vaisseau; ?>',
+            joueur1Position: <?php echo $initial_joueur1_pos; ?>,
+            joueur2Position: <?php echo $initial_joueur2_pos; ?>,
             joueurRole: '<?php echo $_SESSION['joueur_role']; ?>',
             partieId: '<?php echo $partie_id_session; ?>',
             sessionId: '<?php echo session_id(); ?>'

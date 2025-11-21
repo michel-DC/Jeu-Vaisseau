@@ -81,6 +81,7 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
     <link rel="stylesheet" href="styles/game-state.css">
     <link rel="stylesheet" href="styles/coin-flip-popup.css">
     <link rel="stylesheet" href="styles/action-buttons.css">
+    <link rel="stylesheet" href="styles/narration.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
 </head>
@@ -124,6 +125,13 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
             <div class="stars"></div>
             <div class="stars2"></div>
             <div class="stars3"></div>
+        </div>
+    </div>
+
+    <div id="narration-container" class="narration-box">
+        <h3>Journal de Bord</h3>
+        <div id="narration-events">
+            <!-- Les événements de narration seront chargés ici -->
         </div>
     </div>
 
@@ -193,6 +201,7 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
     <script src="scripts/game.js" defer></script>
     <script src="scripts/game-state.js" defer></script>
     <script src="scripts/coin-flip.js" defer></script>
+    <script src="scripts/narration.js" defer></script>
 </body>
 
 </html>

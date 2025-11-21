@@ -67,14 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const result = await response.json();
 
-            if (result.success) {
-                if (currentGameState.joueurRole === 'joueur1') {
-                    currentGameState.joueur1Position = result.new_position;
-                } else {
-                    currentGameState.joueur2Position = result.new_position;
-                }
-                updateShipsDisplay();
+            if (!result.success && result.error.includes('Mouvement impossible')) {
+                addLocalNarrationEvent("Mouvement impossible.");
             }
+            // L'état sera mis à jour par le prochain appel de pollGameState.
         } catch (error) {
             console.error('Erreur lors de la tentative de déplacement:', error);
         }
@@ -88,16 +84,22 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             const serverState = await response.json();
 
-            const hasPositionChanged = serverState.joueur1_position !== currentGameState.joueur1Position ||
-                serverState.joueur2_position !== currentGameState.joueur2Position;
+            if (!serverState || serverState.joueur1_position === undefined || serverState.joueur2_position === undefined) {
+                return; // Données incomplètes
+            }
 
-            if (hasPositionChanged) {
-                currentGameState.joueur1Position = parseInt(serverState.joueur1_position, 10);
-                currentGameState.joueur2Position = parseInt(serverState.joueur2_position, 10);
+            const newJ1Pos = parseInt(serverState.joueur1_position, 10);
+            const newJ2Pos = parseInt(serverState.joueur2_position, 10);
+
+            // On vérifie si une position a changé pour rafraîchir l'affichage
+            if (newJ1Pos !== currentGameState.joueur1Position || newJ2Pos !== currentGameState.joueur2Position) {
+                currentGameState.joueur1Position = newJ1Pos;
+                currentGameState.joueur2Position = newJ2Pos;
                 updateShipsDisplay();
             }
         } catch (error) {
-            console.error("Erreur lors du polling de l'état du jeu:", error);
+            // Erreur de polling, peut arriver si le serveur redémarre, etc.
+            // On ne logue pas pour ne pas polluer la console.
         }
     }
 

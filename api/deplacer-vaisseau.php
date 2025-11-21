@@ -98,6 +98,15 @@ if ($new_pos !== $current_pos) {
         }
         // --- Fin du changement de tour ---
 
+        // Générer la narration pour le mouvement
+        $dir = $direction === 'forward' ? 'avance' : 'recule';
+        $narration_msg = "MOVE:{$joueur_role}:{$dir}";
+        $sql_narrate = "INSERT INTO narration_events (partie_id, message) VALUES (?, ?)";
+        $stmt_narrate = mysqli_prepare($link, $sql_narrate);
+        mysqli_stmt_bind_param($stmt_narrate, "ss", $partie_id, $narration_msg);
+        mysqli_stmt_execute($stmt_narrate);
+        mysqli_stmt_close($stmt_narrate);
+
         echo json_encode(['success' => true, 'new_position' => $new_pos]);
     } else {
         echo json_encode(['success' => false, 'error' => 'Erreur lors de la mise à jour de la position.']);

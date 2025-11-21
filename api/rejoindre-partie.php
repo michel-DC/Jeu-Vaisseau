@@ -53,6 +53,17 @@ if (mysqli_stmt_execute($stmt_update)) {
     $_SESSION['partie_id'] = $partie_id;
     $_SESSION['joueur_id'] = $joueur_id;
     $_SESSION['joueur_role'] = 'joueur2';
+
+    // Ajouter les événements de narration pour le début de partie
+    $msg1 = "Bienvenue au Joueur 1 dans l'arène de Nova Protocol.";
+    $msg2 = "Bienvenue au Joueur 2. Que le combat interstellaire commence !";
+    
+    $sql_narrate = "INSERT INTO narration_events (partie_id, message) VALUES (?, ?), (?, ?)";
+    $stmt_narrate = mysqli_prepare($link, $sql_narrate);
+    mysqli_stmt_bind_param($stmt_narrate, "ssss", $partie_id, $msg1, $partie_id, $msg2);
+    mysqli_stmt_execute($stmt_narrate);
+    mysqli_stmt_close($stmt_narrate);
+
     http_response_code(200);
     echo json_encode(['succes' => 'Vous avez rejoint la partie !']);
 } else {

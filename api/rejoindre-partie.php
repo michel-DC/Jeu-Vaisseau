@@ -51,6 +51,7 @@ mysqli_stmt_bind_param($stmt_update, "ss", $joueur_id, $partie_id);
 
 if (mysqli_stmt_execute($stmt_update)) {
     $_SESSION['partie_id'] = $partie_id;
+    $_SESSION['joueur_id'] = $joueur_id;
     $_SESSION['joueur_role'] = 'joueur2';
     http_response_code(200);
     echo json_encode(['succes' => 'Vous avez rejoint la partie !']);

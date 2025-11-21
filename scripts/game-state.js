@@ -9,6 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let fetchStateInterval = null;
     let coinFlipHasRun = false;
 
+    const turnStatusDiv = document.createElement('div');
+    turnStatusDiv.id = 'turn-status';
+    turnStatusDiv.className = 'turn-status';
+    gameStateBar.insertBefore(turnStatusDiv, gameStateBar.children[0]);
+
     // Create player HP display elements
     const playerHpDivYou = document.createElement('div');
     playerHpDivYou.className = 'player-hp';
@@ -100,10 +105,33 @@ document.addEventListener("DOMContentLoaded", () => {
             updateHpDisplay();
             updateTimerDisplay();
 
+            const localPlayerId = initialGameState.joueurId;
+            const isMyTurn = result.joueur_actuel === localPlayerId;
+
+            // --- Gestion du tour par tour ---
+            const actionButtons = document.querySelectorAll('.action-button');
+            const turnStatusElement = document.getElementById('turn-status');
+
+            actionButtons.forEach(button => {
+                button.disabled = !isMyTurn;
+            });
+
+            if (isMyTurn) {
+                turnStatusElement.textContent = "C'est votre tour";
+                document.body.classList.add('active-turn');
+                document.body.classList.remove('waiting-turn');
+            } else {
+                turnStatusElement.textContent = "Tour de l'adversaire";
+                document.body.classList.add('waiting-turn');
+                document.body.classList.remove('active-turn');
+            }
+            // --- Fin de la gestion du tour ---
+
+
             // --- Synchronized Coin Flip Logic ---
             if (result.premier_joueur && !coinFlipHasRun) {
                 coinFlipHasRun = true;
-                const iStart = result.premier_joueur === initialGameState.sessionId;
+                const iStart = result.premier_joueur === localPlayerId;
                 runCoinFlipAnimation(iStart);
             }
             // ------------------------------------

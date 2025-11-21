@@ -36,6 +36,7 @@ if (mysqli_stmt_execute($stmt)) {
 
     if (mysqli_stmt_execute($stmt_game_state)) {
         $_SESSION['partie_id'] = $partie_id;
+        $_SESSION['joueur_id'] = $joueur_id;
         $_SESSION['joueur_role'] = 'joueur1';
         http_response_code(201);
         echo json_encode(['succes' => 'Partie créée avec succès.', 'partie_id' => $partie_id]);

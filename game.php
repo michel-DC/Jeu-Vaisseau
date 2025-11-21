@@ -25,7 +25,7 @@ if (!$result) {
 $partie = mysqli_fetch_assoc($result);
 mysqli_stmt_close($stmt);
 
-if (!$partie || $partie['statut'] !== 'complete') {
+if (!$partie || ($partie['statut'] ?? '') !== 'complete') {
     mysqli_close($link);
     header('Location: choix-joueur.php');
     exit();
@@ -62,13 +62,13 @@ if (empty($gameState['joueur1_choix_vaisseau']) || empty($gameState['joueur2_cho
 }
 
 
-$initial_joueur1_hp = $gameState['joueur1_hp'];
-$initial_joueur2_hp = $gameState['joueur2_hp'];
-$initial_duree_partie = $gameState['duree_partie'];
-$joueur1_vaisseau = $gameState['joueur1_choix_vaisseau'];
-$joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'];
-$initial_joueur1_pos = $gameState['joueur1_position'];
-$initial_joueur2_pos = $gameState['joueur2_position'];
+$initial_joueur1_hp = $gameState['joueur1_hp'] ?? null;
+$initial_joueur2_hp = $gameState['joueur2_hp'] ?? null;
+$initial_duree_partie = $gameState['duree_partie'] ?? null;
+$joueur1_vaisseau = $gameState['joueur1_choix_vaisseau'] ?? null;
+$joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'] ?? null;
+$initial_joueur1_pos = $gameState['joueur1_position'] ?? null;
+$initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
 
 ?>
 <!DOCTYPE html>
@@ -129,22 +129,22 @@ $initial_joueur2_pos = $gameState['joueur2_position'];
 
     <div class="action-buttons">
         <div class="action-button-container">
-            <button id="btn-backward" class="action-button" data-tooltip="Reculer"><i class="fas fa-arrow-left"></i></button>
+            <button id="btn-backward" class="action-button" data-tooltip="Reculer" disabled><i class="fas fa-arrow-left"></i></button>
         </div>
         <div class="action-button-container">
-            <button id="btn-forward" class="action-button" data-tooltip="Avancer"><i class="fas fa-arrow-right"></i></button>
+            <button id="btn-forward" class="action-button" data-tooltip="Avancer" disabled><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="action-button-container">
-            <button id="btn-shoot" class="action-button" data-tooltip="Tirer"><i class="fas fa-crosshairs"></i></button>
+            <button id="btn-shoot" class="action-button" data-tooltip="Tirer" disabled><i class="fas fa-crosshairs"></i></button>
         </div>
         <div class="action-button-container">
-            <button id="btn-drone" class="action-button" data-tooltip="Lancer un drone"><i class="fas fa-robot"></i></button>
+            <button id="btn-drone" class="action-button" data-tooltip="Lancer un drone" disabled><i class="fas fa-robot"></i></button>
         </div>
         <div class="action-button-container">
-            <button id="btn-magic" class="action-button" data-tooltip="Utiliser sa magie"><i class="fas fa-wand-magic-sparkles"></i></button>
+            <button id="btn-magic" class="action-button" data-tooltip="Utiliser sa magie" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
         </div>
         <div class="action-button-container">
-            <button id="btn-heal" class="action-button" data-tooltip="Recharger sa vie"><i class="fas fa-heart-pulse"></i></button>
+            <button id="btn-heal" class="action-button" data-tooltip="Recharger sa vie" disabled><i class="fas fa-heart-pulse"></i></button>
         </div>
     </div>
 
@@ -176,14 +176,15 @@ $initial_joueur2_pos = $gameState['joueur2_position'];
 
     <script>
         const initialGameState = {
-            joueur1Hp: <?php echo $initial_joueur1_hp; ?>,
-            joueur2Hp: <?php echo $initial_joueur2_hp; ?>,
-            dureePartie: <?php echo $initial_duree_partie; ?>,
+            joueur1Hp: <?php echo $initial_joueur1_hp ?? 1000; ?>,
+            joueur2Hp: <?php echo $initial_joueur2_hp ?? 1000; ?>,
+            dureePartie: <?php echo $initial_duree_partie ?? 0; ?>,
             joueur1Vaisseau: '<?php echo $joueur1_vaisseau; ?>',
             joueur2Vaisseau: '<?php echo $joueur2_vaisseau; ?>',
-            joueur1Position: <?php echo $initial_joueur1_pos; ?>,
-            joueur2Position: <?php echo $initial_joueur2_pos; ?>,
-            joueurRole: '<?php echo $_SESSION['joueur_role']; ?>',
+            joueur1Position: <?php echo $initial_joueur1_pos ?? 1; ?>,
+            joueur2Position: <?php echo $initial_joueur2_pos ?? 1; ?>,
+            joueurId: '<?php echo $_SESSION['joueur_id'] ?? ''; ?>',
+            joueurRole: '<?php echo $_SESSION['joueur_role'] ?? ''; ?>',
             partieId: '<?php echo $partie_id_session; ?>',
             sessionId: '<?php echo session_id(); ?>'
         };

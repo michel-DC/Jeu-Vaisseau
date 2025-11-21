@@ -125,3 +125,20 @@
     color: #000;
     box-shadow: 0 0 15px #ffffff;
 }
+
+.action-button:disabled,
+.action-button[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background-color: #333 !important; /* Use important to override specific hover styles */
+    color: #888 !important;
+    border-color: #555 !important;
+    transform: none;
+    box-shadow: none;
+}
+
+.action-button:disabled:hover,
+.action-button[disabled]:hover {
+    transform: none;
+    box-shadow: none;
+}

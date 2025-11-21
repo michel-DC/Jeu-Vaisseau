@@ -22,6 +22,24 @@ if ($direction !== 'forward' && $direction !== 'backward') {
 
 $link = connexionDB();
 
+// --- Vérification du tour du joueur ---
+$joueur_id = $_SESSION['joueur_id'];
+$sql_check_turn = "SELECT joueur_actuel FROM game_state WHERE partie_id = ?";
+$stmt_check_turn = mysqli_prepare($link, $sql_check_turn);
+mysqli_stmt_bind_param($stmt_check_turn, "s", $partie_id);
+mysqli_stmt_execute($stmt_check_turn);
+$result_turn = mysqli_stmt_get_result($stmt_check_turn);
+$game_state_turn = mysqli_fetch_assoc($result_turn);
+mysqli_stmt_close($stmt_check_turn);
+
+if (!$game_state_turn || $game_state_turn['joueur_actuel'] !== $joueur_id) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Ce n\'est pas votre tour de jouer.']);
+    mysqli_close($link);
+    exit();
+}
+// --- Fin de la vérification du tour ---
+
 // 1. Récupérer la position actuelle
 $sql_get_pos = "SELECT joueur1_position, joueur2_position FROM game_state WHERE partie_id = ?";
 $stmt_get_pos = mysqli_prepare($link, $sql_get_pos);
@@ -61,6 +79,25 @@ if ($new_pos !== $current_pos) {
     mysqli_stmt_close($stmt_update_pos);
 
     if ($success) {
+        // --- Le tour se termine, on passe au joueur suivant ---
+        $sql_get_players = "SELECT j.joueur1_id, j.joueur2_id FROM parties j WHERE j.partie_id = ?";
+        $stmt_get_players = mysqli_prepare($link, $sql_get_players);
+        mysqli_stmt_bind_param($stmt_get_players, "s", $partie_id);
+        mysqli_stmt_execute($stmt_get_players);
+        $result_players = mysqli_stmt_get_result($stmt_get_players);
+        $players = mysqli_fetch_assoc($result_players);
+        mysqli_stmt_close($stmt_get_players);
+
+        if ($players) {
+            $joueur_suivant = ($joueur_id === $players['joueur1_id']) ? $players['joueur2_id'] : $players['joueur1_id'];
+            $sql_update_turn = "UPDATE game_state SET joueur_actuel = ? WHERE partie_id = ?";
+            $stmt_update_turn = mysqli_prepare($link, $sql_update_turn);
+            mysqli_stmt_bind_param($stmt_update_turn, "ss", $joueur_suivant, $partie_id);
+            mysqli_stmt_execute($stmt_update_turn);
+            mysqli_stmt_close($stmt_update_turn);
+        }
+        // --- Fin du changement de tour ---
+
         echo json_encode(['success' => true, 'new_position' => $new_pos]);
     } else {
         echo json_encode(['success' => false, 'error' => 'Erreur lors de la mise à jour de la position.']);

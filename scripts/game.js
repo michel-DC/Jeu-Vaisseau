@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const returnMenuButton = document.getElementById("return-menu-button");
 
   let currentGameState = { ...initialGameState };
+  console.log("Initial Game State:", currentGameState);
 
   // Helper function to get opponent ID
   function getOpponentId() {
@@ -113,9 +114,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Fonction pour mettre à jour l'affichage des HP
+  // Fonction pour mettre à jour l'affichage des HP
   function updateHpDisplay() {
     const playerHpYouElement = document.getElementById("player-hp-you");
     const playerHpOtherElement = document.getElementById("player-hp-other");
+
+    console.log("Updating HP Display:", currentGameState.joueur1Hp, currentGameState.joueur2Hp);
 
     if (currentGameState.joueurRole === "joueur1") {
       playerHpYouElement.textContent = `${currentGameState.joueur1Hp} HP`;
@@ -130,8 +134,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateActionButtonsState() {
     const isMyTurn = currentGameState.joueurId === currentGameState.joueurActuel;
     const myRole = currentGameState.joueurRole;
-    const hasMoved = currentGameState[`${myRole}ABouge`];
-    const hasTakenOffensiveAction = currentGameState[`${myRole}ActionFaite`];
+    const hasMoved = currentGameState[`${myRole}ABouge`] === '1' || currentGameState[`${myRole}ABouge`] === 1;
+    const hasTakenOffensiveAction = currentGameState[`${myRole}ActionFaite`] === '1' || currentGameState[`${myRole}ActionFaite`] === 1;
 
     // Disable all buttons by default
     btnForward.disabled = true;
@@ -236,25 +240,19 @@ document.addEventListener("DOMContentLoaded", () => {
       method: "GET",
       dataType: "json",
       success: function (serverState) {
-        if (
-          !serverState ||
-          serverState.joueur1_position === undefined ||
-          serverState.joueur2_position === undefined ||
-          serverState.joueur1_hp === undefined || // Check for HP updates
-          serverState.joueur2_hp === undefined ||
-          serverState.joueur_actuel === undefined || // New: Check for current player
-          serverState.joueur1_action_faite === undefined || // New: Check for action flags
-          serverState.joueur2_action_faite === undefined ||
-          serverState.joueur1_a_bouge === undefined || // New: Check for move flags
-          serverState.joueur2_a_bouge === undefined
-        ) {
-          return; // Données incomplètes
+        if (!serverState) {
+            console.error("Server state is empty or invalid");
+            return;
         }
 
-        const newJ1Pos = parseInt(serverState.joueur1_position, 10);
-        const newJ2Pos = parseInt(serverState.joueur2_position, 10);
-        const newJ1Hp = parseInt(serverState.joueur1_hp, 10);
-        const newJ2Hp = parseInt(serverState.joueur2_hp, 10);
+        // Log missing fields for debugging
+        if (serverState.joueur_actuel === undefined) console.warn("Missing joueur_actuel");
+        if (serverState.joueur1_hp === undefined) console.warn("Missing joueur1_hp");
+
+        const newJ1Pos = parseInt(serverState.joueur1_position, 10) || 1;
+        const newJ2Pos = parseInt(serverState.joueur2_position, 10) || 6;
+        const newJ1Hp = parseInt(serverState.joueur1_hp, 10); // Can be 0
+        const newJ2Hp = parseInt(serverState.joueur2_hp, 10); // Can be 0
 
         let needsShipDisplayUpdate = false;
         let needsHpDisplayUpdate = false;
@@ -288,17 +286,32 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Update turn-related flags and check if button state needs update
-        if (serverState.joueur_actuel !== currentGameState.joueurActuel ||
-            serverState.joueur1_action_faite !== currentGameState.joueur1ActionFaite ||
-            serverState.joueur2_action_faite !== currentGameState.joueur2ActionFaite ||
-            serverState.joueur1_a_bouge !== currentGameState.joueur1ABouge ||
-            serverState.joueur2_a_bouge !== currentGameState.joueur2ABouge) {
-            
-            currentGameState.joueurActuel = serverState.joueur_actuel;
-            currentGameState.joueur1ActionFaite = serverState.joueur1_action_faite;
-            currentGameState.joueur2ActionFaite = serverState.joueur2_action_faite;
-            currentGameState.joueur1ABouge = serverState.joueur1_a_bouge;
-            currentGameState.joueur2ABouge = serverState.joueur2_a_bouge;
+        // Update turn-related flags and check if button state needs update
+        // Use loose comparison or default to current value if undefined to prevent breaking
+        const newJoueurActuel = serverState.joueur_actuel;
+        const newJ1Action = serverState.joueur1_action_faite;
+        const newJ2Action = serverState.joueur2_action_faite;
+        const newJ1Bouge = serverState.joueur1_a_bouge;
+        const newJ2Bouge = serverState.joueur2_a_bouge;
+
+        if (newJoueurActuel !== undefined && newJoueurActuel !== currentGameState.joueurActuel) {
+            currentGameState.joueurActuel = newJoueurActuel;
+            needsButtonStateUpdate = true;
+        }
+        if (newJ1Action !== undefined && newJ1Action !== currentGameState.joueur1ActionFaite) {
+            currentGameState.joueur1ActionFaite = newJ1Action;
+            needsButtonStateUpdate = true;
+        }
+        if (newJ2Action !== undefined && newJ2Action !== currentGameState.joueur2ActionFaite) {
+            currentGameState.joueur2ActionFaite = newJ2Action;
+            needsButtonStateUpdate = true;
+        }
+        if (newJ1Bouge !== undefined && newJ1Bouge !== currentGameState.joueur1ABouge) {
+            currentGameState.joueur1ABouge = newJ1Bouge;
+            needsButtonStateUpdate = true;
+        }
+        if (newJ2Bouge !== undefined && newJ2Bouge !== currentGameState.joueur2ABouge) {
+            currentGameState.joueur2ABouge = newJ2Bouge;
             needsButtonStateUpdate = true;
         }
 
@@ -308,28 +321,31 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (needsHpDisplayUpdate) {
             updateHpDisplay(); // <--- CALL IT HERE
+        }
+
+        // Check for Game Over (Run this check every poll, regardless of updates)
+        if (currentGameState.joueur1Hp <= 0 || currentGameState.joueur2Hp <= 0) {
+            let message = "";
+            const myRole = currentGameState.joueurRole;
             
-            // Check for Game Over
-            if (currentGameState.joueur1Hp <= 0 || currentGameState.joueur2Hp <= 0) {
-                let message = "";
-                const myRole = currentGameState.joueurRole;
-                
-                if (currentGameState.joueur1Hp <= 0 && currentGameState.joueur2Hp <= 0) {
-                     message = "Match nul ! Un combat acharné qui finit sans vainqueur.";
-                } else if (currentGameState.joueur1Hp <= 0) {
-                    if (myRole === 'joueur1') {
-                        message = "Dommage... Votre vaisseau a été détruit. Meilleure chance la prochaine fois !";
-                    } else {
-                        message = "Félicitations ! Vous avez triomphé de votre adversaire.";
-                    }
-                } else if (currentGameState.joueur2Hp <= 0) {
-                    if (myRole === 'joueur2') {
-                        message = "Dommage... Votre vaisseau a été détruit. Meilleure chance la prochaine fois !";
-                    } else {
-                        message = "Félicitations ! Vous avez triomphé de votre adversaire.";
-                    }
+            if (currentGameState.joueur1Hp <= 0 && currentGameState.joueur2Hp <= 0) {
+                    message = "Match nul ! Un combat acharné qui finit sans vainqueur.";
+            } else if (currentGameState.joueur1Hp <= 0) {
+                if (myRole === 'joueur1') {
+                    message = "Dommage... Votre vaisseau a été détruit. Meilleure chance la prochaine fois !";
+                } else {
+                    message = "Félicitations ! Vous avez triomphé de votre adversaire.";
                 }
-                
+            } else if (currentGameState.joueur2Hp <= 0) {
+                if (myRole === 'joueur2') {
+                    message = "Dommage... Votre vaisseau a été détruit. Meilleure chance la prochaine fois !";
+                } else {
+                    message = "Félicitations ! Vous avez triomphé de votre adversaire.";
+                }
+            }
+            
+            // Only show if not already visible to avoid flickering/spamming if we add animations later
+            if (gameOverPopup.style.display === "none") {
                 gameOverMessage.textContent = message;
                 gameOverPopup.style.display = "flex";
             }

@@ -21,18 +21,16 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 
 if ($result && $partie = mysqli_fetch_assoc($result)) {
-    // Si le premier joueur n'est pas encore défini et que la partie est complète
+
     if (empty($partie['premier_joueur']) && $partie['statut'] === 'complete') {
-        // Tirage au sort
+
         $players = [$partie['joueur1_id'], $partie['joueur2_id']];
         $premier_joueur = $players[array_rand($players)];
 
-        // Enregistrer le résultat en base de données
         $stmt_update = mysqli_prepare($link, "UPDATE game_state SET premier_joueur = ?, joueur_actuel = ? WHERE partie_id = ?");
         mysqli_stmt_bind_param($stmt_update, "sss", $premier_joueur, $premier_joueur, $partie_id);
         mysqli_stmt_execute($stmt_update);
-        
-        // Mettre à jour l'objet partie pour l'inclure dans la réponse immédiate
+
         $partie['premier_joueur'] = $premier_joueur;
         $partie['joueur_actuel'] = $premier_joueur;
     }

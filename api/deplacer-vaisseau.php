@@ -38,7 +38,6 @@ if (!$game_state_turn || $game_state_turn['joueur_actuel'] !== $joueur_id) {
     mysqli_close($link);
     exit();
 }
-// --- Fin de la vérification du tour ---
 
 // 1. Récupérer la position actuelle
 $sql_get_pos = "SELECT joueur1_position, joueur2_position FROM game_state WHERE partie_id = ?";
@@ -117,4 +116,3 @@ if ($new_pos !== $current_pos) {
 }
 
 mysqli_close($link);
-?>

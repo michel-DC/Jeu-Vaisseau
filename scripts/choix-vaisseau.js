@@ -39,26 +39,24 @@ document.addEventListener('DOMContentLoaded', () => {
     validerButton.addEventListener('click', () => {
         const vaisseauChoisi = vaisseaux[currentIndex];
 
-        fetch('api/enregistrer-vaisseau.php', {
+        $.ajax({
+            url: 'api/enregistrer-vaisseau.php',
             method: 'POST',
-            body: JSON.stringify({ vaisseau: vaisseauChoisi }),
-            headers: {
-                'Content-Type': 'application/json'
+            contentType: 'application/json',
+            data: JSON.stringify({ vaisseau: vaisseauChoisi }),
+            dataType: 'json',
+            success: function(data) {
+                if (data.success) {
+                    selectionVaisseau.style.display = 'none';
+                    salleAttente.style.display = 'block';
+                    startPolling();
+                } else {
+                    alert('Erreur: ' + data.message);
+                }
+            },
+            error: function() {
+                alert('Une erreur est survenue. Veuillez réessayer.');
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                selectionVaisseau.style.display = 'none';
-                salleAttente.style.display = 'block';
-                startPolling();
-            } else {
-                alert('Erreur: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur lors de la sauvegarde du vaisseau:', error);
-            alert('Une erreur est survenue. Veuillez réessayer.');
         });
     });
 
@@ -67,16 +65,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkGameStatus() {
-        fetch('api/statut-partie.php')
-            .then(response => response.json())
-            .then(data => {
+        $.ajax({
+            url: 'api/statut-partie.php',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
                 if (data.vaisseaux_choisis) {
                     clearInterval(pollingInterval);
                     window.location.href = 'game.php';
                 }
-            })
-            .catch(error => {
-                console.error('Erreur lors de la vérification du statut:', error);
-            });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Erreur lors de la vérification du statut:', errorThrown);
+            }
+        });
     }
 });

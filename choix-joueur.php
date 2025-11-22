@@ -14,6 +14,7 @@ if (isset($_SESSION['partie_id'])) {
     <title>Veuillez choisir votre joueur...</title>
     <link rel="stylesheet" href="styles/choix-joueur.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>

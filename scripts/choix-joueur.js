@@ -63,73 +63,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  const recupererStatut = async () => {
-    try {
-      const response = await fetch("api/statut-partie.php");
-      if (!response.ok) {
-        console.error("Erreur lors de la récupération du statut.");
-        return;
+  const recupererStatut = () => {
+    $.ajax({
+      url: "api/statut-partie.php",
+      method: "GET",
+      dataType: 'json',
+      success: function(statuts) {
+        majStatut(statuts);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error("Erreur réseau (statut):", errorThrown);
       }
-      const statuts = await response.json();
-      majStatut(statuts);
-    } catch (error) {
-      console.error("Erreur réseau (statut):", error);
-    }
+    });
   };
 
   if (selectionForm) {
-    selectionForm.addEventListener("submit", async (event) => {
+    selectionForm.addEventListener("submit", (event) => {
       event.preventDefault();
       const clickedButton = event.submitter;
       if (!clickedButton) return;
       const choixJoueur = clickedButton.value;
 
-      try {
-        const response = await fetch("api/choix-joueur.php", {
-          method: "POST",
-          body: new URLSearchParams({ choix_joueur: choixJoueur }),
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        });
-
-        if (response.ok) {
+      $.ajax({
+        url: "api/choix-joueur.php",
+        method: "POST",
+        data: { choix_joueur: choixJoueur },
+        success: function() {
           sessionStorage.setItem("mon_choix", choixJoueur);
           recupererStatut();
-        } else {
-          console.error(
-            "Erreur lors de la sélection du joueur:",
-            await response.text()
-          );
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.error("Erreur lors de la sélection du joueur:", errorThrown);
         }
-      } catch (error) {
-        console.error("Erreur réseau (choix):", error);
-      }
+      });
     });
   }
 
   if (quitterPartieBouton) {
-    quitterPartieBouton.addEventListener("click", async () => {
+    quitterPartieBouton.addEventListener("click", () => {
       const monChoix = sessionStorage.getItem("mon_choix");
       if (!monChoix) return;
 
-      try {
-        const response = await fetch("api/quitter-partie.php", {
-          method: "POST",
-          body: new URLSearchParams({ choix_joueur: monChoix }),
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        });
-
-        if (response.ok) {
+      $.ajax({
+        url: "api/quitter-partie.php",
+        method: "POST",
+        data: { choix_joueur: monChoix },
+        success: function() {
           sessionStorage.removeItem("mon_choix");
           recupererStatut();
-        } else {
-          console.error(
-            "Erreur pour quitter la partie:",
-            await response.text()
-          );
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.error("Erreur pour quitter la partie:", errorThrown);
         }
-      } catch (error) {
-        console.error("Erreur réseau (quitter):", error);
-      }
+      });
     });
   }
 

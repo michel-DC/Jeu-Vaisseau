@@ -18,7 +18,6 @@ if (!$partie_id) {
 $link = connexionDB();
 $joueur_id = session_id();
 
-// Vérifier la partie
 $sql_check = "SELECT * FROM parties WHERE partie_id = ?";
 $stmt_check = mysqli_prepare($link, $sql_check);
 mysqli_stmt_bind_param($stmt_check, "s", $partie_id);
@@ -44,7 +43,6 @@ if ($partie['joueur1_id'] === $joueur_id) {
     exit();
 }
 
-// Mettre à jour la partie avec le deuxième joueur
 $sql_update = "UPDATE parties SET joueur2_id = ?, statut = 'complete' WHERE partie_id = ?";
 $stmt_update = mysqli_prepare($link, $sql_update);
 mysqli_stmt_bind_param($stmt_update, "ss", $joueur_id, $partie_id);
@@ -54,10 +52,9 @@ if (mysqli_stmt_execute($stmt_update)) {
     $_SESSION['joueur_id'] = $joueur_id;
     $_SESSION['joueur_role'] = 'joueur2';
 
-    // Ajouter les événements de narration pour le début de partie
     $msg1 = "Bienvenue au Joueur 1 dans l'arène de Nova Protocol.";
     $msg2 = "Bienvenue au Joueur 2. Que le combat interstellaire commence !";
-    
+
     $sql_narrate = "INSERT INTO narration_events (partie_id, message) VALUES (?, ?), (?, ?)";
     $stmt_narrate = mysqli_prepare($link, $sql_narrate);
     mysqli_stmt_bind_param($stmt_narrate, "ssss", $partie_id, $msg1, $partie_id, $msg2);
@@ -72,5 +69,3 @@ if (mysqli_stmt_execute($stmt_update)) {
 }
 
 mysqli_close($link);
-
-?>

@@ -21,6 +21,7 @@ $vaisseaux_paths = array_map(function ($file) use ($vaisseaux_dir) {
     <title>Choix du Vaisseau - Nova Protocol</title>
     <link rel="stylesheet" href="styles/choix-vaisseau.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>

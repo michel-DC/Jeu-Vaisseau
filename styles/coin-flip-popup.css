@@ -14,33 +14,34 @@
 }
 
 .popup-content {
-  background-color: #1a1a1a;
-  padding: 30px 50px;
+  background: linear-gradient(145deg, #0a0a1a, #1a0a2a); /* Space-like gradient */
+  padding: 15px 25px;
   border-radius: 10px;
   text-align: center;
-  border: 2px solid white;
-  max-width: 500px;
+  border: 2px solid #00ffff; /* Glowing border */
+  max-width: 250px;
   width: 90%;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 15px #00ffff, inset 0 0 5px #00ffff; /* Inner and outer glow */
 }
 
 .popup-content h2 {
   font-family: "Poppins", sans-serif;
-  color: white;
-  margin-bottom: 20px;
-  font-size: 2em;
+  color: #00e5ff;
+  margin-bottom: 10px;
+  font-size: 1.2em;
 }
 
 #player-assignments {
-  margin-bottom: 20px;
-  font-size: 1.1em;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  color: #a0a0a0;
 }
 
 #coin-container {
-  width: 120px;
-  height: 120px;
+  width: 60px;
+  height: 60px;
   perspective: 1000px;
-  margin: 20px auto;
+  margin: 10px auto;
 }
 
 #coin {
@@ -52,33 +53,34 @@
 }
 
 #coin.flipping {
-  animation: spin 6s forwards;
+  animation: spin 2s forwards;
 }
 
 .side-a,
 .side-b {
   position: absolute;
-  width: 120px;
-  height: 120px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   backface-visibility: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.8em;
+  font-size: 1em;
   font-weight: bold;
-  border: 2px solid white;
+  border: 2px solid #00e5ff; /* Glowing metallic edge */
+  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6); /* Subtle glow */
 }
 
 .side-a {
-  background-color: #ffd700;
-  color: #4d2c02;
+  background-color: #c0c0c0; /* Silver/chrome */
+  color: #333;
   content: "P";
 }
 
 .side-b {
-  background-color: #c0c0c0;
-  color: #333;
+  background-color: #4a4a4a; /* Darker metal */
+  color: #00e5ff; /* Glowing element */
   transform: rotateY(180deg);
   content: "F";
 }
@@ -93,10 +95,10 @@
 }
 
 #flip-result {
-  font-size: 1.3em;
-  margin-top: 25px;
+  font-size: 1em;
+  margin-top: 15px;
   min-height: 25px;
-  color: #fff;
+  color: #00e5ff;
 }
 
 #close-turn-popup {
@@ -104,14 +106,16 @@
   padding: 12px 25px;
   border: none;
   border-radius: 50px;
-  background-color: white;
-  color: #000;
+  background-color: #00e5ff; /* Glowing blue button */
+  color: #1a1a1a; /* Dark text on bright button */
   font-size: 1.1em;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 10px #00e5ff;
 }
 
 #close-turn-popup:hover {
-  background-color: #e0e0e0;
-  color: #000;
+  background-color: #00bfff; /* Slightly darker blue on hover */
+  box-shadow: 0 0 15px #00bfff; /* Enhanced glow on hover */
+  color: #1a1a1a; /* Keep dark text */
 }

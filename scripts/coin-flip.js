@@ -40,9 +40,9 @@ function runCoinFlipAnimation(iStart) {
         setTimeout(() => {
             coinFlipPopup.style.display = 'none';
             showTurnResult(iStart);
-        }, 5000);
+        }, 1000); // Also reducing this timeout for quicker dismissal
 
-    }, 6000);
+    }, 2000);
 
     closeTurnPopupButton.addEventListener('click', () => {
         turnResultPopup.style.display = 'none';

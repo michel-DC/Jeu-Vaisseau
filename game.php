@@ -154,12 +154,9 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
         <div class="action-button-container">
             <button id="btn-magic" class="action-button" data-tooltip="Utiliser sa magie" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
         </div>
-        <div class="action-button-container">
-            <button id="btn-heal" class="action-button" data-tooltip="Recharger sa vie" disabled><i class="fas fa-heart-pulse"></i></button>
-        </div>
     </div>
 
-    <!-- Popup Pile ou Face -->
+     <!-- Popup Pile ou Face -->
     <div id="coin-flip-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">
             <h2>Pile ou Face</h2>

@@ -14,12 +14,14 @@
 }
 
 .popup-content {
-  background-color: #1a1a1a;
-  padding: 30px 50px;
+  background-color: rgba(26, 26, 26, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 15px 25px;
   border-radius: 10px;
   text-align: center;
   border: 2px solid white;
-  max-width: 500px;
+  max-width: 250px;
   width: 90%;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
 }
@@ -27,20 +29,20 @@
 .popup-content h2 {
   font-family: "Poppins", sans-serif;
   color: white;
-  margin-bottom: 20px;
-  font-size: 2.2em;
-}
-
-#player-assignments {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-size: 1.1em;
 }
 
+#player-assignments {
+  margin-bottom: 10px;
+  font-size: 0.6em;
+}
+
 #coin-container {
-  width: 120px;
-  height: 120px;
+  width: 60px;
+  height: 60px;
   perspective: 1000px;
-  margin: 20px auto;
+  margin: 10px auto;
 }
 
 #coin {
@@ -58,14 +60,14 @@
 .side-a,
 .side-b {
   position: absolute;
-  width: 120px;
-  height: 120px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   backface-visibility: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.8em;
+  font-size: 0.9em;
   font-weight: bold;
   border: 2px solid white;
 }
@@ -93,21 +95,21 @@
 }
 
 #flip-result {
-  font-size: 1.3em;
-  margin-top: 25px;
-  min-height: 25px;
+  font-size: 0.7em;
+  margin-top: 12px;
+  min-height: 12px;
   color: #fff;
 }
 
 #close-turn-popup,
 #return-menu-button {
-  margin-top: 30px;
-  padding: 12px 25px;
+  margin-top: 15px;
+  padding: 6px 12px;
   border: none;
   border-radius: 50px;
   background-color: white;
   color: #000;
-  font-size: 1.1em;
+  font-size: 0.6em;
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
 }

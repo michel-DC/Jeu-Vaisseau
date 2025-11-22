@@ -255,13 +255,6 @@ $stmt_update = mysqli_prepare($link, "UPDATE game_state SET
 
 $nouv_modif = $vaisseau->getModificateurDegatsInfliges();
 
-// Ajouter le message à la narration
-$sql_narrate = "INSERT INTO narration_events (partie_id, message) VALUES (?, ?)";
-$stmt_narrate = mysqli_prepare($link, $sql_narrate);
-mysqli_stmt_bind_param($stmt_narrate, "ss", $partie_id_session, $message_resultat);
-mysqli_stmt_execute($stmt_narrate);
-mysqli_stmt_close($stmt_narrate);
-
 mysqli_stmt_bind_param($stmt_update, "siidss", 
     $nouveaux_drones_json, 
     $nouv_hp, 

@@ -84,7 +84,7 @@ if ($new_pos !== $current_pos) {
 
     if ($success) {
         $dir = $direction === 'forward' ? 'avance' : 'recule';
-        $narration_msg = "{$joueur_role} se déplace: {$dir}";
+        $narration_msg = "MOVE:{$joueur_role}:Vous {$dir}z.";
         $sql_narrate = "INSERT INTO narration_events (partie_id, message) VALUES (?, ?)";
         $stmt_narrate = mysqli_prepare($link, $sql_narrate);
         mysqli_stmt_bind_param($stmt_narrate, "ss", $partie_id, $narration_msg);

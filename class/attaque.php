@@ -39,8 +39,7 @@ class Attaque
         $degatsInfliges = floor($degatsInfliges);
         $defenseur->recevoirDegats($degatsInfliges);
         
-        // Format: ATTACK:attaquant_role:degats:defenseur_hp
-        $narration = "ATTACK:{$attaquant->getNom()}:{$degatsInfliges}:{$defenseur->getPointDeVie()}";
+        $narration = "Vous avez infligé {$degatsInfliges} dégâts à l'adversaire.";
 
 
         return [

@@ -136,6 +136,9 @@ $defenseurVaisseau->setCooldownAttaqueSpeciale($defenseurData['cooldown_attaque_
 $attaque = new Attaque();
 $resultatAttaque = $attaque->tirer($attaquantVaisseau, $defenseurVaisseau);
 
+// Ajouter le rôle du joueur au début du message pour personnalisation côté client
+$resultatAttaque['message'] = "ATTACK:{$attaquant_role}:" . $resultatAttaque['message'];
+
 $joueur_suivant_id = ($game_state['joueur1_id'] === $attaquant_id) ? $game_state['joueur2_id'] : $game_state['joueur1_id'];
 
 

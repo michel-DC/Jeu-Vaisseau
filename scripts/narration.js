@@ -52,16 +52,20 @@ function parseAndTranslateNarration(rawMessage) {
     return message;
   }
 
-  // Format ATTACK:attaquant_role:degats:defenseur_hp
-  if (parts.length > 1 && parts[0] === "ATTACK") {
-    const [, attaquantRole, degats, defenseurHp] = parts;
-    const isMyAttack = attaquantRole === myRole;
-    const attaquant = isMyAttack ? "Vous" : "L'adversaire";
-    const defenseur = isMyAttack ? "l'adversaire" : "vous";
-    const verb = isMyAttack ? "avez infligé" : "a infligé";
-    return `${attaquant} ${verb} ${degats} dégâts à ${defenseur}. ${
-      isMyAttack ? "L'adversaire a" : "Vous avez"
-    } ${defenseurHp} PV restants.`;
+  // Format ATTACK:joueur_role:message_complet
+  if (parts.length > 2 && parts[0] === "ATTACK") {
+    const [, attackerRole, ...messageParts] = parts;
+    const message = messageParts.join(":");
+    const isMyAttack = attackerRole === myRole;
+
+    // Remplacer "Vous" et "l'adversaire" selon qui attaque
+    if (!isMyAttack) {
+      return message
+        .replace(/Vous avez/g, "L'adversaire a")
+        .replace(/l'adversaire/g, "vous")
+        .replace(/L'adversaire a/g, "L'adversaire a");
+    }
+    return message;
   }
 
   // Format DRONE_ATTACK:joueur_role:multiplicateur
@@ -103,19 +107,17 @@ function parseAndTranslateNarration(rawMessage) {
     }
   }
 
-  // Format MOVE:player:direction
-  if (parts.length > 1 && parts[0] === "MOVE") {
-    const [, player, direction] = parts;
-    const isMyAction = player === myRole;
-    const who = isMyAction ? "Vous" : "L'adversaire";
-    const verb = isMyAction
-      ? direction === "avance"
-        ? "avancez"
-        : "reculez"
-      : direction === "avance"
-      ? "avance"
-      : "recule";
-    return `${who} ${verb}.`;
+  // Format MOVE:joueur_role:message_complet
+  if (parts.length > 2 && parts[0] === "MOVE") {
+    const [, playerRole, ...messageParts] = parts;
+    const message = messageParts.join(":");
+    const isMyMove = playerRole === myRole;
+
+    // Remplacer "Vous" par "L'adversaire" si ce n'est pas notre mouvement
+    if (!isMyMove) {
+      return message.replace(/Vous/g, "L'adversaire");
+    }
+    return message;
   }
 
   return rawMessage;

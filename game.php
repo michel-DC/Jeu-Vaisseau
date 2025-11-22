@@ -201,6 +201,15 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
         </div>
     </div>
 
+        <!-- Popup Erreur -->
+    <div id="error-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <h2>⚠️ Erreur</h2>
+            <p id="error-message"></p>
+            <button id="close-error-popup">OK</button>
+        </div>
+    </div>
+
     <!-- Popup Fin de Jeu -->
     <div id="game-over-popup" class="popup-overlay" style="display: none;">
         <div class="popup-content">

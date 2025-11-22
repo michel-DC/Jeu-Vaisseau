@@ -231,8 +231,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!response.erreur) {
           // Check for server-side errors
           if (response.message) {
-            // Le message est déjà ajouté à la BDD par l'API
-            // Il sera récupéré via fetchNarrationEvents()
+            addNarrationEvent(response.message); // Envoyer à la BDD via l'API
           }
 
           const attackerShip = document.getElementById("my-ship");
@@ -468,21 +467,49 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Résultat du lancer de drone:", response);
         if (response.success) {
           if (response.message) {
-            // Le message est déjà ajouté à la BDD par l'API, pas besoin de l'ajouter à nouveau
-            // Il sera récupéré via fetchNarrationEvents()
+            addNarrationEvent(response.message); // Envoyer à la BDD via l'API
           }
 
           const myShip = document.getElementById("my-ship");
           triggerDroneAnimation(myShip, droneType);
         } else if (response.erreur) {
-          addLocalNarrationEvent(response.erreur);
+          // Afficher un popup d'erreur
+          showErrorPopup(response.erreur);
         }
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Erreur lors du lancer de drone:", errorThrown);
-        addLocalNarrationEvent("Erreur réseau lors du lancer de drone.");
+
+        // Essayer de parser la réponse JSON pour afficher l'erreur
+        try {
+          const errorResponse = JSON.parse(jqXHR.responseText);
+          if (errorResponse.erreur) {
+            showErrorPopup(errorResponse.erreur);
+          } else {
+            showErrorPopup("Erreur réseau lors du lancer de drone.");
+          }
+        } catch (e) {
+          showErrorPopup("Erreur réseau lors du lancer de drone.");
+        }
       },
     });
+  }
+
+  function showErrorPopup(message) {
+    const errorPopup = document.getElementById("error-popup");
+    const errorMessage = document.getElementById("error-message");
+    const closeButton = document.getElementById("close-error-popup");
+
+    if (errorPopup && errorMessage) {
+      errorMessage.textContent = message;
+      errorPopup.style.display = "flex";
+
+      if (closeButton) {
+        closeButton.onclick = function () {
+          errorPopup.style.display = "none";
+        };
+      }
+    }
   }
 
   function triggerDroneAnimation(shipElement, droneType) {

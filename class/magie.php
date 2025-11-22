@@ -5,34 +5,59 @@ require_once 'magicien.php';
 
 class Magie
 {
-    public function lancerSort(Magicien $magicien, Vaisseau $cible)
+    public function lancerSort(Magicien $magicien, Vaisseau $cible, Vaisseau $lanceur)
     {
+        if ($magicien->getMana() === 0) {
+            return "Le magicien n'a plus de mana et ne peut pas lancer de sort.";
+        }
+
         $puissanceMagie = $magicien->getPuissance();
-        $chanceSucces = 50 + ($puissanceMagie / 2);
 
-        if (mt_rand(1, 100) > $chanceSucces) {
-            return "Le magicien a échoué à canaliser son énergie...";
+        if ($cible->getPointDeVie() > (50 * $puissanceMagie)) {
+            return "La cible a trop de PV pour que le sort soit efficace (seuil : " . (50 * $puissanceMagie) . " PV).";
         }
 
-        $choixEffet = mt_rand(1, 4); // 1/4 chance pour stun, 3/4 pour DoT
+        $magicien->utiliserMana(); // Magicien perd tout son mana après usage
 
-        // effet qui empêche l'adversaire de jouer au prochain tour 
-        if ($choixEffet === 1) {
-            $effetStun = [
-                'type' => 'stun',
-                'duration' => 1,
+        $chance = mt_rand(1, 99); // 33% pour chaque sort
+
+        $message = "";
+        if ($chance <= 33) {
+            // Sort de poison
+            $degatsPoison = 10 * $puissanceMagie;
+            $effetPoison = [
+                'type' => 'poison',
+                'damage' => $degatsPoison,
+                'duration' => -1, // jusqu'à la fin du jeu
             ];
-            $cible->appliquerEffet($effetStun);
-            return "Le magicien étourdit l'adversaire, l'empêchant de jouer au prochain tour !";
-            // effet qui inflige 10 de dégâts pendant 4 tours
+            $cible->appliquerEffet($effetPoison);
+            $message = "Le magicien a lancé un sort de poison ! La cible subira " . $degatsPoison . " dégâts par tour.";
+        } elseif ($chance <= 66) {
+            // Sort de soin
+            $soinParTour = 10 * $puissanceMagie;
+            $effetSoin = [
+                'type' => 'soin',
+                'amount' => $soinParTour,
+                'duration' => -1, // jusqu'à la fin du jeu
+            ];
+            $lanceur->appliquerEffet($effetSoin);
+            $message = "Le magicien a lancé un sort de soin ! Le lanceur récupérera " . $soinParTour . " PV par tour.";
         } else {
-            $effetDot = [
-                'type' => 'dot',
-                'damage' => 10,
-                'duration' => 4,
-            ];
-            $cible->appliquerEffet($effetDot);
-            return "Le magicien inflige 10 dégâts à l'adversaire pendant 4 tours !";
+            // Sort de paralysie
+            $chanceParalysie = (1 / 5) * ($puissanceMagie / 5) * 100; // Probabilité multipliée par puissance/5
+            if (mt_rand(1, 100) <= $chanceParalysie) {
+                $effetParalysie = [
+                    'type' => 'paralysie',
+                    'duration' => 5,
+                    'chance' => $chanceParalysie,
+                ];
+                $cible->appliquerEffet($effetParalysie);
+                $message = "Le magicien a lancé un sort de paralysie ! La cible a une chance de bloquer son action durant 5 tours.";
+            } else {
+                $message = "Le magicien a tenté un sort de paralysie, mais cela n'a pas fonctionné.";
+            }
         }
+
+        return $message;
     }
 }

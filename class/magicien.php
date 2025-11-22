@@ -6,7 +6,7 @@ class Magicien
   private $mana;
   private $puissance;
 
-  public function __construct($nom, $mana, $puissance)
+  public function __construct($nom, $mana = 1, $puissance)
   {
     $this->nom = $nom;
     $this->mana = $mana;
@@ -28,14 +28,13 @@ class Magicien
     return $this->puissance;
   }
 
-  public function agir()
+  public function restaurerMana()
   {
-    return "$this->nom lance un sort avec $this->puissance de puissance.";
+    $this->mana = 1;
   }
 
-  public function mediter()
+  public function utiliserMana()
   {
-    $this->mana += 10;
-    return "$this->nom médite et récupère du mana. Mana actuel : $this->mana.";
+    $this->mana = 0;
   }
 }

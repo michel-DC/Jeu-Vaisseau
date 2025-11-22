@@ -6,11 +6,13 @@ require_once './drone.php';
 class Vaisseau
 {
     private $nom;
-    private $magicien;
+    private $magicienActuel;
 
     private $position;
     private $pointDeVie;
     private $puissanceDeTir;
+    private $maxPuissanceDeTir;
+    private $attaquesConsecutivesSansTirer;
     private $drones = [];
 
     private $cooldown_attaque_speciale = 0;
@@ -21,17 +23,27 @@ class Vaisseau
     public function __construct($nom)
     {
         $this->nom = $nom;
-        $this->magicien = new Magicien("Merlin", 100, 30);
-        $this->position = ['x' => 0, 'y' => 0];
+        $this->magicienActuel = new Magicien("Merlin", 1, 1);
+        $this->position = 2;
         $this->pointDeVie = 1000;
-        $this->puissanceDeTir = 50;
+        $this->puissanceDeTir = 100;
+        $this->maxPuissanceDeTir = 100;
+        $this->attaquesConsecutivesSansTirer = 0;
+        $this->drones[] = new Drone('reconnaissance', $this->position);
+        $this->drones[] = new Drone('reconnaissance', $this->position);
+        $this->drones[] = new Drone('attaque', $this->position);
     }
 
     // --- Getters et Setters ---
 
-    public function getMagicien()
+    public function setMagicienActuel($magicien)
     {
-        return $this->magicien;
+        $this->magicienActuel = $magicien;
+    }
+
+    public function getMagicienActuel()
+    {
+        return $this->magicienActuel;
     }
 
     public function getCooldownAttaqueSpeciale()
@@ -82,6 +94,31 @@ class Vaisseau
     public function getPosition()
     {
         return $this->position;
+    }
+
+    public function setPosition($position)
+    {
+        $this->position = $position;
+    }
+
+    public function getMaxPuissanceDeTir()
+    {
+        return $this->maxPuissanceDeTir;
+    }
+
+    public function setMaxPuissanceDeTir($maxPuissanceDeTir)
+    {
+        $this->maxPuissanceDeTir = $maxPuissanceDeTir;
+    }
+
+    public function getAttaquesConsecutivesSansTirer()
+    {
+        return $this->attaquesConsecutivesSansTirer;
+    }
+
+    public function setAttaquesConsecutivesSansTirer($attaquesConsecutivesSansTirer)
+    {
+        $this->attaquesConsecutivesSansTirer = $attaquesConsecutivesSansTirer;
     }
 
     public function getDrones()
@@ -148,10 +185,20 @@ class Vaisseau
         }
     }
 
-    public function deplacer($x, $y)
+    public function deplacer($direction)
     {
-        $this->position['x'] = $x;
-        $this->position['y'] = $y;
+        $nouvellePosition = $this->position;
+        if ($direction === 'gauche') {
+            $nouvellePosition--;
+        } elseif ($direction === 'droite') {
+            $nouvellePosition++;
+        }
+
+        if ($nouvellePosition >= 1 && $nouvellePosition <= 3) {
+            $this->position = $nouvellePosition;
+            return "Déplacement réussi. Nouvelle position : " . $this->position;
+        }
+        return "Déplacement impossible. Le vaisseau est déjà à la limite ou la direction est invalide.";
     }
 
     public function recevoirDegats($quantite)
@@ -162,14 +209,21 @@ class Vaisseau
         }
     }
 
-    public function lancerDrone($type)
+    public function recharger()
     {
-        $coutEnergie = 25;
-        if ($this->pointDeVie >= $coutEnergie) {
-            $this->pointDeVie -= $coutEnergie;
-            $nouveauDrone = new Drone($type, $this->position);
-            $this->drones[] = $nouveauDrone;
-            return $nouveauDrone;
+        $this->magicienActuel->restaurerMana();
+        $this->drones[] = new Drone('reconnaissance', $this->position);
+        $this->drones[] = new Drone('attaque', $this->position);
+        return "Le vaisseau a été rechargé. Mana du magicien restaurée et 1 drone de reconnaissance et 1 drone d'attaque ajoutés.";
+    }
+
+    public function lancerDrone($index)
+    {
+        if (isset($this->drones[$index])) {
+            $drone = $this->drones[$index];
+            unset($this->drones[$index]);
+            $this->drones = array_values($this->drones);
+            return $drone;
         }
         return false;
     }

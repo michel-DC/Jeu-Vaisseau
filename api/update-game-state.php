@@ -10,8 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $partie_id = $_SESSION['partie_id'] ?? null;
 $duree_partie = $_POST['duree_partie'] ?? null;
-// $joueur1_hp = $_POST['joueur1_hp'] ?? null; 
-// $joueur2_hp = $_POST['joueur2_hp'] ?? null;
 
 if (!$partie_id) {
     http_response_code(400);

@@ -48,13 +48,13 @@ class Drone
     {
         if ($this->type === 'attaque') {
             $chance = mt_rand(1, 100);
-            if ($chance <= 50) { // 50% buff ×1.5
+            if ($chance <= 50) {
                 $vaisseauLanceur->setModificateurDegatsInfliges(1.5);
                 return "Le drone d'attaque a trouvé une faille ! Votre prochaine attaque infligera 1.5x dégâts.";
-            } elseif ($chance <= 70) { // 20% aucun effet (50+20)
+            } elseif ($chance <= 70) {
                 $vaisseauLanceur->setModificateurDegatsInfliges(1.0);
                 return "Le drone d'attaque n'a rien trouvé d'exceptionnel. Attaque normale.";
-            } else { // 30% buff ×2 (70+30)
+            } else {
                 $vaisseauLanceur->setModificateurDegatsInfliges(2.0);
                 return "Le drone d'attaque a trouvé une énorme faille ! Votre prochaine attaque infligera 2x dégâts.";
             }
@@ -63,32 +63,32 @@ class Drone
             $message = "";
 
             $vieActuelle = $vaisseauLanceur->getPointDeVie();
-            $maxVie = 1000; // Assuming max life is 1000, consistent with Vaisseau class
+            $maxVie = 1000;
 
             if ($vieActuelle >= $maxVie) {
-                // Life is full, remove healing probability, adjust others to 50/50
+                
                 $adjustedChance = mt_rand(1, 2);
-                if ($adjustedChance === 1) { // 50% magicien
+                if ($adjustedChance === 1) {
                     $puissanceMagicien = mt_rand(2, 5);
                     $nouveauMagicien = new Magicien("Nouveau Sage", 1, $puissanceMagicien);
-                    $vaisseauLanceur->setMagicienActuel($nouveauMagicien); // Assuming setter exists
+                    $vaisseauLanceur->setMagicienActuel($nouveauMagicien);
                     $message = "Le drone de reconnaissance a trouvé un magicien plus puissant (Puissance: " . $puissanceMagicien . ") ! Il remplace votre ancien magicien.";
-                } else { // 50% canon
+                } else {
                     $nouvellePuissanceTir = mt_rand(80, 170);
                     $vaisseauLanceur->setPuissanceDeTir($nouvellePuissanceTir);
                     $message = "Le drone a trouvé un meilleur canon ! Votre puissance de tir est maintenant de " . $nouvellePuissanceTir . ".";
                 }
             } else {
-                if ($chance <= 33) { // 33% magicien
+                if ($chance <= 33) {
                     $puissanceMagicien = mt_rand(2, 5);
                     $nouveauMagicien = new Magicien("Nouveau Sage", 1, $puissanceMagicien);
-                    $vaisseauLanceur->setMagicienActuel($nouveauMagicien); // Assuming setter exists
+                    $vaisseauLanceur->setMagicienActuel($nouveauMagicien);
                     $message = "Le drone de reconnaissance a trouvé un magicien plus puissant (Puissance: " . $puissanceMagicien . ") ! Il remplace votre ancien magicien.";
-                } elseif ($chance <= 66) { // 33% canon (33+33)
+                } elseif ($chance <= 66) {
                     $nouvellePuissanceTir = mt_rand(80, 170);
                     $vaisseauLanceur->setPuissanceDeTir($nouvellePuissanceTir);
                     $message = "Le drone a trouvé un meilleur canon ! Votre puissance de tir est maintenant de " . $nouvellePuissanceTir . ".";
-                } else { // 33% soin (66+33)
+                } else {
                     $soin = floor($maxVie / 10);
                     $vaisseauLanceur->recevoirSoins($soin);
                     $message = "Le drone a trouvé une étoile de soin ! Votre vaisseau a récupéré " . $soin . " points de vie.";

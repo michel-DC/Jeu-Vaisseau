@@ -21,7 +21,6 @@ if (empty($vaisseau_url)) {
     exit();
 }
 
-// Simple validation pour s'assurer que le chemin est plausible
 if (strpos($vaisseau_url, 'assets/vaisseaux/') !== 0) {
     $response['message'] = 'Chemin de vaisseau invalide.';
     echo json_encode($response);

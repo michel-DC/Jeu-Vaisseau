@@ -17,34 +17,34 @@ class Magie
             return "La cible a trop de PV pour que le sort soit efficace (seuil : " . (50 * $puissanceMagie) . " PV).";
         }
 
-        $magicien->utiliserMana(); // Magicien perd tout son mana après usage
+        $magicien->utiliserMana();
 
-        $chance = mt_rand(1, 99); // 33% pour chaque sort
+        $chance = mt_rand(1, 99);
 
         $message = "";
         if ($chance <= 33) {
-            // Sort de poison
+            
             $degatsPoison = 10 * $puissanceMagie;
             $effetPoison = [
                 'type' => 'poison',
                 'damage' => $degatsPoison,
-                'duration' => -1, // jusqu'à la fin du jeu
+                'duration' => -1,
             ];
             $cible->appliquerEffet($effetPoison);
             $message = "Le magicien a lancé un sort de poison ! La cible subira " . $degatsPoison . " dégâts par tour.";
         } elseif ($chance <= 66) {
-            // Sort de soin
+            
             $soinParTour = 10 * $puissanceMagie;
             $effetSoin = [
                 'type' => 'soin',
                 'amount' => $soinParTour,
-                'duration' => -1, // jusqu'à la fin du jeu
+                'duration' => -1,
             ];
             $lanceur->appliquerEffet($effetSoin);
             $message = "Le magicien a lancé un sort de soin ! Le lanceur récupérera " . $soinParTour . " PV par tour.";
         } else {
-            // Sort de paralysie
-            $chanceParalysie = (1 / 5) * ($puissanceMagie / 5) * 100; // Probabilité multipliée par puissance/5
+            
+            $chanceParalysie = (1 / 5) * ($puissanceMagie / 5) * 100;
             if (mt_rand(1, 100) <= $chanceParalysie) {
                 $effetParalysie = [
                     'type' => 'paralysie',

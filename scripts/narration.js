@@ -53,19 +53,23 @@ function parseAndTranslateNarration(rawMessage) {
   return rawMessage;
 }
 
+let lastRenderedEventId = 0; // Garde la trace du dernier ID d'événement rendu
+
 function renderNarrationEvents(events) {
   const eventsContainer = document.getElementById("narration-events");
   if (!eventsContainer) return;
 
-  eventsContainer.innerHTML = "";
+  // Filtrer les événements pour n'ajouter que les nouveaux
+  const newEvents = events.filter(event => event.event_id > lastRenderedEventId);
 
-  events.forEach((event) => {
+  newEvents.forEach((event) => {
     const message = parseAndTranslateNarration(event.message);
     if (message) {
       const eventDiv = document.createElement("div");
       eventDiv.className = "narration-event";
       eventDiv.innerHTML = `<span class="timestamp">[${event.time}]</span> <span class="message">${message}</span>`;
       eventsContainer.appendChild(eventDiv);
+      lastRenderedEventId = Math.max(lastRenderedEventId, event.event_id); // Mettre à jour le dernier ID rendu
     }
   });
 

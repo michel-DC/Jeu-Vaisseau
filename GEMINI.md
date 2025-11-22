@@ -51,7 +51,19 @@ This project does not appear to have explicit build scripts or commands. It is a
           joueur1_choix_vaisseau VARCHAR(255) DEFAULT NULL,
           joueur2_choix_vaisseau VARCHAR(255) DEFAULT NULL,
           premier_joueur VARCHAR(255) DEFAULT NULL,
+          joueur_actuel VARCHAR(255),
+          joueur1_position INT DEFAULT 1,
+          joueur2_position INT DEFAULT 3,
+          created_at TIMESTAMP,
           FOREIGN KEY (partie_id) REFERENCES parties(partie_id)
+      );
+
+      CREATE TABLE narration_events (
+        event_id INT PRIMARY KEY,
+        partie_id INT,
+        message TEXT,
+        timestamp TIMESTAMP,
+        FOREIGN KEY (partie_id) REFERENCES parties(partie_id)
       );
       ```
 

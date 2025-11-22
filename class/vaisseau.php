@@ -1,7 +1,7 @@
 <?php
 
-require_once './magicien.php';
-require_once './drone.php';
+require_once __DIR__ . '/magicien.php';
+require_once __DIR__ . '/drone.php';
 
 class Vaisseau
 {
@@ -34,7 +34,7 @@ class Vaisseau
         $this->drones[] = new Drone('attaque', $this->position);
     }
 
-    // --- Getters et Setters ---
+    
 
     public function setMagicienActuel($magicien)
     {
@@ -84,6 +84,11 @@ class Vaisseau
     public function setNom($nouveauNom)
     {
         $this->nom = $nouveauNom;
+    }
+
+    public function setPointDeVie($pointDeVie)
+    {
+        $this->pointDeVie = $pointDeVie;
     }
 
     public function getPointDeVie()
@@ -136,7 +141,7 @@ class Vaisseau
         $this->puissanceDeTir = $nouvellePuissance;
     }
 
-    // --- Gestion des effets de statut ---
+    
 
     public function appliquerEffet($effet)
     {

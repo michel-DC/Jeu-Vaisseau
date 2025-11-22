@@ -14,34 +14,33 @@
 }
 
 .popup-content {
-  background: linear-gradient(145deg, #0a0a1a, #1a0a2a); /* Space-like gradient */
-  padding: 15px 25px;
+  background-color: #1a1a1a;
+  padding: 30px 50px;
   border-radius: 10px;
   text-align: center;
-  border: 2px solid #00ffff; /* Glowing border */
-  max-width: 250px;
+  border: 2px solid white;
+  max-width: 500px;
   width: 90%;
-  box-shadow: 0 0 15px #00ffff, inset 0 0 5px #00ffff; /* Inner and outer glow */
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
 }
 
 .popup-content h2 {
   font-family: "Poppins", sans-serif;
-  color: #00e5ff;
-  margin-bottom: 10px;
-  font-size: 1.2em;
+  color: white;
+  margin-bottom: 20px;
+  font-size: 2.2em;
 }
 
 #player-assignments {
-  margin-bottom: 10px;
-  font-size: 0.9em;
-  color: #a0a0a0;
+  margin-bottom: 20px;
+  font-size: 1.1em;
 }
 
 #coin-container {
-  width: 60px;
-  height: 60px;
+  width: 120px;
+  height: 120px;
   perspective: 1000px;
-  margin: 10px auto;
+  margin: 20px auto;
 }
 
 #coin {
@@ -53,34 +52,33 @@
 }
 
 #coin.flipping {
-  animation: spin 2s forwards;
+  animation: spin 6s forwards;
 }
 
 .side-a,
 .side-b {
   position: absolute;
-  width: 60px;
-  height: 60px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   backface-visibility: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1em;
+  font-size: 1.8em;
   font-weight: bold;
-  border: 2px solid #00e5ff; /* Glowing metallic edge */
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6); /* Subtle glow */
+  border: 2px solid white;
 }
 
 .side-a {
-  background-color: #c0c0c0; /* Silver/chrome */
-  color: #333;
+  background-color: #ffd700;
+  color: #4d2c02;
   content: "P";
 }
 
 .side-b {
-  background-color: #4a4a4a; /* Darker metal */
-  color: #00e5ff; /* Glowing element */
+  background-color: #c0c0c0;
+  color: #333;
   transform: rotateY(180deg);
   content: "F";
 }
@@ -95,27 +93,27 @@
 }
 
 #flip-result {
-  font-size: 1em;
-  margin-top: 15px;
+  font-size: 1.3em;
+  margin-top: 25px;
   min-height: 25px;
-  color: #00e5ff;
+  color: #fff;
 }
 
-#close-turn-popup {
+#close-turn-popup,
+#return-menu-button {
   margin-top: 30px;
   padding: 12px 25px;
   border: none;
   border-radius: 50px;
-  background-color: #00e5ff; /* Glowing blue button */
-  color: #1a1a1a; /* Dark text on bright button */
+  background-color: white;
+  color: #000;
   font-size: 1.1em;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 0 10px #00e5ff;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-#close-turn-popup:hover {
-  background-color: #00bfff; /* Slightly darker blue on hover */
-  box-shadow: 0 0 15px #00bfff; /* Enhanced glow on hover */
-  color: #1a1a1a; /* Keep dark text */
+#close-turn-popup:hover,
+#return-menu-button:hover {
+  background-color: #e0e0e0;
+  color: #000;
 }

@@ -28,14 +28,82 @@ function addLocalNarrationEvent(localMessage) {
   const eventDiv = document.createElement("div");
   eventDiv.className = "narration-event local-feedback";
   eventDiv.innerHTML = `<span class="timestamp">[${time}]</span> <span class="message" style="color: #ffcc00;">${localMessage}</span>`;
-  eventsContainer.appendChild(eventDiv);
-  eventsContainer.scrollTop = eventsContainer.scrollHeight;
+  eventsContainer.prepend(eventDiv);
 }
 
 function parseAndTranslateNarration(rawMessage) {
   const myRole = initialGameState.joueurRole;
 
   const parts = rawMessage.split(":");
+
+  // Format DRONE:joueur_role:message_complet
+  if (parts.length > 2 && parts[0] === "DRONE") {
+    const [, droneOwnerRole, ...messageParts] = parts;
+    const message = messageParts.join(":");
+    const isMyDrone = droneOwnerRole === myRole;
+
+    // Remplacer "Votre drone" par "Le drone de l'adversaire" si ce n'est pas le nôtre
+    if (!isMyDrone) {
+      return message
+        .replace(/Votre drone/g, "Le drone de l'adversaire")
+        .replace(/Votre/g, "Sa")
+        .replace(/votre/g, "son");
+    }
+    return message;
+  }
+
+  // Format ATTACK:attaquant_role:degats:defenseur_hp
+  if (parts.length > 1 && parts[0] === "ATTACK") {
+    const [, attaquantRole, degats, defenseurHp] = parts;
+    const isMyAttack = attaquantRole === myRole;
+    const attaquant = isMyAttack ? "Vous" : "L'adversaire";
+    const defenseur = isMyAttack ? "l'adversaire" : "vous";
+    const verb = isMyAttack ? "avez infligé" : "a infligé";
+    return `${attaquant} ${verb} ${degats} dégâts à ${defenseur}. ${
+      isMyAttack ? "L'adversaire a" : "Vous avez"
+    } ${defenseurHp} PV restants.`;
+  }
+
+  // Format DRONE_ATTACK:joueur_role:multiplicateur
+  if (parts.length > 2 && parts[0] === "DRONE_ATTACK") {
+    const [, droneOwnerRole, multiplicateur] = parts;
+    const isMyDrone = droneOwnerRole === myRole;
+    const droneOwner = isMyDrone ? "Votre" : "Le drone de l'adversaire";
+
+    if (multiplicateur === "1.5") {
+      return `${droneOwner} drone d'attaque a trouvé une faille ! ${
+        isMyDrone ? "Votre" : "Sa"
+      } prochaine attaque infligera 1.5x dégâts.`;
+    } else if (multiplicateur === "1.0") {
+      return `${droneOwner} drone d'attaque n'a rien trouvé d'exceptionnel. Attaque normale.`;
+    } else if (multiplicateur === "2.0") {
+      return `${droneOwner} drone d'attaque a trouvé une énorme faille ! ${
+        isMyDrone ? "Votre" : "Sa"
+      } prochaine attaque infligera 2x dégâts.`;
+    }
+  }
+
+  // Format DRONE_RECON:joueur_role:type:valeur
+  if (parts.length > 3 && parts[0] === "DRONE_RECON") {
+    const [, droneOwnerRole, type, valeur] = parts;
+    const isMyDrone = droneOwnerRole === myRole;
+    const droneOwner = isMyDrone ? "Votre" : "Le";
+    const possessif = isMyDrone ? "votre" : "son";
+
+    if (type === "magicien") {
+      return `${droneOwner} drone de reconnaissance a trouvé un magicien plus puissant (Puissance: ${valeur}) ! Il remplace ${possessif} ancien magicien.`;
+    } else if (type === "canon") {
+      return `${droneOwner} drone a trouvé un meilleur canon ! ${
+        isMyDrone ? "Votre" : "Sa"
+      } puissance de tir est maintenant de ${valeur}.`;
+    } else if (type === "soin") {
+      return `${droneOwner} drone a trouvé une étoile de soin ! ${
+        isMyDrone ? "Votre" : "Son"
+      } vaisseau a récupéré ${valeur} points de vie.`;
+    }
+  }
+
+  // Format MOVE:player:direction
   if (parts.length > 1 && parts[0] === "MOVE") {
     const [, player, direction] = parts;
     const isMyAction = player === myRole;
@@ -59,21 +127,20 @@ function renderNarrationEvents(events) {
   const eventsContainer = document.getElementById("narration-events");
   if (!eventsContainer) return;
 
-  // Filtrer les événements pour n'ajouter que les nouveaux
-  const newEvents = events.filter(event => event.event_id > lastRenderedEventId);
+  const newEvents = events.filter(
+    (event) => event.event_id > lastRenderedEventId
+  );
 
-  newEvents.forEach((event) => {
+  newEvents.reverse().forEach((event) => {
     const message = parseAndTranslateNarration(event.message);
     if (message) {
       const eventDiv = document.createElement("div");
       eventDiv.className = "narration-event";
       eventDiv.innerHTML = `<span class="timestamp">[${event.time}]</span> <span class="message">${message}</span>`;
-      eventsContainer.appendChild(eventDiv);
-      lastRenderedEventId = Math.max(lastRenderedEventId, event.event_id); // Mettre à jour le dernier ID rendu
+      eventsContainer.prepend(eventDiv);
+      lastRenderedEventId = Math.max(lastRenderedEventId, event.event_id);
     }
   });
-
-  eventsContainer.scrollTop = eventsContainer.scrollHeight;
 }
 
 function fetchNarrationEvents() {

@@ -41,7 +41,7 @@ $partie_id = $partie_id_session;
 
 $link = connexionDB();
 
-$sql_game_state = "SELECT p.joueur1_id, p.joueur2_id, gs.joueur1_hp, gs.joueur2_hp, gs.joueur1_position, gs.joueur2_position, gs.joueur1_puissance_tir, gs.joueur2_puissance_tir, gs.joueur1_max_puissance_tir, gs.joueur2_max_puissance_tir, gs.joueur1_attaques_sans_tirer, gs.joueur2_attaques_sans_tirer, gs.joueur1_cooldown_attaque_speciale, gs.joueur2_cooldown_attaque_speciale, gs.joueur_actuel, gs.joueur1_action_faite, gs.joueur2_action_faite, gs.joueur1_a_bouge, gs.joueur2_a_bouge FROM parties p JOIN game_state gs ON p.partie_id = gs.partie_id WHERE p.partie_id = ?";
+$sql_game_state = "SELECT p.joueur1_id, p.joueur2_id, gs.joueur1_hp, gs.joueur2_hp, gs.joueur1_position, gs.joueur2_position, gs.joueur1_puissance_tir, gs.joueur2_puissance_tir, gs.joueur1_max_puissance_tir, gs.joueur2_max_puissance_tir, gs.joueur1_attaques_sans_tirer, gs.joueur2_attaques_sans_tirer, gs.joueur1_cooldown_attaque_speciale, gs.joueur2_cooldown_attaque_speciale, gs.joueur1_damage_multiplier, gs.joueur2_damage_multiplier, gs.joueur_actuel, gs.joueur1_action_faite, gs.joueur2_action_faite, gs.joueur1_a_bouge, gs.joueur2_a_bouge FROM parties p JOIN game_state gs ON p.partie_id = gs.partie_id WHERE p.partie_id = ?";
 $stmt_game_state = mysqli_prepare($link, $sql_game_state);
 
 if ($stmt_game_state === false) {
@@ -105,6 +105,7 @@ $attaquantData['puissance_tir'] = (int)$game_state["{$attaquant_role}_puissance_
 $attaquantData['max_puissance_tir'] = (int)$game_state["{$attaquant_role}_max_puissance_tir"];
 $attaquantData['attaques_sans_tirer'] = (int)$game_state["{$attaquant_role}_attaques_sans_tirer"];
 $attaquantData['cooldown_attaque_speciale'] = (int)$game_state["{$attaquant_role}_cooldown_attaque_speciale"];
+$attaquantData['damage_multiplier'] = (float)($game_state["{$attaquant_role}_damage_multiplier"] ?? 1.0);
 
 $defenseurData['id'] = $game_state["{$defenseur_role}_id"];
 $defenseurData['hp'] = (int)$game_state["{$defenseur_role}_hp"];
@@ -122,6 +123,7 @@ $attaquantVaisseau->setPuissanceDeTir($attaquantData['puissance_tir']);
 $attaquantVaisseau->setMaxPuissanceDeTir($attaquantData['max_puissance_tir']);
 $attaquantVaisseau->setAttaquesConsecutivesSansTirer($attaquantData['attaques_sans_tirer']);
 $attaquantVaisseau->setCooldownAttaqueSpeciale($attaquantData['cooldown_attaque_speciale']);
+$attaquantVaisseau->setModificateurDegatsInfliges($attaquantData['damage_multiplier']);
 
 $defenseurVaisseau = new Vaisseau($defenseurData['id']);
 $defenseurVaisseau->setPointDeVie($defenseurData['hp']);
@@ -143,13 +145,14 @@ $types_update = "";
 $sql_update_game_state = "UPDATE game_state SET ";
 
 if ($attaquant_role === 'joueur1') {
-    $sql_update_game_state .= "joueur1_hp = ?, joueur1_puissance_tir = ?, joueur1_attaques_sans_tirer = ?, joueur1_cooldown_attaque_speciale = ?, joueur1_action_faite = 1, ";
-    $types_update .= "iiii";
+    $sql_update_game_state .= "joueur1_hp = ?, joueur1_puissance_tir = ?, joueur1_attaques_sans_tirer = ?, joueur1_cooldown_attaque_speciale = ?, joueur1_damage_multiplier = ?, joueur1_action_faite = 1, ";
+    $types_update .= "iiiid";
 
     $params_update[] = $attaquantVaisseau->getPointDeVie();
     $params_update[] = $attaquantVaisseau->getPuissanceDeTir();
     $params_update[] = $attaquantVaisseau->getAttaquesConsecutivesSansTirer();
     $params_update[] = $attaquantVaisseau->getCooldownAttaqueSpeciale();
+    $params_update[] = 1.0; // Reset damage multiplier after attack
 
     $sql_update_game_state .= "joueur2_hp = ?, joueur2_puissance_tir = ?, joueur2_attaques_sans_tirer = ?, joueur2_cooldown_attaque_speciale = ?, ";
     $types_update .= "iiii";
@@ -159,13 +162,14 @@ if ($attaquant_role === 'joueur1') {
     $params_update[] = $defenseurVaisseau->getAttaquesConsecutivesSansTirer();
     $params_update[] = $defenseurVaisseau->getCooldownAttaqueSpeciale();
 } else {
-    $sql_update_game_state .= "joueur2_hp = ?, joueur2_puissance_tir = ?, joueur2_attaques_sans_tirer = ?, joueur2_cooldown_attaque_speciale = ?, joueur2_action_faite = 1, ";
-    $types_update .= "iiii";
+    $sql_update_game_state .= "joueur2_hp = ?, joueur2_puissance_tir = ?, joueur2_attaques_sans_tirer = ?, joueur2_cooldown_attaque_speciale = ?, joueur2_damage_multiplier = ?, joueur2_action_faite = 1, ";
+    $types_update .= "iiiid";
 
     $params_update[] = $attaquantVaisseau->getPointDeVie();
     $params_update[] = $attaquantVaisseau->getPuissanceDeTir();
     $params_update[] = $attaquantVaisseau->getAttaquesConsecutivesSansTirer();
     $params_update[] = $attaquantVaisseau->getCooldownAttaqueSpeciale();
+    $params_update[] = 1.0; // Reset damage multiplier after attack
 
     $sql_update_game_state .= "joueur1_hp = ?, joueur1_puissance_tir = ?, joueur1_attaques_sans_tirer = ?, joueur1_cooldown_attaque_speciale = ?, ";
     $types_update .= "iiii";

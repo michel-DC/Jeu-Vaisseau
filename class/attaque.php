@@ -33,11 +33,14 @@ class Attaque
         $zoneDefenseur = $this->determinerZone($defenseur);
 
         $puissanceDeTirActuelle = $attaquant->getPuissanceDeTir();
-        $degatsInfliges = $puissanceDeTirActuelle;
+        $modificateur = $attaquant->getModificateurDegatsInfliges();
+        $degatsInfliges = $puissanceDeTirActuelle * $modificateur;
         
         $degatsInfliges = floor($degatsInfliges);
         $defenseur->recevoirDegats($degatsInfliges);
-        $narration = "{$attaquant->getNom()} a infligé {$degatsInfliges} dégâts depuis la zone {$zoneAttaquant} à {$defenseur->getNom()}. {$defenseur->getNom()} a {$defenseur->getPointDeVie()} PV restants.";
+        
+        // Format: ATTACK:attaquant_role:degats:defenseur_hp
+        $narration = "ATTACK:{$attaquant->getNom()}:{$degatsInfliges}:{$defenseur->getPointDeVie()}";
 
 
         return [

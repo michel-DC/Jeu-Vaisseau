@@ -82,6 +82,7 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
     <link rel="stylesheet" href="styles/coin-flip-popup.css">
     <link rel="stylesheet" href="styles/action-buttons.css">
     <link rel="stylesheet" href="styles/narration.css">
+    <link rel="stylesheet" href="styles/drone-selection.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -179,6 +180,24 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
         <div class="popup-content">
             <h2 id="turn-result-title"></h2>
             <button id="close-turn-popup">Compris</button>
+        </div>
+    </div>
+
+    <!-- Popup Sélection de Drone -->
+    <div id="drone-selection-popup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <h2>Choisir un Drone</h2>
+            <div class="drone-selection-buttons">
+                <button id="select-drone-attaque" class="drone-button">
+                    <i class="fas fa-crosshairs"></i>
+                    <span>Drone d'Attaque</span>
+                </button>
+                <button id="select-drone-reconnaissance" class="drone-button">
+                    <i class="fas fa-search"></i>
+                    <span>Drone de Reconnaissance</span>
+                </button>
+            </div>
+            <button id="cancel-drone-selection" class="cancel-button">Annuler</button>
         </div>
     </div>
 

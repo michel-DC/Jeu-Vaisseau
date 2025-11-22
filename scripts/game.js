@@ -23,7 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Fonction pour déclencher l'animation du faisceau
   function triggerBeamAnimation(attackerShipElement, defenderShipElement) {
     if (!attackerShipElement || !defenderShipElement) {
-      console.warn("Impossible de déclencher l'animation du faisceau: éléments de vaisseau manquants.");
+      console.warn(
+        "Impossible de déclencher l'animation du faisceau: éléments de vaisseau manquants."
+      );
       return;
     }
 
@@ -35,14 +37,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const gameContainerRect = gameContainer.getBoundingClientRect();
 
     // Calcul des points de départ et d'arrivée du faisceau (centre des vaisseaux)
-    const startX = attackerRect.left + attackerRect.width / 2 - gameContainerRect.left;
-    const startY = attackerRect.top + attackerRect.height / 2 - gameContainerRect.top;
-    const endX = defenderRect.left + defenderRect.width / 2 - gameContainerRect.left;
-    const endY = defenderRect.top + defenderRect.height / 2 - gameContainerRect.top;
+    const startX =
+      attackerRect.left + attackerRect.width / 2 - gameContainerRect.left;
+    const startY =
+      attackerRect.top + attackerRect.height / 2 - gameContainerRect.top;
+    const endX =
+      defenderRect.left + defenderRect.width / 2 - gameContainerRect.left;
+    const endY =
+      defenderRect.top + defenderRect.height / 2 - gameContainerRect.top;
 
     // Calcul de la distance et de l'angle
-    const distance = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
-    const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+    const distance = Math.sqrt(
+      Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
+    );
+    const angle = (Math.atan2(endY - startY, endX - startX) * 180) / Math.PI;
 
     const beam = document.createElement("div");
     beam.classList.add("beam");
@@ -119,7 +127,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const playerHpYouElement = document.getElementById("player-hp-you");
     const playerHpOtherElement = document.getElementById("player-hp-other");
 
-    console.log("Updating HP Display:", currentGameState.joueur1Hp, currentGameState.joueur2Hp);
+    console.log(
+      "Updating HP Display:",
+      currentGameState.joueur1Hp,
+      currentGameState.joueur2Hp
+    );
 
     if (currentGameState.joueurRole === "joueur1") {
       playerHpYouElement.textContent = `${currentGameState.joueur1Hp} HP`;
@@ -132,16 +144,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fonction pour mettre à jour l'état des boutons d'action
   function updateActionButtonsState() {
-    const isMyTurn = currentGameState.joueurId === currentGameState.joueurActuel;
+    const isMyTurn =
+      currentGameState.joueurId === currentGameState.joueurActuel;
     const myRole = currentGameState.joueurRole;
-    const hasMoved = currentGameState[`${myRole}ABouge`] === '1' || currentGameState[`${myRole}ABouge`] === 1;
-    const hasTakenOffensiveAction = currentGameState[`${myRole}ActionFaite`] === '1' || currentGameState[`${myRole}ActionFaite`] === 1;
+    const hasMoved =
+      currentGameState[`${myRole}ABouge`] === "1" ||
+      currentGameState[`${myRole}ABouge`] === 1;
+    const hasTakenOffensiveAction =
+      currentGameState[`${myRole}ActionFaite`] === "1" ||
+      currentGameState[`${myRole}ActionFaite`] === 1;
 
     // Disable all buttons by default
     btnForward.disabled = true;
     btnBackward.disabled = true;
     btnShoot.disabled = true;
-    // TODO: Add other action buttons here (drone, magic, heal)
+    if (btnDrone) btnDrone.disabled = true;
 
     if (isMyTurn) {
       // Movement buttons
@@ -152,13 +169,13 @@ document.addEventListener("DOMContentLoaded", () => {
       // Offensive action buttons
       if (!hasTakenOffensiveAction) {
         btnShoot.disabled = false;
-        // TODO: enable other offensive action buttons here (drone, magic)
+        if (btnDrone) btnDrone.disabled = false;
+        // TODO: enable other offensive action buttons here (magic)
       }
       // Non-offensive actions (heal, recharge) might always be available on your turn
       // TODO: Enable heal/recharge buttons here
     }
   }
-
 
   function movePlayer(direction) {
     $.ajax({
@@ -211,17 +228,18 @@ document.addEventListener("DOMContentLoaded", () => {
       dataType: "json",
       success: function (response) {
         console.log("Résultat de l'attaque:", response);
-        if (!response.erreur) { // Check for server-side errors
-            if (response.message) {
-                addLocalNarrationEvent(response.message);
-                addNarrationEvent(response.message); // Send to server for persistence
-            }
+        if (!response.erreur) {
+          // Check for server-side errors
+          if (response.message) {
+            // Le message est déjà ajouté à la BDD par l'API
+            // Il sera récupéré via fetchNarrationEvents()
+          }
 
-            const attackerShip = document.getElementById("my-ship");
-            const defenderShip = document.getElementById("opponent-ship");
-            triggerBeamAnimation(attackerShip, defenderShip);
+          const attackerShip = document.getElementById("my-ship");
+          const defenderShip = document.getElementById("opponent-ship");
+          triggerBeamAnimation(attackerShip, defenderShip);
         } else {
-            addLocalNarrationEvent(response.erreur);
+          addLocalNarrationEvent(response.erreur);
         }
         // pollGameState will handle button states
       },
@@ -241,13 +259,15 @@ document.addEventListener("DOMContentLoaded", () => {
       dataType: "json",
       success: function (serverState) {
         if (!serverState) {
-            console.error("Server state is empty or invalid");
-            return;
+          console.error("Server state is empty or invalid");
+          return;
         }
 
         // Log missing fields for debugging
-        if (serverState.joueur_actuel === undefined) console.warn("Missing joueur_actuel");
-        if (serverState.joueur1_hp === undefined) console.warn("Missing joueur1_hp");
+        if (serverState.joueur_actuel === undefined)
+          console.warn("Missing joueur_actuel");
+        if (serverState.joueur1_hp === undefined)
+          console.warn("Missing joueur1_hp");
 
         const newJ1Pos = parseInt(serverState.joueur1_position, 10) || 1;
         const newJ2Pos = parseInt(serverState.joueur2_position, 10) || 6;
@@ -276,13 +296,12 @@ document.addEventListener("DOMContentLoaded", () => {
           needsHpDisplayUpdate = true;
         }
 
-
         // Update currentGameState with player IDs from serverState if not already present
         if (serverState.joueur1_id && !currentGameState.joueur1Id) {
-            currentGameState.joueur1Id = serverState.joueur1_id;
+          currentGameState.joueur1Id = serverState.joueur1_id;
         }
         if (serverState.joueur2_id && !currentGameState.joueur2Id) {
-            currentGameState.joueur2Id = serverState.joueur2_id;
+          currentGameState.joueur2Id = serverState.joueur2_id;
         }
 
         // Update turn-related flags and check if button state needs update
@@ -294,64 +313,88 @@ document.addEventListener("DOMContentLoaded", () => {
         const newJ1Bouge = serverState.joueur1_a_bouge;
         const newJ2Bouge = serverState.joueur2_a_bouge;
 
-        if (newJoueurActuel !== undefined && newJoueurActuel !== currentGameState.joueurActuel) {
-            currentGameState.joueurActuel = newJoueurActuel;
-            needsButtonStateUpdate = true;
+        if (
+          newJoueurActuel !== undefined &&
+          newJoueurActuel !== currentGameState.joueurActuel
+        ) {
+          currentGameState.joueurActuel = newJoueurActuel;
+          needsButtonStateUpdate = true;
         }
-        if (newJ1Action !== undefined && newJ1Action !== currentGameState.joueur1ActionFaite) {
-            currentGameState.joueur1ActionFaite = newJ1Action;
-            needsButtonStateUpdate = true;
+        if (
+          newJ1Action !== undefined &&
+          newJ1Action !== currentGameState.joueur1ActionFaite
+        ) {
+          currentGameState.joueur1ActionFaite = newJ1Action;
+          needsButtonStateUpdate = true;
         }
-        if (newJ2Action !== undefined && newJ2Action !== currentGameState.joueur2ActionFaite) {
-            currentGameState.joueur2ActionFaite = newJ2Action;
-            needsButtonStateUpdate = true;
+        if (
+          newJ2Action !== undefined &&
+          newJ2Action !== currentGameState.joueur2ActionFaite
+        ) {
+          currentGameState.joueur2ActionFaite = newJ2Action;
+          needsButtonStateUpdate = true;
         }
-        if (newJ1Bouge !== undefined && newJ1Bouge !== currentGameState.joueur1ABouge) {
-            currentGameState.joueur1ABouge = newJ1Bouge;
-            needsButtonStateUpdate = true;
+        if (
+          newJ1Bouge !== undefined &&
+          newJ1Bouge !== currentGameState.joueur1ABouge
+        ) {
+          currentGameState.joueur1ABouge = newJ1Bouge;
+          needsButtonStateUpdate = true;
         }
-        if (newJ2Bouge !== undefined && newJ2Bouge !== currentGameState.joueur2ABouge) {
-            currentGameState.joueur2ABouge = newJ2Bouge;
-            needsButtonStateUpdate = true;
+        if (
+          newJ2Bouge !== undefined &&
+          newJ2Bouge !== currentGameState.joueur2ABouge
+        ) {
+          currentGameState.joueur2ABouge = newJ2Bouge;
+          needsButtonStateUpdate = true;
         }
-
 
         if (needsShipDisplayUpdate) {
           updateShipsDisplay();
         }
         if (needsHpDisplayUpdate) {
-            updateHpDisplay(); // <--- CALL IT HERE
+          updateHpDisplay(); // <--- CALL IT HERE
         }
 
         // Check for Game Over (Run this check every poll, regardless of updates)
-        if (currentGameState.joueur1Hp <= 0 || currentGameState.joueur2Hp <= 0) {
-            let message = "";
-            const myRole = currentGameState.joueurRole;
-            
-            if (currentGameState.joueur1Hp <= 0 && currentGameState.joueur2Hp <= 0) {
-                    message = "Match nul ! Un combat acharné qui finit sans vainqueur.";
-            } else if (currentGameState.joueur1Hp <= 0) {
-                if (myRole === 'joueur1') {
-                    message = "Dommage... Votre vaisseau a été détruit. Meilleure chance la prochaine fois !";
-                } else {
-                    message = "Félicitations ! Vous avez triomphé de votre adversaire.";
-                }
-            } else if (currentGameState.joueur2Hp <= 0) {
-                if (myRole === 'joueur2') {
-                    message = "Dommage... Votre vaisseau a été détruit. Meilleure chance la prochaine fois !";
-                } else {
-                    message = "Félicitations ! Vous avez triomphé de votre adversaire.";
-                }
+        if (
+          currentGameState.joueur1Hp <= 0 ||
+          currentGameState.joueur2Hp <= 0
+        ) {
+          let message = "";
+          const myRole = currentGameState.joueurRole;
+
+          if (
+            currentGameState.joueur1Hp <= 0 &&
+            currentGameState.joueur2Hp <= 0
+          ) {
+            message = "Match nul ! Un combat acharné qui finit sans vainqueur.";
+          } else if (currentGameState.joueur1Hp <= 0) {
+            if (myRole === "joueur1") {
+              message =
+                "Dommage... Votre vaisseau a été détruit. Meilleure chance la prochaine fois !";
+            } else {
+              message =
+                "Félicitations ! Vous avez triomphé de votre adversaire.";
             }
-            
-            // Only show if not already visible to avoid flickering/spamming if we add animations later
-            if (gameOverPopup.style.display === "none") {
-                gameOverMessage.textContent = message;
-                gameOverPopup.style.display = "flex";
+          } else if (currentGameState.joueur2Hp <= 0) {
+            if (myRole === "joueur2") {
+              message =
+                "Dommage... Votre vaisseau a été détruit. Meilleure chance la prochaine fois !";
+            } else {
+              message =
+                "Félicitations ! Vous avez triomphé de votre adversaire.";
             }
+          }
+
+          // Only show if not already visible to avoid flickering/spamming if we add animations later
+          if (gameOverPopup.style.display === "none") {
+            gameOverMessage.textContent = message;
+            gameOverPopup.style.display = "flex";
+          }
         }
         if (needsButtonStateUpdate) {
-            updateActionButtonsState();
+          updateActionButtonsState();
         }
       },
       error: function (jqXHR, textStatus, errorThrown) {},
@@ -360,7 +403,121 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btnForward.addEventListener("click", () => movePlayer("forward"));
   btnBackward.addEventListener("click", () => movePlayer("backward"));
-  btnShoot.addEventListener("click", shoot); // Add event listener for the shoot button
+  btnShoot.addEventListener("click", shoot);
+
+  // Drone button functionality
+  const btnDrone = document.getElementById("btn-drone");
+  const droneSelectionPopup = document.getElementById("drone-selection-popup");
+  const selectDroneAttaque = document.getElementById("select-drone-attaque");
+  const selectDroneReconnaissance = document.getElementById(
+    "select-drone-reconnaissance"
+  );
+  const cancelDroneSelection = document.getElementById(
+    "cancel-drone-selection"
+  );
+
+  if (btnDrone) {
+    btnDrone.addEventListener("click", () => {
+      droneSelectionPopup.style.display = "flex";
+    });
+  }
+
+  if (cancelDroneSelection) {
+    cancelDroneSelection.addEventListener("click", () => {
+      droneSelectionPopup.style.display = "none";
+    });
+  }
+
+  if (selectDroneAttaque) {
+    selectDroneAttaque.addEventListener("click", () => {
+      launchDrone("attaque");
+      droneSelectionPopup.style.display = "none";
+    });
+  }
+
+  if (selectDroneReconnaissance) {
+    selectDroneReconnaissance.addEventListener("click", () => {
+      launchDrone("reconnaissance");
+      droneSelectionPopup.style.display = "none";
+    });
+  }
+
+  function launchDrone(droneType) {
+    const joueurId = currentGameState.joueurId;
+    const partieId = currentGameState.partieId;
+
+    if (!joueurId || !partieId) {
+      console.error("Impossible de lancer le drone: IDs manquants.");
+      addLocalNarrationEvent("Erreur: IDs de joueur ou de partie manquants.");
+      return;
+    }
+
+    btnDrone.disabled = true;
+
+    $.ajax({
+      url: "api/lancer-drone.php",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({
+        partie_id: partieId,
+        joueur_id: joueurId,
+        drone_type: droneType,
+      }),
+      dataType: "json",
+      success: function (response) {
+        console.log("Résultat du lancer de drone:", response);
+        if (response.success) {
+          if (response.message) {
+            // Le message est déjà ajouté à la BDD par l'API, pas besoin de l'ajouter à nouveau
+            // Il sera récupéré via fetchNarrationEvents()
+          }
+
+          const myShip = document.getElementById("my-ship");
+          triggerDroneAnimation(myShip, droneType);
+        } else if (response.erreur) {
+          addLocalNarrationEvent(response.erreur);
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.error("Erreur lors du lancer de drone:", errorThrown);
+        addLocalNarrationEvent("Erreur réseau lors du lancer de drone.");
+      },
+    });
+  }
+
+  function triggerDroneAnimation(shipElement, droneType) {
+    if (!shipElement) {
+      console.warn(
+        "Impossible de déclencher l'animation du drone: élément de vaisseau manquant."
+      );
+      return;
+    }
+
+    const gameContainer = document.getElementById("game-container");
+    if (!gameContainer) return;
+
+    const shipRect = shipElement.getBoundingClientRect();
+    const gameContainerRect = gameContainer.getBoundingClientRect();
+
+    const startX = shipRect.left + shipRect.width / 2 - gameContainerRect.left;
+    const startY = shipRect.top + shipRect.height / 2 - gameContainerRect.top;
+
+    const drone = document.createElement("div");
+    drone.classList.add("drone-animation");
+    drone.style.left = `${startX}px`;
+    drone.style.top = `${startY}px`;
+
+    const icon = document.createElement("i");
+    icon.classList.add("fas");
+    icon.classList.add(droneType === "attaque" ? "fa-crosshairs" : "fa-search");
+    drone.appendChild(icon);
+
+    gameContainer.appendChild(drone);
+
+    setTimeout(() => {
+      drone.remove();
+    }, 2000);
+  } // Add event listener for the shoot button
 
   if (quitterGameButton) {
     quitterGameButton.addEventListener("click", () => {
@@ -371,25 +528,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (returnMenuButton) {
-      returnMenuButton.addEventListener("click", () => {
-          quitGame();
-      });
+    returnMenuButton.addEventListener("click", () => {
+      quitGame();
+    });
   }
 
   function quitGame() {
-      $.ajax({
-          url: "api/quitter-partie.php",
-          method: "POST",
-          dataType: "json",
-          success: function (data) {
-            window.location.href = "choix-joueur.php";
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            console.error("Erreur réseau (quitter game):", errorThrown);
-            // Even if error, try to redirect
-            window.location.href = "choix-joueur.php";
-          },
-        });
+    $.ajax({
+      url: "api/quitter-partie.php",
+      method: "POST",
+      dataType: "json",
+      success: function (data) {
+        window.location.href = "choix-joueur.php";
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.error("Erreur réseau (quitter game):", errorThrown);
+        // Even if error, try to redirect
+        window.location.href = "choix-joueur.php";
+      },
+    });
   }
 
   updateShipsDisplay();

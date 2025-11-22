@@ -52,12 +52,11 @@ if (mysqli_stmt_execute($stmt_update)) {
     $_SESSION['joueur_id'] = $joueur_id;
     $_SESSION['joueur_role'] = 'joueur2';
 
-    $msg1 = "Bienvenue au Joueur 1 dans l'arène de Nova Protocol.";
-    $msg2 = "Bienvenue au Joueur 2. Que le combat interstellaire commence !";
-
-    $sql_narrate = "INSERT INTO narration_events (partie_id, message) VALUES (?, ?), (?, ?)";
+    // Ajouter un message de narration pour le début de la partie
+    $sql_narrate = "INSERT INTO narration_events (partie_id, message) VALUES (?, ?)";
     $stmt_narrate = mysqli_prepare($link, $sql_narrate);
-    mysqli_stmt_bind_param($stmt_narrate, "ssss", $partie_id, $msg1, $partie_id, $msg2);
+    $message_debut = "La bataille commence !";
+    mysqli_stmt_bind_param($stmt_narrate, "ss", $partie_id, $message_debut);
     mysqli_stmt_execute($stmt_narrate);
     mysqli_stmt_close($stmt_narrate);
 

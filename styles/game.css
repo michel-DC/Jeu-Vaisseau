@@ -98,31 +98,76 @@ html {
 
 /* Styles pour l'animation du tir (faisceau) */
 .beam {
-    position: absolute;
-    height: 4px; /* Épaisseur du faisceau */
-    background-color: #ff00ff; /* Couleur du faisceau (magenta) */
-    box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-    transform-origin: left center; /* Point de rotation du faisceau */
-    z-index: 10;
-    opacity: 0;
-    animation: shootBeam 0.5s ease-out forwards; /* Animation du tir */
+  position: absolute;
+  height: 4px; /* Épaisseur du faisceau */
+  background-color: #ff00ff; /* Couleur du faisceau (magenta) */
+  box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+  transform-origin: left center; /* Point de rotation du faisceau */
+  z-index: 10;
+  opacity: 0;
+  animation: shootBeam 0.5s ease-out forwards; /* Animation du tir */
 }
 
 @keyframes shootBeam {
-    0% {
-        opacity: 0;
-        transform: scaleX(0); /* Commence sans longueur */
-    }
-    20% {
-        opacity: 1;
-        transform: scaleX(0.2); /* Apparaît et s'étend un peu */
-    }
-    80% {
-        opacity: 1;
-        transform: scaleX(1); /* S'étend sur toute la longueur */
-    }
-    100% {
-        opacity: 0;
-        transform: scaleX(1); /* Disparaît */
-    }
+  0% {
+    opacity: 0;
+    transform: scaleX(0); /* Commence sans longueur */
+  }
+  20% {
+    opacity: 1;
+    transform: scaleX(0.2); /* Apparaît et s'étend un peu */
+  }
+  80% {
+    opacity: 1;
+    transform: scaleX(1); /* S'étend sur toute la longueur */
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1); /* Disparaît */
+  }
+}
+
+/* Drone Animation */
+.drone-animation {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, #00d4ff 0%, #0099cc 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: droneFloat 2s ease-out forwards;
+  z-index: 1000;
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.8);
+}
+
+.drone-animation i {
+  color: #fff;
+  font-size: 1.2rem;
+  animation: droneRotate 2s linear infinite;
+}
+
+@keyframes droneFloat {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-100px) scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-200px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes droneRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

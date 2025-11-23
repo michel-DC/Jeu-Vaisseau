@@ -1,0 +1,125 @@
+/* styles/player-stats-panel.css */
+.player-stats-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 25px;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.stat-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 15px;
+  background: transparent;
+  border: 2px solid rgba(0, 255, 255, 0.3);
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  cursor: help;
+}
+
+.stat-item:hover {
+  background: rgba(0, 255, 255, 0.1);
+  border-color: rgba(0, 255, 255, 0.6);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.stat-icon {
+  font-size: 24px;
+  color: #00ffff;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 18px;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Tooltip styles */
+.stat-item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: 120%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-size: 13px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.stat-item:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Animation pour le mana vide */
+.stat-item.mana-empty .stat-icon {
+  color: #ff4444;
+  text-shadow: 0 0 10px rgba(255, 68, 68, 0.8);
+  animation: pulseRed 1.5s infinite;
+}
+
+.stat-item.mana-empty .stat-value {
+  color: #ff4444;
+}
+
+.stat-item.mana-empty {
+  border-color: rgba(255, 68, 68, 0.5);
+}
+
+@keyframes pulseRed {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Animation pour le canon faible */
+.stat-item.cannon-low .stat-icon {
+  color: #ffaa00;
+  text-shadow: 0 0 10px rgba(255, 170, 0, 0.8);
+}
+
+.stat-item.cannon-low .stat-value {
+  color: #ffaa00;
+}
+
+.stat-item.cannon-low {
+  border-color: rgba(255, 170, 0, 0.5);
+}

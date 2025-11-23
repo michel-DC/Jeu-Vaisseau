@@ -171,3 +171,75 @@ html {
     transform: rotate(360deg);
   }
 }
+
+/* Attack Beam Animation - RED */
+.beam {
+  position: absolute;
+  height: 4px;
+  background: linear-gradient(90deg, #ff0000, #ff4444, #ff0000);
+  box-shadow: 0 0 10px #ff0000, 0 0 20px #ff4444, 0 0 30px #ff0000;
+  transform-origin: left center;
+  z-index: 10;
+  opacity: 0;
+  animation: shootBeam 0.8s ease-out forwards;
+}
+
+@keyframes shootBeam {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  20% {
+    opacity: 1;
+    transform: scaleX(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+    box-shadow: 0 0 15px #ff0000, 0 0 30px #ff4444, 0 0 45px #ff0000;
+  }
+  80% {
+    opacity: 0.8;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+/* Magic Beam Animation - CYAN */
+.magic-beam {
+  position: absolute;
+  height: 6px;
+  background: linear-gradient(90deg, #00ffff, #00cccc, #00ffff);
+  box-shadow: 0 0 15px #00ffff, 0 0 30px #00cccc, 0 0 45px #00ffff;
+  transform-origin: left center;
+  z-index: 10;
+  opacity: 0;
+  animation: shootMagicBeam 1s ease-out forwards;
+}
+
+@keyframes shootMagicBeam {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  20% {
+    opacity: 1;
+    transform: scaleX(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+    box-shadow: 0 0 20px #00ffff, 0 0 40px #00cccc, 0 0 60px #00ffff;
+  }
+  80% {
+    opacity: 0.8;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}

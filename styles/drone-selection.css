@@ -1,4 +1,5 @@
-/* Popup Sélection de Drone */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+
 #drone-selection-popup .popup-content {
   max-width: 500px;
   padding: 1.5rem;
@@ -16,7 +17,7 @@
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
   font-weight: 600;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .drone-selection-buttons {
@@ -40,23 +41,12 @@
   flex-direction: column;
   align-items: center;
   gap: 0.8rem;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .drone-button i {
   font-size: 2rem;
   color: #ffffff;
-}
-
-.drone-button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
-}
-
-.drone-button:active {
-  transform: translateY(0);
 }
 
 .cancel-button {
@@ -70,7 +60,7 @@
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .cancel-button:hover {

@@ -32,7 +32,7 @@ if (!$partie || ($partie['statut'] ?? '') !== 'complete') {
 }
 
 // Fetch game state
-$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie, joueur1_choix_vaisseau, joueur2_choix_vaisseau, joueur1_position, joueur2_position FROM game_state WHERE partie_id = ?";
+$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie, joueur1_choix_vaisseau, joueur2_choix_vaisseau, joueur1_position, joueur2_position, joueur1_puissance_tir, joueur2_puissance_tir, joueur1_magicien_mana, joueur2_magicien_mana, joueur1_damage_multiplier, joueur2_damage_multiplier FROM game_state WHERE partie_id = ?";
 $stmt_game_state = mysqli_prepare($link, $sql_game_state);
 mysqli_stmt_bind_param($stmt_game_state, "s", $partie_id_session);
 mysqli_stmt_execute($stmt_game_state);
@@ -83,6 +83,7 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
     <link rel="stylesheet" href="styles/action-buttons.css">
     <link rel="stylesheet" href="styles/narration.css">
     <link rel="stylesheet" href="styles/drone-selection.css">
+    <link rel="stylesheet" href="styles/player-stats-panel.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -132,48 +133,65 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
         </div>
     </div>
 
-    <div id="narration-container" class="narration-box">
-        <h3>Journal de Bord</h3>
-        <div id="narration-events">
-            <!-- Les événements de narration seront chargés ici -->
-        </div>
+<div id="narration-container" class="narration-box">
+    <h3>Journal de Bord</h3>
+    <div id="narration-events">
+        <!-- Les événements de narration seront chargés ici -->
     </div>
+</div>
 
-    <div class="action-buttons">
-        <div class="action-button-container">
-            <button id="btn-backward" class="action-button" data-tooltip="Reculer" disabled><i class="fas fa-arrow-left"></i></button>
-        </div>
-        <div class="action-button-container">
-            <button id="btn-forward" class="action-button" data-tooltip="Avancer" disabled><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="action-button-container">
-            <button id="btn-shoot" class="action-button" data-tooltip="Tirer" disabled><i class="fas fa-crosshairs"></i></button>
-        </div>
-        <div class="action-button-container">
-            <button id="btn-drone" class="action-button" data-tooltip="Lancer un drone" disabled><i class="fas fa-robot"></i></button>
-        </div>
-        <div class="action-button-container">
-            <button id="btn-magic" class="action-button" data-tooltip="Utiliser sa magie" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+<div id="player-stats-panel" class="player-stats-panel">
+    <div class="stat-item" data-tooltip="Mana du magicien - Nécessaire pour lancer des sorts">
+        <i class="fas fa-wand-magic-sparkles stat-icon"></i>
+        <div class="stat-info">
+            <span class="stat-label">Mana</span>
+            <span id="player-mana" class="stat-value">1/1</span>
         </div>
     </div>
+    <div class="stat-item" data-tooltip="Puissance de tir actuelle du vaisseau">
+        <i class="fas fa-crosshairs stat-icon"></i>
+        <div class="stat-info">
+            <span class="stat-label">Canon</span>
+            <span id="player-cannon" class="stat-value">100</span>
+        </div>
+    </div>
+</div>
 
-     <!-- Popup Pile ou Face -->
-    <div id="coin-flip-popup" class="popup-overlay" style="display: none;">
-        <div class="popup-content">
-            <h2>Pile ou Face</h2>
-            <div id="player-assignments">
-                <p>Vous: <span id="my-side"></span></p>
-                <p>Adversaire: <span id="opponent-side"></span></p>
-            </div>
-            <div id="coin-container">
-                <div id="coin">
-                    <div class="side-a"></div> <!-- Pile -->
-                    <div class="side-b"></div> <!-- Face -->
-                </div>
-            </div>
-            <p id="flip-result"></p>
-        </div>
+<div class="action-buttons">
+    <div class="action-button-container">
+        <button id="btn-backward" class="action-button" data-tooltip="Reculer" disabled><i class="fas fa-arrow-left"></i></button>
     </div>
+    <div class="action-button-container">
+        <button id="btn-forward" class="action-button" data-tooltip="Avancer" disabled><i class="fas fa-arrow-right"></i></button>
+    </div>
+    <div class="action-button-container">
+        <button id="btn-shoot" class="action-button" data-tooltip="Tirer" disabled><i class="fas fa-crosshairs"></i></button>
+    </div>
+    <div class="action-button-container">
+        <button id="btn-drone" class="action-button" data-tooltip="Lancer un drone" disabled><i class="fas fa-robot"></i></button>
+    </div>
+    <div class="action-button-container">
+        <button id="btn-magic" class="action-button" data-tooltip="Utiliser sa magie" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+    </div>
+</div>
+
+<!-- Popup Pile ou Face -->
+<div id="coin-flip-popup" class="popup-overlay" style="display: none;">
+    <div class="popup-content">
+        <h2>Pile ou Face</h2>
+        <div id="player-assignments">
+            <p>Vous: <span id="my-side"></span></p>
+            <p>Adversaire: <span id="opponent-side"></span></p>
+        </div>
+        <div id="coin-container">
+            <div id="coin">
+                <div class="side-a"></div> <!-- Pile -->
+                <div class="side-b"></div> <!-- Face -->
+            </div>
+        </div>
+        <p id="flip-result"></p>
+    </div>
+</div>
 
     <!-- Popup Résultat du Tour -->
     <div id="turn-result-popup" class="popup-overlay" style="display: none;">
@@ -228,6 +246,12 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
             joueur2Vaisseau: '<?php echo $joueur2_vaisseau; ?>',
             joueur1Position: <?php echo $initial_joueur1_pos ?? 1; ?>,
             joueur2Position: <?php echo $initial_joueur2_pos ?? 1; ?>,
+            joueur1PuissanceTir: <?php echo $gameState['joueur1_puissance_tir'] ?? 100; ?>,
+            joueur2PuissanceTir: <?php echo $gameState['joueur2_puissance_tir'] ?? 100; ?>,
+            joueur1MagicienMana: <?php echo $gameState['joueur1_magicien_mana'] ?? 1; ?>,
+            joueur2MagicienMana: <?php echo $gameState['joueur2_magicien_mana'] ?? 1; ?>,
+            joueur1DamageMultiplier: <?php echo $gameState['joueur1_damage_multiplier'] ?? 1.0; ?>,
+            joueur2DamageMultiplier: <?php echo $gameState['joueur2_damage_multiplier'] ?? 1.0; ?>,
             joueurId: '<?php echo $_SESSION['joueur_id'] ?? ''; ?>',
             joueurRole: '<?php echo $_SESSION['joueur_role'] ?? ''; ?>',
             partieId: '<?php echo $partie_id_session; ?>',

@@ -141,6 +141,16 @@ class Vaisseau
         $this->puissanceDeTir = $nouvellePuissance;
     }
 
+    public function getStatusEffects()
+    {
+        return $this->status_effects;
+    }
+
+    public function setStatusEffects($effects)
+    {
+        $this->status_effects = $effects;
+    }
+
     
 
     public function appliquerEffet($effet)
@@ -156,6 +166,23 @@ class Vaisseau
         foreach ($this->status_effects as $key => &$effet) {
             if (isset($effet['type'])) {
                 switch ($effet['type']) {
+                    case 'poison':
+                        $this->recevoirDegats($effet['damage']);
+                        $messages[] = $this->getNom() . " subit " . $effet['damage'] . " dégâts de poison.";
+                        break;
+                    case 'soin':
+                        $this->recevoirSoins($effet['amount']);
+                        $messages[] = $this->getNom() . " récupère " . $effet['amount'] . " PV grâce au sort de soin.";
+                        break;
+                    case 'paralysie':
+                        if (mt_rand(1, 100) <= $effet['chance']) {
+                            $peutJouer = false;
+                            $messages[] = $this->getNom() . " est paralysé et ne peut pas jouer ce tour !";
+                        }
+                        if (isset($effet['duration']) && $effet['duration'] > 0) {
+                            $effet['duration']--;
+                        }
+                        break;
                     case 'dot':
                         $this->recevoirDegats($effet['damage']);
                         $messages[] = $this->getNom() . " subit " . $effet['damage'] . " dégâts de poison.";
@@ -172,7 +199,7 @@ class Vaisseau
                 }
             }
 
-            if (isset($effet['duration']) && $effet['duration'] <= 0) {
+            if (isset($effet['duration']) && $effet['duration'] <= 0 && $effet['duration'] != -1) {
                 unset($this->status_effects[$key]);
             }
         }

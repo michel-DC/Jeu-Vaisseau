@@ -1,58 +1,56 @@
-/* styles/narration.css */
 .narration-box {
-    position: fixed;
-    bottom: 100px; /* Adjust this to be above the action buttons */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    max-width: 600px;
-    height: 150px;
-    background-color: rgba(0, 0, 0, 0.7);
-    border: 1px solid #00ffff;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-    color: #fff;
-    padding: 15px;
-    overflow-y: auto;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
+  position: fixed;
+  bottom: 100px; /* Adjust this to be above the action buttons */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 600px;
+  height: 150px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #00ffff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  color: #fff;
+  padding: 15px;
+  overflow-y: auto;
+  font-size: 14px;
 }
 
 .narration-box h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    color: #00ffff;
-    text-align: center;
-    border-bottom: 1px solid #00ffff;
-    padding-bottom: 5px;
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #00ffff;
+  text-align: center;
+  border-bottom: 1px solid #00ffff;
+  padding-bottom: 5px;
 }
 
 .narration-event {
-    margin-bottom: 8px;
-    line-height: 1.4;
+  margin-bottom: 8px;
+  line-height: 1.4;
 }
 
 .narration-event .timestamp {
-    color: #888;
-    margin-right: 10px;
+  color: #888;
+  margin-right: 10px;
 }
 
 .narration-event .message {
-    color: #fff;
+  color: #fff;
 }
 
 /* Custom scrollbar for webkit browsers */
 .narration-box::-webkit-scrollbar {
-    width: 8px;
+  width: 8px;
 }
 
 .narration-box::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
 }
 
 .narration-box::-webkit-scrollbar-thumb {
-    background-color: #00ffff;
-    border-radius: 10px;
-    border: 2px solid rgba(0, 0, 0, 0.2);
+  background-color: #00ffff;
+  border-radius: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
 }

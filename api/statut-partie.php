@@ -22,7 +22,7 @@ $partie_id = $partie_id_session;
 
 $link = connexionDB();
 
-$sql = "SELECT p.joueur1_id, p.joueur2_id, p.statut, gs.joueur1_hp, gs.joueur2_hp, gs.duree_partie, gs.joueur1_choix_vaisseau, gs.joueur2_choix_vaisseau, gs.premier_joueur, gs.joueur1_position, gs.joueur2_position, gs.joueur_actuel, gs.joueur1_action_faite, gs.joueur2_action_faite, gs.joueur1_a_bouge, gs.joueur2_a_bouge FROM parties p JOIN game_state gs ON p.partie_id = gs.partie_id WHERE p.partie_id = ?";
+$sql = "SELECT p.joueur1_id, p.joueur2_id, p.statut, gs.joueur1_hp, gs.joueur2_hp, gs.duree_partie, gs.joueur1_choix_vaisseau, gs.joueur2_choix_vaisseau, gs.premier_joueur, gs.joueur1_position, gs.joueur2_position, gs.joueur_actuel, gs.joueur1_action_faite, gs.joueur2_action_faite, gs.joueur1_a_bouge, gs.joueur2_a_bouge, gs.joueur1_magicien_mana, gs.joueur2_magicien_mana, gs.joueur1_puissance_tir, gs.joueur2_puissance_tir, gs.joueur1_damage_multiplier, gs.joueur2_damage_multiplier FROM parties p JOIN game_state gs ON p.partie_id = gs.partie_id WHERE p.partie_id = ?";
 $stmt = mysqli_prepare($link, $sql);
 
 if ($stmt === false) {

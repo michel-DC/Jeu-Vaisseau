@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+
 @font-face {
   font-family: "Harlow Solid Italic";
   src: url("../assets/font/HARLOWSI_1.woff") format("woff");
@@ -14,7 +16,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  font-family: "Arial", sans-serif;
+  font-family: "Poppins", sans-serif;
   color: #e0e0e0;
   display: flex;
   justify-content: center;

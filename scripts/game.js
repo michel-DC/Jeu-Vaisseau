@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   const btnForward = document.getElementById("btn-forward");
   const btnBackward = document.getElementById("btn-backward");
-  const btnShoot = document.getElementById("btn-shoot"); // Get the shoot button
+  const btnShoot = document.getElementById("btn-shoot");
+  const btnMagic = document.getElementById("btn-magic");
   const quitterGameButton = document.getElementById("quitter-game-button");
   const gameOverPopup = document.getElementById("game-over-popup");
   const gameOverMessage = document.getElementById("game-over-message");
@@ -142,6 +143,48 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Fonction pour mettre à jour le panneau d'informations du joueur
+  function updatePlayerStatsPanel() {
+    const playerManaElement = document.getElementById("player-mana");
+    const playerCannonElement = document.getElementById("player-cannon");
+    const statsPanel = document.getElementById("player-stats-panel");
+
+    if (!playerManaElement || !playerCannonElement || !statsPanel) {
+      return; // Les éléments n'existent pas encore
+    }
+
+    const myRole = currentGameState.joueurRole;
+
+    // Récupérer le mana du magicien (par défaut 1/1)
+    const mana = currentGameState[`${myRole}MagicienMana`] ?? 1;
+    const maxMana = 1; // Le mana max est toujours 1
+
+    // Récupérer la puissance du canon avec le multiplicateur
+    const basePower = currentGameState[`${myRole}PuissanceTir`] ?? 100;
+    const multiplier = currentGameState[`${myRole}DamageMultiplier`] ?? 1.0;
+    const cannonPower = Math.round(basePower * multiplier);
+
+    // Mettre à jour l'affichage
+    playerManaElement.textContent = `${mana}/${maxMana}`;
+    playerCannonElement.textContent = cannonPower;
+
+    // Ajouter une classe visuelle si le mana est vide
+    const manaStatItem = playerManaElement.closest(".stat-item");
+    if (mana === 0) {
+      manaStatItem.classList.add("mana-empty");
+    } else {
+      manaStatItem.classList.remove("mana-empty");
+    }
+
+    // Ajouter une classe visuelle si le canon est faible (< 80)
+    const cannonStatItem = playerCannonElement.closest(".stat-item");
+    if (cannonPower < 80) {
+      cannonStatItem.classList.add("cannon-low");
+    } else {
+      cannonStatItem.classList.remove("cannon-low");
+    }
+  }
+
   // Fonction pour mettre à jour l'état des boutons d'action
   function updateActionButtonsState() {
     const isMyTurn =
@@ -159,6 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnBackward.disabled = true;
     btnShoot.disabled = true;
     if (btnDrone) btnDrone.disabled = true;
+    if (btnMagic) btnMagic.disabled = true;
 
     if (isMyTurn) {
       // Movement buttons
@@ -170,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!hasTakenOffensiveAction) {
         btnShoot.disabled = false;
         if (btnDrone) btnDrone.disabled = false;
-        // TODO: enable other offensive action buttons here (magic)
+        if (btnMagic) btnMagic.disabled = false;
       }
       // Non-offensive actions (heal, recharge) might always be available on your turn
       // TODO: Enable heal/recharge buttons here
@@ -251,6 +295,107 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function useMagic() {
+    const lanceurId = currentGameState.joueurId;
+    const cibleId = getOpponentId();
+    const partieId = currentGameState.partieId;
+
+    if (!lanceurId || !cibleId || !partieId) {
+      console.error("Impossible d'utiliser la magie: IDs manquants.");
+      addLocalNarrationEvent("Erreur: IDs de joueur ou de partie manquants.");
+      return;
+    }
+
+    // Temporarily disable the magic button to prevent multiple clicks
+    btnMagic.disabled = true;
+
+    $.ajax({
+      url: "api/utiliser-magie.php",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({
+        partie_id: partieId,
+        lanceur_id: lanceurId,
+        cible_id: cibleId,
+      }),
+      dataType: "json",
+      success: function (response) {
+        console.log("Résultat de la magie:", response);
+        if (response.success) {
+          // Afficher le message approprié pour le lanceur
+          if (response.message_lanceur) {
+            addNarrationEvent(response.message_lanceur);
+          }
+
+          // Optionnel: Ajouter une animation visuelle pour la magie
+          const myShip = document.getElementById("my-ship");
+          const opponentShip = document.getElementById("opponent-ship");
+          triggerMagicAnimation(myShip, opponentShip);
+        } else if (response.erreur) {
+          showErrorPopup(response.erreur);
+        }
+        // pollGameState will handle button states
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.error("Erreur lors de l'utilisation de la magie:", errorThrown);
+
+        // Essayer de parser la réponse JSON pour afficher l'erreur
+        try {
+          const errorResponse = JSON.parse(jqXHR.responseText);
+          if (errorResponse.erreur) {
+            showErrorPopup(errorResponse.erreur);
+          } else {
+            showErrorPopup("Erreur réseau lors de l'utilisation de la magie.");
+          }
+        } catch (e) {
+          showErrorPopup("Erreur réseau lors de l'utilisation de la magie.");
+        }
+      },
+    });
+  }
+
+  function triggerMagicAnimation(casterShip, targetShip) {
+    if (!casterShip || !targetShip) {
+      console.warn(
+        "Impossible de déclencher l'animation de magie: éléments de vaisseau manquants."
+      );
+      return;
+    }
+
+    const gameContainer = document.getElementById("game-container");
+    if (!gameContainer) return;
+
+    const casterRect = casterShip.getBoundingClientRect();
+    const targetRect = targetShip.getBoundingClientRect();
+    const gameContainerRect = gameContainer.getBoundingClientRect();
+
+    const startX =
+      casterRect.left + casterRect.width / 2 - gameContainerRect.left;
+    const startY =
+      casterRect.top + casterRect.height / 2 - gameContainerRect.top;
+    const endX =
+      targetRect.left + targetRect.width / 2 - gameContainerRect.left;
+    const endY = targetRect.top + targetRect.height / 2 - gameContainerRect.top;
+
+    const distance = Math.sqrt(
+      Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)
+    );
+    const angle = (Math.atan2(endY - startY, endX - startX) * 180) / Math.PI;
+
+    const magicBeam = document.createElement("div");
+    magicBeam.classList.add("magic-beam");
+    magicBeam.style.width = `${distance}px`;
+    magicBeam.style.left = `${startX}px`;
+    magicBeam.style.top = `${startY}px`;
+    magicBeam.style.transform = `rotate(${angle}deg)`;
+
+    gameContainer.appendChild(magicBeam);
+
+    setTimeout(() => {
+      magicBeam.remove();
+    }, 1000);
+  }
+
   function pollGameState() {
     $.ajax({
       url: `api/statut-partie.php?partie_id=${currentGameState.partieId}`,
@@ -301,6 +446,42 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (serverState.joueur2_id && !currentGameState.joueur2Id) {
           currentGameState.joueur2Id = serverState.joueur2_id;
+        }
+
+        // Update mana and cannon power data
+        if (serverState.joueur1_magicien_mana !== undefined) {
+          currentGameState.joueur1MagicienMana = parseInt(
+            serverState.joueur1_magicien_mana,
+            10
+          );
+        }
+        if (serverState.joueur2_magicien_mana !== undefined) {
+          currentGameState.joueur2MagicienMana = parseInt(
+            serverState.joueur2_magicien_mana,
+            10
+          );
+        }
+        if (serverState.joueur1_puissance_tir !== undefined) {
+          currentGameState.joueur1PuissanceTir = parseInt(
+            serverState.joueur1_puissance_tir,
+            10
+          );
+        }
+        if (serverState.joueur2_puissance_tir !== undefined) {
+          currentGameState.joueur2PuissanceTir = parseInt(
+            serverState.joueur2_puissance_tir,
+            10
+          );
+        }
+        if (serverState.joueur1_damage_multiplier !== undefined) {
+          currentGameState.joueur1DamageMultiplier = parseFloat(
+            serverState.joueur1_damage_multiplier
+          );
+        }
+        if (serverState.joueur2_damage_multiplier !== undefined) {
+          currentGameState.joueur2DamageMultiplier = parseFloat(
+            serverState.joueur2_damage_multiplier
+          );
         }
 
         // Update turn-related flags and check if button state needs update
@@ -395,6 +576,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (needsButtonStateUpdate) {
           updateActionButtonsState();
         }
+
+        // Toujours mettre à jour le panneau des stats du joueur
+        updatePlayerStatsPanel();
       },
       error: function (jqXHR, textStatus, errorThrown) {},
     });
@@ -403,6 +587,9 @@ document.addEventListener("DOMContentLoaded", () => {
   btnForward.addEventListener("click", () => movePlayer("forward"));
   btnBackward.addEventListener("click", () => movePlayer("backward"));
   btnShoot.addEventListener("click", shoot);
+  if (btnMagic) {
+    btnMagic.addEventListener("click", useMagic);
+  }
 
   // Drone button functionality
   const btnDrone = document.getElementById("btn-drone");
@@ -578,6 +765,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateShipsDisplay();
   updateHpDisplay(); // Initial call
+  updatePlayerStatsPanel(); // Initial call for player stats panel
   // Call pollGameState immediately to get initial player IDs if not in initialGameState
   pollGameState();
   setInterval(pollGameState, 3000);

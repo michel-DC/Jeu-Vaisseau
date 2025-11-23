@@ -81,6 +81,14 @@ $vaisseau->setPuissanceDeTir($game_state[$joueur_role . '_puissance_tir']);
 $vaisseau->setMaxPuissanceDeTir($game_state[$joueur_role . '_max_puissance_tir']);
 $vaisseau->setModificateurDegatsInfliges(1.0);
 
+// Initialiser le magicien actuel depuis la BDD pour ne pas le perdre si le drone ne le change pas
+$magicien_actuel = new Magicien(
+    $game_state[$joueur_role . '_magicien_nom'] ?? 'Merlin',
+    (int)($game_state[$joueur_role . '_magicien_mana'] ?? 1),
+    (int)($game_state[$joueur_role . '_magicien_puissance'] ?? 1)
+);
+$vaisseau->setMagicienActuel($magicien_actuel);
+
 $drones_json = $game_state[$joueur_role . '_drones'];
 $drones_data = $drones_json ? json_decode($drones_json, true) : null;
 
@@ -129,18 +137,14 @@ foreach ($drones_objets as $d) {
 }
 $nouveaux_drones_json = json_encode($nouveaux_drones_data);
 
-$sql_update = "UPDATE game_state SET 
-    {$joueur_role}_drones = ?, 
-    {$joueur_role}_hp = ?, 
-    {$joueur_role}_puissance_tir = ?, 
-    {$joueur_role}_action_faite = 1,
-    joueur_actuel = ?,
-    {$joueur_role}_action_faite = 0, 
-    joueur1_action_faite = 0, 
-    joueur2_action_faite = 0,
-    joueur1_a_bouge = 0, 
-    joueur2_a_bouge = 0
-    WHERE partie_id = ?";
+// Récupération des stats finales (potentiellement modifiées par le drone)
+$nouv_hp = $vaisseau->getPointDeVie();
+$nouv_puissance = $vaisseau->getPuissanceDeTir();
+$nouv_modif = $vaisseau->getModificateurDegatsInfliges();
+$magicien_final = $vaisseau->getMagicienActuel();
+$nouv_magicien_puissance = $magicien_final->getPuissance();
+$nouv_magicien_mana = $magicien_final->getMana();
+$nouv_magicien_nom = $magicien_final->getNom();
 
 $joueur_suivant_id = ($joueur_role === 'joueur1') ? $game_state['joueur2_id'] : $game_state['joueur1_id'];
 
@@ -148,37 +152,27 @@ $stmt_update = mysqli_prepare($link, "UPDATE game_state SET
     {$joueur_role}_drones = ?, 
     {$joueur_role}_hp = ?, 
     {$joueur_role}_puissance_tir = ?, 
-    joueur_actuel = ?,
-    joueur1_action_faite = 0,
-    joueur2_action_faite = 0,
-    joueur1_a_bouge = 0,
-    joueur2_a_bouge = 0
-    WHERE partie_id = ?");
-
-$nouv_hp = $vaisseau->getPointDeVie();
-$nouv_puissance = $vaisseau->getPuissanceDeTir();
-
-$stmt_update = mysqli_prepare($link, "UPDATE game_state SET 
-    {$joueur_role}_drones = ?, 
-    {$joueur_role}_hp = ?, 
-    {$joueur_role}_puissance_tir = ?, 
     {$joueur_role}_damage_multiplier = ?,
+    {$joueur_role}_magicien_puissance = ?,
+    {$joueur_role}_magicien_mana = ?,
+    {$joueur_role}_magicien_nom = ?,
     joueur_actuel = ?,
     joueur1_action_faite = 0,
     joueur2_action_faite = 0,
     joueur1_a_bouge = 0,
     joueur2_a_bouge = 0
     WHERE partie_id = ?");
-
-$nouv_modif = $vaisseau->getModificateurDegatsInfliges();
 
 mysqli_stmt_bind_param(
     $stmt_update,
-    "siidss",
+    "siidiisss",
     $nouveaux_drones_json,
     $nouv_hp,
     $nouv_puissance,
     $nouv_modif,
+    $nouv_magicien_puissance,
+    $nouv_magicien_mana,
+    $nouv_magicien_nom,
     $joueur_suivant_id,
     $partie_id_session
 );

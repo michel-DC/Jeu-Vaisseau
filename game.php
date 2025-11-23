@@ -31,8 +31,8 @@ if (!$partie || ($partie['statut'] ?? '') !== 'complete') {
     exit();
 }
 
-// Fetch game state
-$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie, joueur1_choix_vaisseau, joueur2_choix_vaisseau, joueur1_position, joueur2_position, joueur1_puissance_tir, joueur2_puissance_tir, joueur1_magicien_mana, joueur2_magicien_mana, joueur1_damage_multiplier, joueur2_damage_multiplier FROM game_state WHERE partie_id = ?";
+// recup la data
+$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie, joueur1_choix_vaisseau, joueur2_choix_vaisseau, joueur1_position, joueur2_position, joueur1_puissance_tir, joueur2_puissance_tir, joueur1_magicien_mana, joueur2_magicien_mana, joueur1_damage_multiplier, joueur2_damage_multiplier, joueur1_magicien_puissance, joueur2_magicien_puissance FROM game_state WHERE partie_id = ?";
 $stmt_game_state = mysqli_prepare($link, $sql_game_state);
 mysqli_stmt_bind_param($stmt_game_state, "s", $partie_id_session);
 mysqli_stmt_execute($stmt_game_state);
@@ -155,6 +155,13 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
             <span id="player-cannon" class="stat-value">100</span>
         </div>
     </div>
+    <div class="stat-item" data-tooltip="Puissance magique du magicien">
+        <i class="fas fa-hat-wizard stat-icon"></i>
+        <div class="stat-info">
+            <span class="stat-label">Magie</span>
+            <span id="player-magic-power" class="stat-value">1</span>
+        </div>
+    </div>
 </div>
 
 <div class="action-buttons">
@@ -252,6 +259,8 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
             joueur2MagicienMana: <?php echo $gameState['joueur2_magicien_mana'] ?? 1; ?>,
             joueur1DamageMultiplier: <?php echo $gameState['joueur1_damage_multiplier'] ?? 1.0; ?>,
             joueur2DamageMultiplier: <?php echo $gameState['joueur2_damage_multiplier'] ?? 1.0; ?>,
+            joueur1MagicienPuissance: <?php echo $gameState['joueur1_magicien_puissance'] ?? 1; ?>,
+            joueur2MagicienPuissance: <?php echo $gameState['joueur2_magicien_puissance'] ?? 1; ?>,
             joueurId: '<?php echo $_SESSION['joueur_id'] ?? ''; ?>',
             joueurRole: '<?php echo $_SESSION['joueur_role'] ?? ''; ?>',
             partieId: '<?php echo $partie_id_session; ?>',

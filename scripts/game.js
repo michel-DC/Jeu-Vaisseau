@@ -147,9 +147,16 @@ document.addEventListener("DOMContentLoaded", () => {
   function updatePlayerStatsPanel() {
     const playerManaElement = document.getElementById("player-mana");
     const playerCannonElement = document.getElementById("player-cannon");
+    const playerMagicPowerElement =
+      document.getElementById("player-magic-power");
     const statsPanel = document.getElementById("player-stats-panel");
 
-    if (!playerManaElement || !playerCannonElement || !statsPanel) {
+    if (
+      !playerManaElement ||
+      !playerCannonElement ||
+      !playerMagicPowerElement ||
+      !statsPanel
+    ) {
       return; // Les éléments n'existent pas encore
     }
 
@@ -164,9 +171,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const multiplier = currentGameState[`${myRole}DamageMultiplier`] ?? 1.0;
     const cannonPower = Math.round(basePower * multiplier);
 
+    // Récupérer la puissance du magicien
+    const magicPower = currentGameState[`${myRole}MagicienPuissance`] ?? 1;
+
     // Mettre à jour l'affichage
     playerManaElement.textContent = `${mana}/${maxMana}`;
     playerCannonElement.textContent = cannonPower;
+    if (playerMagicPowerElement) {
+      playerMagicPowerElement.textContent = magicPower;
+    }
 
     // Ajouter une classe visuelle si le mana est vide
     const manaStatItem = playerManaElement.closest(".stat-item");
@@ -481,6 +494,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (serverState.joueur2_damage_multiplier !== undefined) {
           currentGameState.joueur2DamageMultiplier = parseFloat(
             serverState.joueur2_damage_multiplier
+          );
+        }
+        if (serverState.joueur1_magicien_puissance !== undefined) {
+          currentGameState.joueur1MagicienPuissance = parseInt(
+            serverState.joueur1_magicien_puissance,
+            10
+          );
+        }
+        if (serverState.joueur2_magicien_puissance !== undefined) {
+          currentGameState.joueur2MagicienPuissance = parseInt(
+            serverState.joueur2_magicien_puissance,
+            10
           );
         }
 

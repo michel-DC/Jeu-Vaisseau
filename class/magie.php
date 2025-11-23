@@ -18,8 +18,8 @@ class Magie
 
         $puissanceMagie = $magicien->getPuissance();
 
-        if ($cible->getPointDeVie() > (50 * $puissanceMagie)) {
-            $msg = "La cible a trop de PV pour que le sort soit efficace (seuil : " . (50 * $puissanceMagie) . " PV).";
+        if ($cible->getPointDeVie() > (500 * $puissanceMagie)) {
+            $msg = "La cible a trop de PV pour que le sort soit efficace (seuil : " . (500 * $puissanceMagie) . " PV).";
             return [
                 'success' => false,
                 'message_lanceur' => $msg,
@@ -36,7 +36,7 @@ class Magie
         
         if ($chance <= 33) {
             // Sort de poison
-            $degatsPoison = 10 * $puissanceMagie;
+            $degatsPoison = 50 * $puissanceMagie;
             $effetPoison = [
                 'type' => 'poison',
                 'damage' => $degatsPoison,
@@ -47,7 +47,7 @@ class Magie
             $messageCible = "Le magicien ennemi vous a empoisonné ! Vous subirez " . $degatsPoison . " dégâts par tour.";
         } elseif ($chance <= 66) {
             // Sort de soin
-            $soinParTour = 10 * $puissanceMagie;
+            $soinParTour = 100 * $puissanceMagie;
             $effetSoin = [
                 'type' => 'soin',
                 'amount' => $soinParTour,
@@ -62,12 +62,12 @@ class Magie
             if (mt_rand(1, 100) <= $chanceParalysie) {
                 $effetParalysie = [
                     'type' => 'paralysie',
-                    'duration' => 5,
+                    'duration' => 3,
                     'chance' => $chanceParalysie,
                 ];
                 $cible->appliquerEffet($effetParalysie);
-                $messageLanceur = "Votre magicien a paralysé l'ennemi ! Il risque de bloquer son action durant 5 tours.";
-                $messageCible = "Le magicien ennemi vous a paralysé ! Vous risquez de bloquer votre action durant 5 tours.";
+                $messageLanceur = "Votre magicien a paralysé l'ennemi ! Il risque de bloquer son action durant 3 tours.";
+                $messageCible = "Le magicien ennemi vous a paralysé ! Vous risquez de bloquer votre action durant 3 tours.";
             } else {
                 $messageLanceur = "Votre magicien a tenté une paralysie, mais le sort a échoué.";
                 $messageCible = "Le magicien ennemi a tenté de vous paralyser, mais le sort a échoué.";

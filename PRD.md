@@ -55,13 +55,13 @@ Après un déplacement, le joueur peut encore agir (sauf se redéplacer).
 
   **Pour un magicien puissance 1 :**
 
-  - Exécution si l'ennemi ≤ 50 PV (seuil × puissance du magicien).\
-  - 33% sort de poison : 10 dégâts par tour jusqu'à la fin du jeu
+  - Exécution si l'ennemi ≤ 500 PV (seuil × puissance du magicien).\
+  - 33% sort de poison : 50 dégâts par tour jusqu'à la fin du jeu
     (dégâts × puissance).\
-  - 33% sort de soin : +10 PV à chaque tour du vaisseau (soins ×
+  - 33% sort de soin : +100 PV à chaque tour du vaisseau (soins ×
     puissance).\
   - 33% sort de paralysie : 1 chance sur 5 de bloquer l'action
-    adverse durant 5 tours (probabilité multipliée par
+    adverse durant 3 tours (probabilité multipliée par
     puissance/5).\
     Un seul effet possible sur un vaisseau adverse.
 

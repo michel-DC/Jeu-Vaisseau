@@ -1,163 +1,245 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+/* styles/choix-vaisseau.css */
 
-@font-face {
-  font-family: "Harlow";
-  src: url("../assets/font/HARLOWSI_1.woff");
+/* --- STYLES DE BASE --- */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+:root {
+    --primary-color: #d9d0ff;
+    --secondary-color: #8c7dab;
+    --glow-color: #a38cff;
+    --background-color-transparent: rgba(15, 5, 30, 0.2);
+    --border-color: rgba(217, 208, 255, 0.3);
+}
+
+html {
+    height: 100%;
 }
 
 body {
-  background-color: #000;
-  color: #fff;
-  font-family: "Poppins", sans-serif;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  text-align: center;
+    margin: 0;
+    padding: 0;
+    font-family: 'Rajdhani', sans-serif;
+    color: var(--primary-color);
+    background: #0c0a0f url('../assets/images/background-choix-joueur.png') no-repeat center center;
+    background-size: cover;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(20, 10, 30, 0), rgba(20, 10, 30, 0.4) 50%, rgba(20, 10, 30, 0));
+    background-size: 100% 4px;
+    animation: scan 10s linear infinite;
+    z-index: 1;
+}
+
+@keyframes scan {
+    from { background-position-y: 0; }
+    to { background-position-y: 100vh; }
 }
 
 .container {
-  position: relative;
-  z-index: 2;
-  padding: 40px;
-  border-radius: 15px;
-  width: 90%;
-  max-width: 700px;
+    background: none;
+    padding: 40px;
+    text-align: center;
+    max-width: 800px;
+    width: 90%;
+    z-index: 2;
+    position: relative;
 }
 
+/* --- TITRE & EFFET GLITCH --- */
 .title {
-  font-family: "Harlow", sans-serif;
-  font-size: 4.5em;
-  color: #ffffff;
-  margin-bottom: 40px;
-  text-shadow: 2px 2px 4px #000;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 4.5em;
+    font-weight: 900;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    margin-bottom: 50px;
 }
+
+.glitch {
+    position: relative;
+    text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
+    animation: glitch-flicker 4s infinite alternate;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.glitch::before {
+    left: 2px;
+    text-shadow: -2px 0 #ff00c1;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch::after {
+    left: -2px;
+    text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
+    clip: rect(85px, 450px, 90px, 0);
+    animation: glitch-anim-2 4s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+    0% { clip: rect(42px, 9999px, 44px, 0); transform: skew(0.3deg); }
+    10% { clip: rect(17px, 9999px, 94px, 0); transform: skew(0.5deg); }
+    20% { clip: rect(50px, 9999px, 52px, 0); transform: skew(0.2deg); }
+    30% { clip: rect(25px, 9999px, 62px, 0); transform: skew(0.1deg); }
+    40% { clip: rect(40px, 9999px, 65px, 0); transform: skew(0.6deg); }
+    50% { clip: rect(45px, 9999px, 85px, 0); transform: skew(0.3deg); }
+    60% { clip: rect(10px, 9999px, 105px, 0); transform: skew(0.7deg); }
+    70% { clip: rect(65px, 9999px, 80px, 0); transform: skew(0.1deg); }
+    80% { clip: rect(95px, 9999px, 110px, 0); transform: skew(0.4deg); }
+    90% { clip: rect(22px, 9999px, 78px, 0); transform: skew(0.8deg); }
+    100% { clip: rect(1px, 9999px, 99px, 0); transform: skew(0.2deg); }
+}
+
+@keyframes glitch-anim-2 {
+    0% { clip: rect(12px, 9999px, 119px, 0); transform: skew(0.2deg); }
+    10% { clip: rect(99px, 9999px, 82px, 0); transform: skew(0.6deg); }
+    20% { clip: rect(35px, 9999px, 48px, 0); transform: skew(0.3deg); }
+    30% { clip: rect(40px, 9999px, 72px, 0); transform: skew(0.8deg); }
+    40% { clip: rect(52px, 9999px, 65px, 0); transform: skew(0.2deg); }
+    50% { clip: rect(60px, 9999px, 75px, 0); transform: skew(0.5deg); }
+    60% { clip: rect(78px, 9999px, 105px, 0); transform: skew(0.1deg); }
+    70% { clip: rect(25px, 9999px, 90px, 0); transform: skew(0.7deg); }
+    80% { clip: rect(115px, 9999px, 130px, 0); transform: skew(0.3deg); }
+    90% { clip: rect(32px, 9999px, 88px, 0); transform: skew(0.5deg); }
+    100% { clip: rect(4px, 9999px, 109px, 0); transform: skew(0.1deg); }
+}
+
+
+@keyframes glitch-flicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+        text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
+        opacity: 1;
+    }
+    20%, 24%, 55% {
+        text-shadow: none;
+        opacity: 0.9;
+    }
+}
+
+/* --- BOUTONS --- */
+.btn-primary {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1em;
+    padding: 15px 35px;
+    border: 2px solid var(--border-color);
+    color: var(--primary-color);
+    background-color: transparent;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-color: var(--glow-color);
+    box-shadow: 0 0 10px rgba(163, 140, 255, 0.3);
+}
+
+.btn-primary:hover {
+    background-color: var(--glow-color);
+    color: #0c0a0f;
+    box-shadow: 0 0 20px var(--glow-color);
+}
+
+/* --- STYLES SPÉCIFIQUES À LA PAGE --- */
 
 #selection-vaisseau {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
 }
 
 .carousel-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: var(--background-color-transparent);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    box-shadow: inset 0 0 15px rgba(163, 140, 255, 0.2);
 }
 
 .vaisseau-image {
-  width: 100%;
-  max-width: 400px;
-  height: auto;
-  object-fit: contain;
-  margin: 0 20px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 15px var(--glow-color));
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .nav-button {
-  background: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-  font-size: 2em;
-  cursor: pointer;
-  padding: 10px 20px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 2em;
+    padding: 10px 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--primary-color);
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .nav-button:hover {
-  background: #ffffff;
-  color: #000;
+    background-color: var(--glow-color);
+    color: #0c0a0f;
+    border-color: var(--glow-color);
+    box-shadow: 0 0 15px var(--glow-color);
 }
 
-.valider-button {
-  background-color: #ffffff;
-  color: #000;
-  border: none;
-  padding: 15px 40px;
-  font-size: 1.2em;
-  font-weight: bold;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  text-transform: uppercase;
-  margin-top: 20px;
+/* --- SALLE D'ATTENTE --- */
+#salle-attente-vaisseau {
+    margin-top: 40px;
 }
 
-.valider-button:hover {
-  background-color: #cccccc;
-}
-
-.stars,
-.stars2,
-.stars3 {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.stars {
-  background-image: radial-gradient(1px 1px at 20px 30px, white, transparent),
-    radial-gradient(1px 1px at 40px 70px, white, transparent),
-    radial-gradient(1px 1px at 90px 40px, white, transparent),
-    radial-gradient(1px 1px at 130px 80px, white, transparent),
-    radial-gradient(1px 1px at 160px 120px, white, transparent);
-  background-size: 200px 200px;
-  animation: moveStars 15s linear infinite;
-}
-
-.stars2 {
-  background-image: radial-gradient(2px 2px at 50px 150px, white, transparent),
-    radial-gradient(2px 2px at 100px 50px, white, transparent),
-    radial-gradient(2px 2px at 150px 180px, white, transparent);
-  background-size: 250px 250px;
-  animation: moveStars 30s linear infinite;
-}
-
-.stars3 {
-  background-image: radial-gradient(3px 3px at 80px 100px, white, transparent),
-    radial-gradient(3px 3px at 180px 80px, white, transparent);
-  background-size: 300px 300px;
-  animation: moveStars 45s linear infinite;
-}
-
-@keyframes moveStars {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-200px);
-  }
-}
-
-/* --- Salle d'attente --- */
 #salle-attente-vaisseau h2 {
-  color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1.5em;
+    color: var(--primary-color);
+    letter-spacing: 2px;
+    margin-bottom: 20px;
 }
 
 .loader {
-  border: 8px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 8px solid #ffffff;
-  width: 60px;
-  height: 60px;
-  animation: spin 2s linear infinite;
-  margin: 20px auto;
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--glow-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 30px auto;
+    box-shadow: 0 0 15px var(--glow-color);
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+    to {
+        transform: rotate(360deg);
+    }
 }

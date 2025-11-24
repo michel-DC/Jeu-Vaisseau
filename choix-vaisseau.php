@@ -21,15 +21,18 @@ $vaisseaux_paths = array_map(function ($file) use ($vaisseaux_dir) {
     <title>Choix du Vaisseau - Nova Protocol</title>
     <link rel="stylesheet" href="styles/choix-vaisseau.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>
-    <div class="stars"></div>
-    <div class="stars2"></div>
-    <div class="stars3"></div>
+    <div class="scanline"></div>
     <div class="container">
-        <h1 class="title">Besoin d'un vaisseau ?</h1>
+        <h1 class="title">
+            <span class="glitch" data-text="SÉLECTION VAISSEAU">SÉLECTION VAISSEAU</span>
+        </h1>
 
         <div id="selection-vaisseau">
             <div class="carousel-container">
@@ -37,7 +40,10 @@ $vaisseaux_paths = array_map(function ($file) use ($vaisseaux_dir) {
                 <img src="" alt="Vaisseau" id="vaisseau-image" class="vaisseau-image">
                 <button id="next-vaisseau" class="nav-button">&#10095;</button>
             </div>
-            <button id="valider-choix" class="valider-button">Valider le choix</button>
+            <button id="valider-choix" class="btn-primary">
+                <span class="btn-text">CONFIRMER SÉLECTION</span>
+                <span class="btn-glare"></span>
+            </button>
         </div>
 
 

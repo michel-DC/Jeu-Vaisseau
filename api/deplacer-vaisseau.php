@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../database/db.php';
+require_once 'gestion-tour.php';
 
 header('Content-Type: application/json');
 
@@ -108,6 +109,9 @@ if ($new_pos !== $current_pos) {
         mysqli_stmt_close($stmt_update_turn);
 
         if ($turn_update_success) {
+             // Gérer les effets de début de tour pour le joueur suivant
+             gerer_debut_tour($link, $partie_id, $joueur_suivant_id);
+
              echo json_encode(['success' => true, 'new_position' => $new_pos, 'a_bouge' => 1, 'tour_change' => true]);
         } else {
              echo json_encode(['success' => true, 'new_position' => $new_pos, 'a_bouge' => 1, 'error' => 'Mouvement OK mais erreur changement de tour.']);

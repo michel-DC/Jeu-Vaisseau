@@ -2,6 +2,7 @@
 require_once '../database/db.php';
 require_once '../class/vaisseau.php';
 require_once '../class/attaque.php';
+require_once 'gestion-tour.php';
 session_start();
 
 header('Content-Type: application/json');
@@ -215,6 +216,9 @@ $execute_success = mysqli_stmt_execute($stmt_update_game_state);
 if ($execute_success) {
     $affected_rows = mysqli_stmt_affected_rows($stmt_update_game_state);
     if ($affected_rows > 0) {
+        // Gérer les effets de début de tour pour le joueur suivant
+        gerer_debut_tour($link, $partie_id, $joueur_suivant_id);
+
         echo json_encode(array_merge($resultatAttaque, [
             'attaquant_nouveaux_hp' => $attaquantVaisseau->getPointDeVie(),
             'defenseur_nouveaux_hp' => $defenseurVaisseau->getPointDeVie(),

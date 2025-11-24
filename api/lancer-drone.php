@@ -2,6 +2,7 @@
 require_once '../database/db.php';
 require_once '../class/vaisseau.php';
 require_once '../class/drone.php';
+require_once 'gestion-tour.php';
 session_start();
 
 header('Content-Type: application/json');
@@ -178,6 +179,9 @@ mysqli_stmt_bind_param(
 );
 
 if (mysqli_stmt_execute($stmt_update)) {
+    // Gérer les effets de début de tour pour le joueur suivant
+    gerer_debut_tour($link, $partie_id_session, $joueur_suivant_id);
+
     echo json_encode([
         'success' => true,
         'message' => $message_resultat,

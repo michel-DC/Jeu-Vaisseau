@@ -17,11 +17,39 @@ html {
 }
 
 .column {
-  border-right: 2px solid white;
+  border-right: 2px solid rgba(255, 255, 255, 0.3); 
 }
 
 .column:last-child {
   border-right: none;
+}
+
+#zone-3 {
+  position: relative;
+  border-right-color: transparent; 
+}
+
+#zone-3::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -2px; 
+  width: 4px; 
+  background: linear-gradient(
+    to top,
+    transparent,
+    #ffef70,
+    #ffab40,
+    #f57c00,
+    #ffab40,
+    #ffef70,
+    transparent
+  );
+  background-size: 100% 200%;
+  animation: fire-move 1.2s linear infinite;
+  filter: blur(4px) brightness(1.2);
+  z-index: 0;
 }
 
 .zone-starry {
@@ -85,49 +113,49 @@ html {
 }
 
 #opponent-ship {
-  left: calc(100% * 11 / 12); /* Centré dans la 6ème colonne */
+  left: calc(100% * 11 / 12); 
   top: 50%;
-  transform: translate(-50%, -50%) scaleX(-1); /* Effet miroir pour l'adversaire */
+  transform: translate(-50%, -50%) scaleX(-1); 
 }
 
 #my-ship {
-  left: calc(100% * 1 / 12); /* Centré dans la 1ère colonne */
+  left: calc(100% * 1 / 12); 
   top: 50%;
   transform: translate(-50%, -50%);
 }
 
-/* Styles pour l'animation du tir (faisceau) */
+
 .beam {
   position: absolute;
-  height: 4px; /* Épaisseur du faisceau */
-  background-color: #ff00ff; /* Couleur du faisceau (magenta) */
+  height: 4px; 
+  background-color: #ff00ff; 
   box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-  transform-origin: left center; /* Point de rotation du faisceau */
+  transform-origin: left center; 
   z-index: 10;
   opacity: 0;
-  animation: shootBeam 0.5s ease-out forwards; /* Animation du tir */
+  animation: shootBeam 0.5s ease-out forwards; 
 }
 
 @keyframes shootBeam {
   0% {
     opacity: 0;
-    transform: scaleX(0); /* Commence sans longueur */
+    transform: scaleX(0); 
   }
   20% {
     opacity: 1;
-    transform: scaleX(0.2); /* Apparaît et s'étend un peu */
+    transform: scaleX(0.2); 
   }
   80% {
     opacity: 1;
-    transform: scaleX(1); /* S'étend sur toute la longueur */
+    transform: scaleX(1); 
   }
   100% {
     opacity: 0;
-    transform: scaleX(1); /* Disparaît */
+    transform: scaleX(1); 
   }
 }
 
-/* Drone Animation */
+
 .drone-animation {
   position: absolute;
   width: 40px;
@@ -172,7 +200,7 @@ html {
   }
 }
 
-/* Attack Beam Animation - RED */
+
 .beam {
   position: absolute;
   height: 4px;
@@ -208,7 +236,7 @@ html {
   }
 }
 
-/* Magic Beam Animation - CYAN */
+
 .magic-beam {
   position: absolute;
   height: 6px;
@@ -241,5 +269,14 @@ html {
   100% {
     opacity: 0;
     transform: scaleX(1);
+  }
+}
+
+@keyframes fire-move {
+  0% {
+    background-position: 0 100%;
+  }
+  100% {
+    background-position: 0 -100%;
   }
 }

@@ -1,27 +1,29 @@
 .narration-box {
   position: fixed;
-  bottom: 100px; /* Adjust this to be above the action buttons */
+  bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
   max-width: 600px;
   height: 150px;
   background-color: rgba(0, 0, 0, 0.7);
-  border: 1px solid #00ffff;
+  border: 1px solid var(--border-color, rgba(217, 208, 255, 0.3));
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-  color: #fff;
+  box-shadow: 0 0 10px var(--glow-color, rgba(163, 140, 255, 0.5));
+  color: var(--primary-color, #d9d0ff);
   padding: 15px;
   overflow-y: auto;
-  font-size: 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1em;
 }
 
 .narration-box h3 {
+  font-family: 'Orbitron', sans-serif;
   margin-top: 0;
   margin-bottom: 10px;
-  color: #00ffff;
+  color: var(--glow-color, #a38cff);
   text-align: center;
-  border-bottom: 1px solid #00ffff;
+  border-bottom: 1px solid var(--border-color, rgba(217, 208, 255, 0.3));
   padding-bottom: 5px;
 }
 
@@ -31,15 +33,15 @@
 }
 
 .narration-event .timestamp {
-  color: #888;
+  color: var(--secondary-color, #8c7dab);
   margin-right: 10px;
 }
 
 .narration-event .message {
-  color: #fff;
+  color: var(--primary-color, #d9d0ff);
 }
 
-/* Custom scrollbar for webkit browsers */
+
 .narration-box::-webkit-scrollbar {
   width: 8px;
 }
@@ -50,7 +52,7 @@
 }
 
 .narration-box::-webkit-scrollbar-thumb {
-  background-color: #00ffff;
+  background-color: var(--glow-color, #a38cff);
   border-radius: 10px;
   border: 2px solid rgba(0, 0, 0, 0.2);
 }

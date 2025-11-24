@@ -84,6 +84,7 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
     <link rel="stylesheet" href="styles/narration.css">
     <link rel="stylesheet" href="styles/drone-selection.css">
     <link rel="stylesheet" href="styles/player-stats-panel.css">
+    <link rel="stylesheet" href="styles/popup.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="shortcut icon" href="assets/logo/image.png" type="image/x-icon">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -222,7 +223,7 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
                     <span>Drone de Reconnaissance</span>
                 </button>
             </div>
-            <button id="cancel-drone-selection" class="cancel-button">Annuler</button>
+            <button id="cancel-drone-selection">Annuler</button>
         </div>
     </div>
 

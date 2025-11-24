@@ -1,4 +1,3 @@
-/* styles/player-stats-panel.css */
 .player-stats-panel {
   position: fixed;
   bottom: 20px;
@@ -9,7 +8,7 @@
   padding: 15px;
   background: rgba(0, 0, 0, 0.5);
   border-radius: 25px;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 15px #d9d0ff;
   backdrop-filter: blur(10px);
 }
 
@@ -60,7 +59,7 @@
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
-/* Tooltip styles */
+
 .stat-item::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -85,7 +84,7 @@
   visibility: visible;
 }
 
-/* Animation pour le mana vide */
+
 .stat-item.mana-empty .stat-icon {
   color: #ff4444;
   text-shadow: 0 0 10px rgba(255, 68, 68, 0.8);
@@ -110,7 +109,7 @@
   }
 }
 
-/* Animation pour le canon faible */
+
 .stat-item.cannon-low .stat-icon {
   color: #ffaa00;
   text-shadow: 0 0 10px rgba(255, 170, 0, 0.8);

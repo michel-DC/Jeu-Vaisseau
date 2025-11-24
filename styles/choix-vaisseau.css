@@ -1,6 +1,4 @@
-/* styles/choix-vaisseau.css */
 
-/* --- STYLES DE BASE --- */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
 
 :root {
@@ -58,7 +56,7 @@ body {
     position: relative;
 }
 
-/* --- TITRE & EFFET GLITCH --- */
+
 .title {
     font-family: 'Orbitron', sans-serif;
     font-size: 4.5em;
@@ -139,13 +137,14 @@ body {
     }
 }
 
-/* --- BOUTONS --- */
+
 .btn-primary {
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
     font-size: 1em;
     padding: 15px 35px;
     border: 2px solid var(--border-color);
+    border-radius: 999px;
     color: var(--primary-color);
     background-color: transparent;
     cursor: pointer;
@@ -164,7 +163,6 @@ body {
     box-shadow: 0 0 20px var(--glow-color);
 }
 
-/* --- STYLES SPÉCIFIQUES À LA PAGE --- */
 
 #selection-vaisseau {
     display: flex;
@@ -199,7 +197,7 @@ body {
     font-size: 2em;
     padding: 10px 20px;
     border: 2px solid var(--border-color);
-    border-radius: 50%;
+    border-radius: 999px;
     color: var(--primary-color);
     background-color: transparent;
     cursor: pointer;
@@ -213,7 +211,7 @@ body {
     box-shadow: 0 0 15px var(--glow-color);
 }
 
-/* --- SALLE D'ATTENTE --- */
+
 #salle-attente-vaisseau {
     margin-top: 40px;
 }

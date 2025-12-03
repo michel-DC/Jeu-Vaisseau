@@ -135,26 +135,25 @@ class Magie
                 }
             }
 
-                // Per-turn block chance scales with puissance: base 20% at puissance=1 up to 40% at puissance=5
-                $chancePerTurn = 0.2 + (max(0, $puissance - 1) * 0.05);
-                $chancePercent = (int)round(min(0.95, $chancePerTurn) * 100); // cap at 95%
+            // Per-turn block chance scales with puissance: base 20% at puissance=1 up to 40% at puissance=5
+            $chancePerTurn = 0.2 + (max(0, $puissance - 1) * 0.05);
+            $chancePercent = (int)round(min(0.95, $chancePerTurn) * 100); // cap at 95%
 
-                $effetParalysie = [
-                    'type' => 'paralysie',
-                    'duration' => 5,
-                    'chance' => $chancePercent,
-                    'puissance' => $puissance
-                ];
-                if ($idxP === null) {
-                    $cible->appliquerEffet($effetParalysie);
-                } else {
-                    $existingEffects = $cible->getStatusEffects() ?: [];
-                    $existingEffects[$idxP] = $effetParalysie;
-                    $cible->setStatusEffects(array_values($existingEffects));
-                }
-                $messageLanceur = "Votre magicien a infligé une paralysie : chaque tour, l'ennemi a " . $chancePercent . "% de chance de ne pas pouvoir attaquer pendant 5 tours.";
-                $messageCible = "Vous êtes visé par une paralysie : chaque tour, vous avez " . $chancePercent . "% de chance de rater votre action pendant 5 tours.";
+            $effetParalysie = [
+                'type' => 'paralysie',
+                'duration' => 5,
+                'chance' => $chancePercent,
+                'puissance' => $puissance
+            ];
+            if ($idxP === null) {
+                $cible->appliquerEffet($effetParalysie);
+            } else {
+                $existingEffects = $cible->getStatusEffects() ?: [];
+                $existingEffects[$idxP] = $effetParalysie;
+                $cible->setStatusEffects(array_values($existingEffects));
             }
+            $messageLanceur = "Votre magicien a infligé une paralysie : chaque tour, l'ennemi a " . $chancePercent . "% de chance de ne pas pouvoir attaquer pendant 5 tours.";
+            $messageCible = "Vous êtes visé par une paralysie : chaque tour, vous avez " . $chancePercent . "% de chance de rater votre action pendant 5 tours.";
         }
 
         return [
@@ -164,3 +163,4 @@ class Magie
         ];
     }
 
+}

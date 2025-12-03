@@ -30,7 +30,7 @@ if (isset($_SESSION['partie_id'])) {
         </h1>
 
         <div id="choix-initial">
-            <h2>I love michel</h2>
+            <h2>Prêt à commencer ?</h2>
             <form id="form-creer-partie">
                 <button type="submit" class="btn-primary">
                     <span class="btn-text">INITIALISER PARTIE</span>

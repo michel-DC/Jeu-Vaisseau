@@ -147,12 +147,46 @@ html {
     transform: scaleX(0.2); 
   }
   80% {
-    opacity: 1;
-    transform: scaleX(1); 
+    opacity: 0.8;
+    transform: scaleX(1);
   }
   100% {
     opacity: 0;
-    transform: scaleX(1); 
+    transform: scaleX(1);
+  }
+}
+
+/* Strong laser for damage > 100 */
+.beam.strong {
+  height: 8px;
+  background: linear-gradient(90deg, #ffff00, #ffaa00, #ff4400, #ffaa00, #ffff00);
+  box-shadow: 0 0 20px #ffff00, 0 0 40px #ffaa00, 0 0 60px #ff4400, 0 0 80px #ffaa00;
+  animation: shootBeamStrong 0.8s ease-out forwards;
+}
+
+@keyframes shootBeamStrong {
+  0% {
+    opacity: 0;
+    transform: scaleX(0) scaleY(0.8);
+    box-shadow: 0 0 10px #ffff00, 0 0 20px #ffaa00, 0 0 30px #ff4400;
+  }
+  15% {
+    opacity: 1;
+    transform: scaleX(0.2) scaleY(1);
+    box-shadow: 0 0 25px #ffff00, 0 0 50px #ffaa00, 0 0 75px #ff4400;
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1) scaleY(1.1);
+    box-shadow: 0 0 30px #ffff00, 0 0 60px #ffaa00, 0 0 90px #ff4400, 0 0 120px #ffaa00;
+  }
+  75% {
+    opacity: 0.9;
+    transform: scaleX(1) scaleY(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1) scaleY(0.8);
   }
 }
 
@@ -247,6 +281,110 @@ html {
   z-index: 10;
   opacity: 0;
   animation: shootMagicBeam 1s ease-out forwards;
+}
+
+/* Effect icons shown under each ship */
+.effect-icons {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 78%; /* a little below the ship */
+  display: flex;
+  gap: 8px;
+  z-index: 60;
+  pointer-events: auto;
+}
+
+.effect-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  cursor: default;
+}
+
+.effect-icon svg { width: 18px; height: 18px; }
+
+/* Tooltip using data-title attribute */
+.effect-icon[data-title]:hover::after {
+  content: attr(data-title);
+  position: fixed;
+  bottom: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20,20,20,0.95);
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  z-index: 99999;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Paralysis small electric explosion */
+.paralysis-explosion {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  margin-left: -24px; /* center on point */
+  margin-top: -24px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 120;
+  background: radial-gradient(circle at 30% 30%, #fff 0%, rgba(255,255,255,0.8) 10%, rgba(255,200,0,0.2) 30%, transparent 60%);
+  box-shadow: 0 0 18px rgba(255,230,120,0.9), 0 0 36px rgba(255,150,0,0.6);
+  animation: paralysis-burst 0.9s ease-out forwards;
+}
+
+@keyframes paralysis-burst {
+  0% { transform: scale(0.2); opacity: 1; filter: blur(0); }
+  40% { transform: scale(1.1); opacity: 0.95; }
+  70% { transform: scale(1.3); opacity: 0.6; filter: blur(2px); }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Paralysis electric explosion */
+.paralysis-explosion {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  margin-left: -60px;
+  margin-top: -60px;
+  pointer-events: none;
+  z-index: 1200;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(180,240,255,0.95) 0%, rgba(120,200,255,0.75) 20%, rgba(20,120,255,0.15) 60%, transparent 70%);
+  box-shadow: 0 0 30px rgba(120,200,255,0.9), 0 0 60px rgba(0,150,255,0.6) inset;
+  animation: paralysis-flicker 0.9s ease-out forwards;
+}
+
+.paralysis-explosion::before,
+.paralysis-explosion::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 140%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(0,200,255,0.7));
+  transform-origin: center;
+  opacity: 0.9;
+}
+.paralysis-explosion::before { transform: translate(-50%, -50%) rotate(25deg); }
+.paralysis-explosion::after { transform: translate(-50%, -50%) rotate(-25deg); }
+
+@keyframes paralysis-flicker {
+  0% { transform: scale(0.6); opacity: 0; filter: blur(2px); }
+  20% { transform: scale(1.05); opacity: 1; filter: blur(0px); }
+  60% { transform: scale(0.95); opacity: 0.9; }
+  100% { transform: scale(1.1); opacity: 0; filter: blur(6px); }
 }
 
 @keyframes shootMagicBeam {

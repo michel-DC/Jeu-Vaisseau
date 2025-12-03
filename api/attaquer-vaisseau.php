@@ -134,8 +134,22 @@ $defenseurVaisseau->setMaxPuissanceDeTir($defenseurData['max_puissance_tir']);
 $defenseurVaisseau->setAttaquesConsecutivesSansTirer($defenseurData['attaques_sans_tirer']);
 $defenseurVaisseau->setCooldownAttaqueSpeciale($defenseurData['cooldown_attaque_speciale']);
 
+// Appliquer le bonus de dégâts du vaisseau (Chaos: +20 dégâts)
+$vaisseau_bonus = $_SESSION['vaisseau_bonus'] ?? ['bonus_degats' => 0];
+$bonus_degats = $vaisseau_bonus['bonus_degats'] ?? 0;
+
+if ($bonus_degats > 0) {
+    $puissance_originale = $attaquantVaisseau->getPuissanceDeTir();
+    $attaquantVaisseau->setPuissanceDeTir($puissance_originale + $bonus_degats);
+}
+
 $attaque = new Attaque();
 $resultatAttaque = $attaque->tirer($attaquantVaisseau, $defenseurVaisseau);
+
+// Restaurer la puissance originale après l'attaque
+if ($bonus_degats > 0) {
+    $attaquantVaisseau->setPuissanceDeTir($puissance_originale);
+}
 
 // Ajouter le rôle du joueur au début du message pour personnalisation côté client
 $resultatAttaque['message'] = "ATTACK:{$attaquant_role}:" . $resultatAttaque['message'];
@@ -185,6 +199,9 @@ if ($attaquant_role === 'joueur1') {
 }
 
 $sql_update_game_state .= "joueur_actuel = ?, joueur1_action_faite = 0, joueur2_action_faite = 0, joueur1_a_bouge = 0, joueur2_a_bouge = 0 WHERE partie_id = ?";
+
+// Réinitialiser le compteur de mouvements pour le nouveau tour
+$_SESSION['mouvements_utilises'] = 0;
 
 $types_update .= "ss";
 

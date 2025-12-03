@@ -133,6 +133,27 @@ function parseAndTranslateNarration(rawMessage) {
     return asResult(message, "you");
   }
 
+  // Format EFFECT:message (for status effects like paralysis)
+  if (parts.length > 1 && parts[0] === "EFFECT") {
+    const message = parts.slice(1).join(":");
+    // Check if this is a paralysis message that prevents a turn
+    if (message.includes("est paralysé et ne peut pas jouer ce tour")) {
+      // Determine which player is paralyzed
+      let targetShip = null;
+      if (message.includes("Joueur 1")) {
+        targetShip = myRole === 'joueur1' ? document.getElementById('my-ship') : document.getElementById('opponent-ship');
+      } else if (message.includes("Joueur 2")) {
+        targetShip = myRole === 'joueur2' ? document.getElementById('my-ship') : document.getElementById('opponent-ship');
+      }
+
+      // Trigger the paralysis effect
+      if (targetShip && typeof triggerParalysisEffect === 'function') {
+        triggerParalysisEffect(targetShip);
+      }
+    }
+    return asResult(message, "system");
+  }
+
   return asResult(rawMessage, "system");
 }
 
@@ -178,7 +199,7 @@ function fetchNarrationEvents() {
 
       renderNarrationEvents(events);
     },
-    error: function (jqXHR, textStatus, errorThrown) {},
+    error: function (jqXHR, textStatus, errorThrown) { },
   });
 }
 

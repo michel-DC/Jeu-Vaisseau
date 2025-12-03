@@ -74,6 +74,9 @@ $joueur_suivant_id = ($game_state['joueur1_id'] === $joueur_id) ? $game_state['j
 
 // Update: set mana to 1 (idempotent), write new drones, change current player and reset turn flags.
 $sql_up = "UPDATE game_state SET {$joueur_role}_magicien_mana = 1, {$joueur_role}_drones = ?, joueur_actuel = ?, joueur1_action_faite = 0, joueur2_action_faite = 0, joueur1_a_bouge = 0, joueur2_a_bouge = 0 WHERE partie_id = ?";
+
+// Réinitialiser le compteur de mouvements pour le nouveau tour
+$_SESSION['mouvements_utilises'] = 0;
 $stmt_up = mysqli_prepare($link, $sql_up);
 if (!$stmt_up) {
     http_response_code(500);
@@ -104,7 +107,7 @@ if ($stmt_n) {
 
 if ($ok) {
     // Gérer les effets de début de tour du joueur suivant
-    gerer_debut_tour($link, $partie_id, $joueur_suivant_id);
+    $debutResult = gerer_debut_tour($link, $partie_id, $joueur_suivant_id);
 
     mysqli_close($link);
     echo json_encode([
@@ -112,7 +115,9 @@ if ($ok) {
         'message' => 'Rechargement: mana restaurée (si pas déjà pleine) et deux drones ajoutés. Le tour est terminé.',
         'nouveaux_drones' => $drones,
         'joueur_suivant_id' => $joueur_suivant_id,
-        'tour_change' => true
+        'tour_change' => true,
+        'joueur_suivant_peut_jouer' => isset($debutResult['peut_jouer']) ? (bool)$debutResult['peut_jouer'] : true,
+        'joueur_suivant_messages' => isset($debutResult['messages']) ? $debutResult['messages'] : []
     ]);
 } else {
     mysqli_close($link);

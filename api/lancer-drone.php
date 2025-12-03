@@ -164,6 +164,9 @@ $stmt_update = mysqli_prepare($link, "UPDATE game_state SET
     joueur2_a_bouge = 0
     WHERE partie_id = ?");
 
+// Réinitialiser le compteur de mouvements pour le nouveau tour
+$_SESSION['mouvements_utilises'] = 0;
+
 mysqli_stmt_bind_param(
     $stmt_update,
     "siidiisss",
@@ -178,14 +181,17 @@ mysqli_stmt_bind_param(
     $partie_id_session
 );
 
-if (mysqli_stmt_execute($stmt_update)) {
+    if (mysqli_stmt_execute($stmt_update)) {
     // Gérer les effets de début de tour pour le joueur suivant
-    gerer_debut_tour($link, $partie_id_session, $joueur_suivant_id);
+    $debutResult = gerer_debut_tour($link, $partie_id_session, $joueur_suivant_id);
 
     echo json_encode([
         'success' => true,
         'message' => $message_resultat,
-        'drone_type' => $drone_type
+        'drone_type' => $drone_type,
+        'joueur_suivant_id' => $joueur_suivant_id,
+        'joueur_suivant_peut_jouer' => isset($debutResult['peut_jouer']) ? (bool)$debutResult['peut_jouer'] : true,
+        'joueur_suivant_messages' => isset($debutResult['messages']) ? $debutResult['messages'] : []
     ]);
 } else {
     http_response_code(500);

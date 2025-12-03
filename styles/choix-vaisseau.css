@@ -1,11 +1,10 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap');
 
 :root {
     --primary-color: #d9d0ff;
     --secondary-color: #8c7dab;
     --glow-color: #a38cff;
-    --background-color-transparent: rgba(15, 5, 30, 0.2);
+    --background-color-transparent: rgba(15, 5, 30, 0.6);
     --border-color: rgba(217, 208, 255, 0.3);
 }
 
@@ -25,7 +24,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .scanline {
@@ -42,28 +41,36 @@ body {
 }
 
 @keyframes scan {
-    from { background-position-y: 0; }
-    to { background-position-y: 100vh; }
+    from {
+        background-position-y: 0;
+    }
+
+    to {
+        background-position-y: 100vh;
+    }
 }
 
 .container {
     background: none;
-    padding: 40px;
+    padding: 20px;
     text-align: center;
-    max-width: 800px;
-    width: 90%;
+    max-width: 1400px;
+    width: 95%;
     z-index: 2;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 
 .title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 4.5em;
+    font-size: 4em;
     font-weight: 900;
     color: var(--primary-color);
     text-transform: uppercase;
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
 
 .glitch {
@@ -98,40 +105,136 @@ body {
 }
 
 @keyframes glitch-anim {
-    0% { clip: rect(42px, 9999px, 44px, 0); transform: skew(0.3deg); }
-    10% { clip: rect(17px, 9999px, 94px, 0); transform: skew(0.5deg); }
-    20% { clip: rect(50px, 9999px, 52px, 0); transform: skew(0.2deg); }
-    30% { clip: rect(25px, 9999px, 62px, 0); transform: skew(0.1deg); }
-    40% { clip: rect(40px, 9999px, 65px, 0); transform: skew(0.6deg); }
-    50% { clip: rect(45px, 9999px, 85px, 0); transform: skew(0.3deg); }
-    60% { clip: rect(10px, 9999px, 105px, 0); transform: skew(0.7deg); }
-    70% { clip: rect(65px, 9999px, 80px, 0); transform: skew(0.1deg); }
-    80% { clip: rect(95px, 9999px, 110px, 0); transform: skew(0.4deg); }
-    90% { clip: rect(22px, 9999px, 78px, 0); transform: skew(0.8deg); }
-    100% { clip: rect(1px, 9999px, 99px, 0); transform: skew(0.2deg); }
+    0% {
+        clip: rect(42px, 9999px, 44px, 0);
+        transform: skew(0.3deg);
+    }
+
+    10% {
+        clip: rect(17px, 9999px, 94px, 0);
+        transform: skew(0.5deg);
+    }
+
+    20% {
+        clip: rect(50px, 9999px, 52px, 0);
+        transform: skew(0.2deg);
+    }
+
+    30% {
+        clip: rect(25px, 9999px, 62px, 0);
+        transform: skew(0.1deg);
+    }
+
+    40% {
+        clip: rect(40px, 9999px, 65px, 0);
+        transform: skew(0.6deg);
+    }
+
+    50% {
+        clip: rect(45px, 9999px, 85px, 0);
+        transform: skew(0.3deg);
+    }
+
+    60% {
+        clip: rect(10px, 9999px, 105px, 0);
+        transform: skew(0.7deg);
+    }
+
+    70% {
+        clip: rect(65px, 9999px, 80px, 0);
+        transform: skew(0.1deg);
+    }
+
+    80% {
+        clip: rect(95px, 9999px, 110px, 0);
+        transform: skew(0.4deg);
+    }
+
+    90% {
+        clip: rect(22px, 9999px, 78px, 0);
+        transform: skew(0.8deg);
+    }
+
+    100% {
+        clip: rect(1px, 9999px, 99px, 0);
+        transform: skew(0.2deg);
+    }
 }
 
 @keyframes glitch-anim-2 {
-    0% { clip: rect(12px, 9999px, 119px, 0); transform: skew(0.2deg); }
-    10% { clip: rect(99px, 9999px, 82px, 0); transform: skew(0.6deg); }
-    20% { clip: rect(35px, 9999px, 48px, 0); transform: skew(0.3deg); }
-    30% { clip: rect(40px, 9999px, 72px, 0); transform: skew(0.8deg); }
-    40% { clip: rect(52px, 9999px, 65px, 0); transform: skew(0.2deg); }
-    50% { clip: rect(60px, 9999px, 75px, 0); transform: skew(0.5deg); }
-    60% { clip: rect(78px, 9999px, 105px, 0); transform: skew(0.1deg); }
-    70% { clip: rect(25px, 9999px, 90px, 0); transform: skew(0.7deg); }
-    80% { clip: rect(115px, 9999px, 130px, 0); transform: skew(0.3deg); }
-    90% { clip: rect(32px, 9999px, 88px, 0); transform: skew(0.5deg); }
-    100% { clip: rect(4px, 9999px, 109px, 0); transform: skew(0.1deg); }
+    0% {
+        clip: rect(12px, 9999px, 119px, 0);
+        transform: skew(0.2deg);
+    }
+
+    10% {
+        clip: rect(99px, 9999px, 82px, 0);
+        transform: skew(0.6deg);
+    }
+
+    20% {
+        clip: rect(35px, 9999px, 48px, 0);
+        transform: skew(0.3deg);
+    }
+
+    30% {
+        clip: rect(40px, 9999px, 72px, 0);
+        transform: skew(0.8deg);
+    }
+
+    40% {
+        clip: rect(52px, 9999px, 65px, 0);
+        transform: skew(0.2deg);
+    }
+
+    50% {
+        clip: rect(60px, 9999px, 75px, 0);
+        transform: skew(0.5deg);
+    }
+
+    60% {
+        clip: rect(78px, 9999px, 105px, 0);
+        transform: skew(0.1deg);
+    }
+
+    70% {
+        clip: rect(25px, 9999px, 90px, 0);
+        transform: skew(0.7deg);
+    }
+
+    80% {
+        clip: rect(115px, 9999px, 130px, 0);
+        transform: skew(0.3deg);
+    }
+
+    90% {
+        clip: rect(32px, 9999px, 88px, 0);
+        transform: skew(0.5deg);
+    }
+
+    100% {
+        clip: rect(4px, 9999px, 109px, 0);
+        transform: skew(0.1deg);
+    }
 }
 
 
 @keyframes glitch-flicker {
-    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+
+    0%,
+    18%,
+    22%,
+    25%,
+    53%,
+    57%,
+    100% {
         text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color);
         opacity: 1;
     }
-    20%, 24%, 55% {
+
+    20%,
+    24%,
+    55% {
         text-shadow: none;
         opacity: 0.9;
     }
@@ -141,34 +244,55 @@ body {
 .btn-primary {
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
-    font-size: 1em;
-    padding: 15px 35px;
+    font-size: 1.2em;
+    padding: 20px 40px;
     border: 2px solid var(--border-color);
-    border-radius: 999px;
+    border-radius: 5px;
     color: var(--primary-color);
-    background-color: transparent;
+    background-color: rgba(163, 140, 255, 0.1);
     cursor: pointer;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     border-color: var(--glow-color);
-    box-shadow: 0 0 10px rgba(163, 140, 255, 0.3);
+    box-shadow: 0 0 15px rgba(163, 140, 255, 0.2);
+    margin-top: 20px;
 }
 
 .btn-primary:hover {
     background-color: var(--glow-color);
     color: #0c0a0f;
-    box-shadow: 0 0 20px var(--glow-color);
+    box-shadow: 0 0 30px var(--glow-color);
+    transform: translateY(-2px);
 }
 
 
-#selection-vaisseau {
+/* Layout for Selection */
+.selection-layout {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    width: 100%;
+}
+
+.carousel-section {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    max-width: 600px;
+}
+
+.details-section {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 40px;
+    align-items: flex-start;
+    text-align: left;
+    max-width: 500px;
 }
 
 .carousel-container {
@@ -179,36 +303,67 @@ body {
     background: var(--background-color-transparent);
     border: 1px solid var(--border-color);
     padding: 20px;
-    box-shadow: inset 0 0 15px rgba(163, 140, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
 }
 
 .vaisseau-image {
     width: 100%;
-    max-width: 500px;
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(0 0 15px var(--glow-color));
+    filter: drop-shadow(0 0 20px var(--glow-color));
     transition: transform 0.3s ease, opacity 0.3s ease;
+    max-height: 400px;
 }
 
 .nav-button {
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
     font-size: 2em;
-    padding: 10px 20px;
-    border: 2px solid var(--border-color);
-    border-radius: 999px;
+    padding: 10px 15px;
+    border: none;
     color: var(--primary-color);
     background-color: transparent;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-shadow: 0 0 10px var(--glow-color);
 }
 
 .nav-button:hover {
-    background-color: var(--glow-color);
-    color: #0c0a0f;
-    border-color: var(--glow-color);
-    box-shadow: 0 0 15px var(--glow-color);
+    color: #fff;
+    text-shadow: 0 0 20px #fff;
+    transform: scale(1.2);
+}
+
+
+.vaisseau-nom {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3.5em;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    text-shadow: 0 0 15px var(--glow-color);
+    margin: 0 0 20px 0;
+    line-height: 1;
+}
+
+.description-container {
+    background: rgba(10, 10, 15, 0.8);
+    border-left: 4px solid var(--glow-color);
+    padding: 25px;
+    margin-bottom: 30px;
+    width: 100%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.vaisseau-description {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.4em;
+    font-weight: 500;
+    color: #e0e0e0;
+    line-height: 1.6;
+    margin: 0;
 }
 
 
@@ -239,5 +394,35 @@ body {
 @keyframes spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+    .selection-layout {
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .carousel-section,
+    .details-section {
+        max-width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+
+    .details-section {
+        align-items: center;
+    }
+
+    .vaisseau-nom {
+        text-align: center;
+        font-size: 2.5em;
+    }
+
+    .description-container {
+        text-align: center;
+        border-left: none;
+        border-top: 4px solid var(--glow-color);
     }
 }

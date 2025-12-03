@@ -5,13 +5,6 @@ if (!isset($_SESSION['partie_id'])) {
     header('Location: choix-joueur.php');
     exit();
 }
-
-$vaisseaux_dir = 'assets/vaisseaux/';
-$vaisseaux_files = array_values(array_diff(scandir($vaisseaux_dir), array('..', '.')));
-$vaisseaux_paths = array_map(function ($file) use ($vaisseaux_dir) {
-    return $vaisseaux_dir . $file;
-}, $vaisseaux_files);
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -34,16 +27,25 @@ $vaisseaux_paths = array_map(function ($file) use ($vaisseaux_dir) {
             <span class="glitch" data-text="SÉLECTION VAISSEAU">SÉLECTION VAISSEAU</span>
         </h1>
 
-        <div id="selection-vaisseau">
-            <div class="carousel-container">
-                <button id="prev-vaisseau" class="nav-button">&#10094;</button>
-                <img src="" alt="Vaisseau" id="vaisseau-image" class="vaisseau-image">
-                <button id="next-vaisseau" class="nav-button">&#10095;</button>
+        <div id="selection-vaisseau" class="selection-layout">
+            <div class="carousel-section">
+                <div class="carousel-container">
+                    <button id="prev-vaisseau" class="nav-button">&#10094;</button>
+                    <img src="" alt="Vaisseau" id="vaisseau-image" class="vaisseau-image">
+                    <button id="next-vaisseau" class="nav-button">&#10095;</button>
+                </div>
             </div>
-            <button id="valider-choix" class="btn-primary">
-                <span class="btn-text">CONFIRMER SÉLECTION</span>
-                <span class="btn-glare"></span>
-            </button>
+            
+            <div class="details-section">
+                <h2 id="vaisseau-nom" class="vaisseau-nom"></h2>
+                <div class="description-container">
+                    <p id="vaisseau-description" class="vaisseau-description"></p>
+                </div>
+                <button id="valider-choix" class="btn-primary">
+                    <span class="btn-text">CONFIRMER SÉLECTION</span>
+                    <span class="btn-glare"></span>
+                </button>
+            </div>
         </div>
 
 
@@ -55,9 +57,6 @@ $vaisseaux_paths = array_map(function ($file) use ($vaisseaux_dir) {
 
     </div>
 
-    <script>
-        const vaisseaux = <?php echo json_encode($vaisseaux_paths); ?>;
-    </script>
     <script src="scripts/choix-vaisseau.js" defer></script>
 </body>
 

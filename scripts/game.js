@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     move: new Audio('assets/audio/move.mp3'),
     recharge: new Audio('assets/audio/recharge.mp3'),
     magic: new Audio('assets/audio/magic.mp3'),
+    paralysie: new Audio('assets/audio/paralysie.mp3'),
     error: new Audio('assets/audio/error.mp3')
   };
 
@@ -39,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Global AJAX error logger (helps diagnose unexpected HTML/500 responses)
-  $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+  $(document).ajaxError(function (event, jqXHR, ajaxSettings, thrownError) {
     try {
       console.error('AJAX error:', ajaxSettings.url, jqXHR.status, thrownError);
       console.error('Response text (truncated):', (jqXHR.responseText || '').slice(0, 1200));
@@ -49,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Fonction pour déclencher l'animation du faisceau
-  function triggerBeamAnimation(attackerShipElement, defenderShipElement) {
+  function triggerBeamAnimation(attackerShipElement, defenderShipElement, damage) {
     if (!attackerShipElement || !defenderShipElement) {
       console.warn(
         "Impossible de déclencher l'animation du faisceau: éléments de vaisseau manquants."
@@ -82,6 +83,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const beam = document.createElement("div");
     beam.classList.add("beam");
+    // Apply strong laser class if damage > 100
+    if (damage > 100) {
+      beam.classList.add("strong");
+    }
     beam.style.width = `${distance}px`;
     beam.style.left = `${startX}px`;
     beam.style.top = `${startY}px`;
@@ -93,6 +98,66 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       beam.remove();
     }, 500); // Doit correspondre à la durée de l'animation CSS (0.5s)
+  }
+
+  // Create effect icon element for given effect type
+  function createEffectIcon(effect) {
+    const type = effect && effect.type ? effect.type : effect;
+    const el = document.createElement('div');
+    el.className = 'effect-icon';
+    let title = '';
+    let svg = '';
+    switch (type) {
+      case 'paralysie':
+        title = 'Paralysie — chance de rater votre action ce tour.';
+        svg = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v6" stroke="#ffea00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 9l7 7 7-7" stroke="#ffea00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 20h16" stroke="#ffffff" stroke-opacity="0.15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        break;
+      case 'poison':
+        title = 'Poison — inflige des dégâts en début de tour.';
+        svg = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8 6 6 9 6 11a6 6 0 0012 0c0-2-2-5-6-9z" stroke="#7CFF6B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 13.5c.9 1.2 2.7 2.5 3.5 2.5s2.6-1.3 3.5-2.5" stroke="#7CFF6B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        break;
+      case 'soin':
+      case 'soin':
+        title = 'Soin — récupère des points de vie en début de tour.';
+        svg = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14" stroke="#4AD3FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12h14" stroke="#4AD3FF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        break;
+      default:
+        title = type;
+        svg = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="8" stroke="#ddd" stroke-width="1.6"/></svg>';
+    }
+    el.innerHTML = svg;
+    el.setAttribute('data-title', title);
+    return el;
+  }
+
+  function renderEffectIconsForZone(zoneElement, role) {
+    if (!zoneElement) return;
+    // remove previous effect icons container
+    const prev = zoneElement.querySelector('.effect-icons');
+    if (prev) prev.remove();
+
+    const container = document.createElement('div');
+    container.className = 'effect-icons';
+
+    // read effects from currentGameState
+    const effetsRaw = currentGameState[`${role}Effets`];
+    let parsed = [];
+    if (!effetsRaw) {
+      // nothing
+    } else if (typeof effetsRaw === 'string') {
+      try { parsed = JSON.parse(effetsRaw); } catch (e) { parsed = []; }
+    } else if (Array.isArray(effetsRaw)) parsed = effetsRaw;
+
+    if (!Array.isArray(parsed) || parsed.length === 0) return; // no icons
+
+    // For each effect, create icon
+    parsed.forEach(eff => {
+      if (!eff || !eff.type) return;
+      const icon = createEffectIcon(eff);
+      container.appendChild(icon);
+    });
+
+    zoneElement.appendChild(container);
   }
 
   function updateShipsDisplay() {
@@ -135,6 +200,8 @@ document.addEventListener("DOMContentLoaded", () => {
       shipImg.classList.add("player-ship");
       shipImg.id = "my-ship";
       myZone.appendChild(shipImg);
+      // render effect icons under my ship
+      renderEffectIconsForZone(myZone, joueurRole === 'joueur1' ? 'joueur1' : 'joueur2');
     }
 
     const opponentZoneId = `zone-${7 - opponentPosition}`;
@@ -146,6 +213,8 @@ document.addEventListener("DOMContentLoaded", () => {
       shipImg.classList.add("player-ship");
       shipImg.id = "opponent-ship";
       opponentZone.appendChild(shipImg);
+      // render effect icons under opponent ship
+      renderEffectIconsForZone(opponentZone, joueurRole === 'joueur1' ? 'joueur2' : 'joueur1');
     }
   }
 
@@ -257,6 +326,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fonction pour mettre à jour l'état des boutons d'action
   function updateActionButtonsState() {
+    // If local paralysis flag is set, keep buttons disabled
+    if (currentGameState.localParalyzed) {
+      btnForward.disabled = true;
+      btnBackward.disabled = true;
+      btnShoot.disabled = true;
+      if (btnDrone) btnDrone.disabled = true;
+      if (btnMagic) btnMagic.disabled = true;
+      if (btnRecharge) btnRecharge.disabled = true;
+      return;
+    }
     const isMyTurn =
       currentGameState.joueurId === currentGameState.joueurActuel;
     const myRole = currentGameState.joueurRole;
@@ -272,7 +351,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnBackward.disabled = true;
     btnShoot.disabled = true;
     // cooldown mechanic removed — ensure no badge is present
-    try { btnShoot.removeAttribute('data-cooldown'); } catch(e) {}
+    try { btnShoot.removeAttribute('data-cooldown'); } catch (e) { }
     if (btnDrone) btnDrone.disabled = true;
     if (btnMagic) btnMagic.disabled = true;
 
@@ -283,7 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnBackward.disabled = false;
       }
       // Offensive action buttons
-        if (!hasTakenOffensiveAction) {
+      if (!hasTakenOffensiveAction) {
         // No longer a cooldown on shooting — allow shoot when no offensive action taken
         btnShoot.disabled = false;
         // Drone button should only be enabled if we still have a drone available
@@ -336,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
           btnBackward.disabled = true;
 
           // Play movement sound
-          try { sfx.move.play().catch(()=>{}); } catch(e) {}
+          try { sfx.move.play().catch(() => { }); } catch (e) { }
 
           // Show immediate feedback to the player that move succeeded
           addLocalNarrationEvent("Déplacement effectué — vous pouvez encore attaquer.");
@@ -381,7 +460,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (myRole) currentGameState[`${myRole}ABouge`] = 1;
             btnForward.disabled = true;
             btnBackward.disabled = true;
-          } catch (e) {}
+          } catch (e) { }
           return;
         }
 
@@ -392,7 +471,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Otherwise it's a network / unexpected error — keep the error SFX and message
-        try { sfx.error.play().catch(()=>{}); } catch(e) {}
+        try { sfx.error.play().catch(() => { }); } catch (e) { }
         addLocalNarrationEvent('Erreur réseau lors du déplacement. Détails: ' + (errorThrown || textStatus || jqXHR.status || 'unknown'));
       },
     });
@@ -430,13 +509,13 @@ document.addEventListener("DOMContentLoaded", () => {
           try {
             const dmg = parseInt(response.degatsInfliges || response.degats || 0, 10);
             if (!isNaN(dmg)) {
-              if (dmg <= 100) sfx.laserWeak.play().catch(()=>{});
-              else sfx.laserStrong.play().catch(()=>{});
+              if (dmg <= 100) sfx.laserWeak.play().catch(() => { });
+              else sfx.laserStrong.play().catch(() => { });
             } else {
               // default weak
-              sfx.laserWeak.play().catch(()=>{});
+              sfx.laserWeak.play().catch(() => { });
             }
-          } catch (e) {}
+          } catch (e) { }
 
           if (response.message) {
             addNarrationEvent(response.message); // Envoyer à la BDD via l'API
@@ -444,7 +523,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const attackerShip = document.getElementById("my-ship");
           const defenderShip = document.getElementById("opponent-ship");
-          triggerBeamAnimation(attackerShip, defenderShip);
+          // Extract damage to determine laser strength
+          const dmgValue = parseInt(response.degatsInfliges || response.degats || 0, 10);
+          triggerBeamAnimation(attackerShip, defenderShip, dmgValue);
+          // If server indicates the next player cannot play due to an effect (paralysis), show effect
+          try {
+            if (response.joueur_suivant_peut_jouer === false) {
+              const targetId = response.joueur_suivant_id;
+              const targetShip = (targetId === currentGameState.joueurId) ? document.getElementById('my-ship') : document.getElementById('opponent-ship');
+              triggerParalysisEffect(targetShip);
+              // If the paralyzed player is this client, ensure action buttons are disabled immediately
+              if (targetId === currentGameState.joueurId) {
+                btnForward.disabled = true; btnBackward.disabled = true; btnShoot.disabled = true; if (btnDrone) btnDrone.disabled = true; if (btnMagic) btnMagic.disabled = true; if (btnRecharge) btnRecharge.disabled = true;
+              }
+            }
+          } catch (e) { }
         } else {
           addLocalNarrationEvent(response.erreur);
         }
@@ -452,7 +545,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Erreur lors de l'attaque:", errorThrown);
-        try { sfx.error.play().catch(()=>{}); } catch(e) {}
+        try { sfx.error.play().catch(() => { }); } catch (e) { }
         // Try to parse server JSON for a clearer message
         try {
           const parsed = JSON.parse(jqXHR.responseText || '{}');
@@ -507,7 +600,7 @@ document.addEventListener("DOMContentLoaded", () => {
           addNarrationEvent(magicMessage);
 
           // Play magic SFX
-          try { sfx.magic.play().catch(()=>{}); } catch(e) {}
+          try { sfx.magic.play().catch(() => { }); } catch (e) { }
 
           // Optionnel: Ajouter une animation visuelle pour la magie
           const myShip = document.getElementById("my-ship");
@@ -532,6 +625,17 @@ document.addEventListener("DOMContentLoaded", () => {
               currentGameState[`${oppRole}Hp`] = parseInt(response.cible_nouveaux_hp, 10);
             }
 
+            // If server indicates the next player (after casting) cannot play, disable buttons
+            // Visual/sound effects will be triggered by EFFECT: message in narration
+            try {
+              if (response.joueur_suivant_peut_jouer === false) {
+                const targetId = response.joueur_suivant_id;
+                if (targetId === currentGameState.joueurId) {
+                  btnForward.disabled = true; btnBackward.disabled = true; btnShoot.disabled = true; if (btnDrone) btnDrone.disabled = true; if (btnMagic) btnMagic.disabled = true; if (btnRecharge) btnRecharge.disabled = true;
+                }
+              }
+            } catch (e) { }
+
             // Update UI immediately
             updatePlayerStatsPanel();
             updateHpDisplay();
@@ -545,13 +649,13 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         } else if (response.erreur) {
           showErrorPopup(response.erreur);
-          try { btnMagic.disabled = false; } catch(e) {}
+          try { btnMagic.disabled = false; } catch (e) { }
         }
         // pollGameState will handle button states
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Erreur lors de l'utilisation de la magie:", errorThrown);
-        try { sfx.error.play().catch(()=>{}); } catch(e) {}
+        try { sfx.error.play().catch(() => { }); } catch (e) { }
 
         // Essayer de parser la réponse JSON pour afficher l'erreur
         try {
@@ -559,14 +663,14 @@ document.addEventListener("DOMContentLoaded", () => {
           const errorMsg = (errorResponse && (errorResponse.erreur || errorResponse.error || errorResponse.message)) || null;
           if (errorMsg) {
             showErrorPopup(errorMsg);
-            try { btnMagic.disabled = false; } catch(e) {}
+            try { btnMagic.disabled = false; } catch (e) { }
           } else {
             showErrorPopup("Erreur réseau lors de l'utilisation de la magie. Détails: " + (errorThrown || textStatus || jqXHR.status || 'unknown'));
-            try { btnMagic.disabled = false; } catch(e) {}
+            try { btnMagic.disabled = false; } catch (e) { }
           }
         } catch (e) {
           showErrorPopup("Erreur réseau lors de l'utilisation de la magie. Détails: " + (errorThrown || textStatus || jqXHR.status || 'unknown'));
-          try { btnMagic.disabled = false; } catch(e) {}
+          try { btnMagic.disabled = false; } catch (e) { }
         }
       },
     });
@@ -595,7 +699,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Résultat du rechargement:", response);
         if (response.success) {
           // play recharge sound
-          try { sfx.recharge.play().catch(()=>{}); } catch(e) {}
+          try { sfx.recharge.play().catch(() => { }); } catch (e) { }
           if (response.message) {
             addNarrationEvent(response.message);
           }
@@ -623,6 +727,16 @@ document.addEventListener("DOMContentLoaded", () => {
               currentGameState.joueur1ABouge = 0;
               currentGameState.joueur2ABouge = 0;
               updateActionButtonsState();
+              // If the server indicates the next player is paralyzed on start of turn, disable buttons
+              // Visual/sound effects will be triggered by EFFECT: message in narration
+              try {
+                if (response.joueur_suivant_peut_jouer === false) {
+                  const targetId = response.joueur_suivant_id;
+                  if (targetId === currentGameState.joueurId) {
+                    btnForward.disabled = true; btnBackward.disabled = true; btnShoot.disabled = true; if (btnDrone) btnDrone.disabled = true; if (btnMagic) btnMagic.disabled = true; if (btnRecharge) btnRecharge.disabled = true;
+                  }
+                }
+              } catch (e) { }
             }
             updateActionButtonsState();
           } catch (e) {
@@ -635,7 +749,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Erreur lors du rechargement:", errorThrown);
-        try { sfx.error.play().catch(()=>{}); } catch(e) {}
+        try { sfx.error.play().catch(() => { }); } catch (e) { }
         try {
           const err = JSON.parse(jqXHR.responseText);
           if (err.erreur) showErrorPopup(err.erreur);
@@ -799,6 +913,29 @@ document.addEventListener("DOMContentLoaded", () => {
           currentGameState.joueur2Drones = serverState.joueur2_drones;
         }
 
+        // Capture previous effects to detect changes that should update ship display
+        const prevJ1EffRaw = currentGameState.joueur1Effets;
+        const prevJ2EffRaw = currentGameState.joueur2Effets;
+
+        // Effects (used to detect paralysis visually and block when needed)
+        if (serverState.joueur1_effets !== undefined) {
+          currentGameState.joueur1Effets = serverState.joueur1_effets;
+        }
+        if (serverState.joueur2_effets !== undefined) {
+          currentGameState.joueur2Effets = serverState.joueur2_effets;
+        }
+
+        // If effects changed, we should re-render ship display (icons)
+        try {
+          const newJ1 = JSON.stringify(currentGameState.joueur1Effets || []);
+          const oldJ1 = JSON.stringify(prevJ1EffRaw || []);
+          const newJ2 = JSON.stringify(currentGameState.joueur2Effets || []);
+          const oldJ2 = JSON.stringify(prevJ2EffRaw || []);
+          if (newJ1 !== oldJ1 || newJ2 !== oldJ2) {
+            needsShipDisplayUpdate = true;
+          }
+        } catch (e) { }
+
         // Update turn-related flags and check if button state needs update
         // Update turn-related flags and check if button state needs update
         // Use loose comparison or default to current value if undefined to prevent breaking
@@ -892,10 +1029,40 @@ document.addEventListener("DOMContentLoaded", () => {
           updateActionButtonsState();
         }
 
+        // If it's now our turn, and server reports we have a paralysis effect, block buttons
+        // Visual/sound effects are now triggered only when EFFECT: message appears in narration
+        try {
+          const myId = currentGameState.joueurId;
+          const isMyTurnNow = currentGameState.joueurActuel === myId;
+          if (isMyTurnNow) {
+            const myRole = currentGameState.joueurRole;
+            const effetsRaw = currentGameState[`${myRole}Effets`];
+            if (effetsRaw) {
+              let parsed = [];
+              if (typeof effetsRaw === 'string') {
+                try { parsed = JSON.parse(effetsRaw); } catch (e) { parsed = []; }
+              } else if (Array.isArray(effetsRaw)) parsed = effetsRaw;
+
+              const hasParalysis = Array.isArray(parsed) && parsed.some(e => e && e.type === 'paralysie');
+              if (hasParalysis) {
+                // mark locally paralyzed to keep buttons disabled until state changes
+                currentGameState.localParalyzed = true;
+                updateActionButtonsState();
+              } else {
+                // ensure flag cleared when no paralysis present
+                if (currentGameState.localParalyzed) {
+                  currentGameState.localParalyzed = false;
+                  updateActionButtonsState();
+                }
+              }
+            }
+          }
+        } catch (e) { }
+
         // Toujours mettre à jour le panneau des stats du joueur
         updatePlayerStatsPanel();
       },
-      error: function (jqXHR, textStatus, errorThrown) {},
+      error: function (jqXHR, textStatus, errorThrown) { },
     });
   }
 
@@ -909,7 +1076,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnRecharge.addEventListener("click", useRecharge);
   }
   if (btnAbandon) {
-    btnAbandon.addEventListener("click", function() {
+    btnAbandon.addEventListener("click", function () {
       if (!confirm('Êtes-vous sûr de vouloir abandonner la partie ? Cela donnera la victoire à votre adversaire.')) return;
 
       btnAbandon.disabled = true;
@@ -918,9 +1085,9 @@ document.addEventListener("DOMContentLoaded", () => {
         url: 'api/abandonner.php',
         method: 'POST',
         dataType: 'json',
-        success: function(res) {
+        success: function (res) {
           if (res.success) {
-            try { sfx.error.play().catch(()=>{}); } catch(e) {}
+            try { sfx.error.play().catch(() => { }); } catch (e) { }
             addNarrationEvent(res.message || 'Vous avez abandonné la partie.');
             // redirect back to menu after short delay to let narration / poll update
             setTimeout(() => { window.location.href = 'choix-joueur.php'; }, 800);
@@ -929,7 +1096,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btnAbandon.disabled = false;
           }
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function (jqXHR, textStatus, errorThrown) {
           try {
             const parsed = JSON.parse(jqXHR.responseText || '{}');
             const msg = parsed.erreur || parsed.error || parsed.message;
@@ -938,7 +1105,7 @@ document.addEventListener("DOMContentLoaded", () => {
               btnAbandon.disabled = false;
               return;
             }
-          } catch (e) {}
+          } catch (e) { }
           showErrorPopup('Erreur réseau lors de la tentative d\'abandon. Détails: ' + (errorThrown || textStatus || jqXHR.status || 'unknown'));
           btnAbandon.disabled = false;
         }
@@ -1015,11 +1182,22 @@ document.addEventListener("DOMContentLoaded", () => {
           const myShip = document.getElementById("my-ship");
           triggerDroneAnimation(myShip, droneType);
 
+          // If server indicates the next player cannot play due to an effect (paralysis), disable buttons
+          // Visual/sound effects will be triggered by EFFECT: message in narration
+          try {
+            if (response.joueur_suivant_peut_jouer === false) {
+              const targetId = response.joueur_suivant_id;
+              if (targetId === currentGameState.joueurId) {
+                btnForward.disabled = true; btnBackward.disabled = true; btnShoot.disabled = true; if (btnDrone) btnDrone.disabled = true; if (btnMagic) btnMagic.disabled = true; if (btnRecharge) btnRecharge.disabled = true;
+              }
+            }
+          } catch (e) { }
+
           // Play drone SFX
           try {
-            if (droneType === 'attaque') sfx.droneAttack.play().catch(()=>{});
-            else sfx.droneRecon.play().catch(()=>{});
-          } catch (e) {}
+            if (droneType === 'attaque') sfx.droneAttack.play().catch(() => { });
+            else sfx.droneRecon.play().catch(() => { });
+          } catch (e) { }
 
           // Update local drone inventory immediately for better UX.
           try {
@@ -1044,7 +1222,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Erreur lors du lancer de drone:", errorThrown);
-        try { sfx.error.play().catch(()=>{}); } catch(e) {}
+        try { sfx.error.play().catch(() => { }); } catch (e) { }
 
         // Essayer de parser la réponse JSON pour afficher l'erreur
         try {
@@ -1118,6 +1296,32 @@ document.addEventListener("DOMContentLoaded", () => {
         quitGame();
       }
     });
+  }
+
+  // Small electric explosion for paralysis
+  // Make this function globally accessible so narration.js can call it
+  window.triggerParalysisEffect = function triggerParalysisEffect(shipElement) {
+    if (!shipElement) return;
+
+    const gameContainer = document.getElementById("game-container");
+    if (!gameContainer) return;
+
+    const rect = shipElement.getBoundingClientRect();
+    const containerRect = gameContainer.getBoundingClientRect();
+
+    const x = rect.left + rect.width / 2 - containerRect.left;
+    const y = rect.top + rect.height / 2 - containerRect.top;
+
+    const expl = document.createElement('div');
+    expl.className = 'paralysis-explosion';
+    expl.style.left = `${x}px`;
+    expl.style.top = `${y}px`;
+    gameContainer.appendChild(expl);
+
+    // play sound
+    try { sfx.paralysie.currentTime = 0; sfx.paralysie.play().catch(() => { }); } catch (e) { }
+
+    setTimeout(() => { expl.remove(); }, 900);
   }
 
   if (returnMenuButton) {

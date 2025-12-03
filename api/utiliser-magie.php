@@ -231,6 +231,9 @@ if ($lanceur_role === 'joueur1') {
 
 $sql_update_game_state .= "joueur_actuel = ?, joueur1_action_faite = 0, joueur2_action_faite = 0, joueur1_a_bouge = 0, joueur2_a_bouge = 0 WHERE partie_id = ?";
 
+// Réinitialiser le compteur de mouvements pour le nouveau tour
+$_SESSION['mouvements_utilises'] = 0;
+
 $types_update .= "ss";
 
 $params_update[] = $joueur_suivant_id;
@@ -259,7 +262,7 @@ if ($execute_success) {
     $affected_rows = mysqli_stmt_affected_rows($stmt_update_game_state);
     if ($affected_rows > 0) {
         // Gérer les effets de début de tour pour le joueur suivant
-        gerer_debut_tour($link, $partie_id, $joueur_suivant_id);
+        $debutResult = gerer_debut_tour($link, $partie_id, $joueur_suivant_id);
 
         send_json([
             'success' => true,
@@ -267,7 +270,9 @@ if ($execute_success) {
             'message_cible' => $resultatMagie['message_cible'],
             'lanceur_nouveaux_hp' => $lanceurVaisseau->getPointDeVie(),
             'cible_nouveaux_hp' => $cibleVaisseau->getPointDeVie(),
-            'joueur_suivant_id' => $joueur_suivant_id
+            'joueur_suivant_id' => $joueur_suivant_id,
+            'joueur_suivant_peut_jouer' => isset($debutResult['peut_jouer']) ? (bool)$debutResult['peut_jouer'] : true,
+            'joueur_suivant_messages' => isset($debutResult['messages']) ? $debutResult['messages'] : []
         ]);
     } else {
         error_log('Erreur lors de la mise à jour de l\'état de la partie : Aucune ligne affectée. La partie_id était-elle correcte ? Client ID: ' . $partie_id_from_client . ', Session ID: ' . ($_SESSION['partie_id'] ?? 'NOT SET'));

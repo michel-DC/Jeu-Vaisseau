@@ -31,8 +31,7 @@ if (!$partie || ($partie['statut'] ?? '') !== 'complete') {
     exit();
 }
 
-// recup la data
-$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie, joueur1_choix_vaisseau, joueur2_choix_vaisseau, joueur1_position, joueur2_position, joueur1_puissance_tir, joueur2_puissance_tir, joueur1_magicien_mana, joueur2_magicien_mana, joueur1_damage_multiplier, joueur2_damage_multiplier, joueur1_magicien_puissance, joueur2_magicien_puissance FROM game_state WHERE partie_id = ?";
+$sql_game_state = "SELECT joueur1_hp, joueur2_hp, duree_partie, joueur1_choix_vaisseau, joueur2_choix_vaisseau, joueur1_position, joueur2_position, joueur1_puissance_tir, joueur2_puissance_tir, joueur1_magicien_mana, joueur2_magicien_mana, joueur1_damage_multiplier, joueur2_damage_multiplier, joueur1_magicien_puissance, joueur2_magicien_puissance, joueur1_drones, joueur2_drones FROM game_state WHERE partie_id = ?";
 $stmt_game_state = mysqli_prepare($link, $sql_game_state);
 mysqli_stmt_bind_param($stmt_game_state, "s", $partie_id_session);
 mysqli_stmt_execute($stmt_game_state);
@@ -69,6 +68,14 @@ $joueur1_vaisseau = $gameState['joueur1_choix_vaisseau'] ?? null;
 $joueur2_vaisseau = $gameState['joueur2_choix_vaisseau'] ?? null;
 $initial_joueur1_pos = $gameState['joueur1_position'] ?? null;
 $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
+$default_drones_json = json_encode([
+    ['type' => 'reconnaissance'],
+    ['type' => 'reconnaissance'],
+    ['type' => 'attaque']
+]);
+
+$initial_joueur1_drones = !empty($gameState['joueur1_drones']) ? $gameState['joueur1_drones'] : $default_drones_json;
+$initial_joueur2_drones = !empty($gameState['joueur2_drones']) ? $gameState['joueur2_drones'] : $default_drones_json;
 
 ?>
 <!DOCTYPE html>
@@ -99,6 +106,21 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
         <div class="player-hp">Vous: <span id="player-hp-you"></span></div>
         <div class="player-hp">L'autre: <span id="player-hp-other"></span></div>
         <button id="quitter-game-button">Quitter</button>
+    </div>
+
+    <!-- Abandon / Forfeit button top-left -->
+    <button id="btn-abandon" class="abandon-button" title="Abandonner la partie">Abandonner</button>
+
+    <!-- Side legends: show zone names on the left and right side (player view left, opponent view right) -->
+    <div class="side-zone-legend left">
+        <div class="side-zone-label" data-tooltip="Proche — Tir: x1.5 dégâts. Forte attaque mais le vaisseau s'y trouvant subit également x1.5 plus de dégats.">Proche</div>
+        <div class="side-zone-label" data-tooltip="Milieu — Tir : dégâts normaux (puissance du canon). Zone d'équilibre.">Milieu</div>
+        <div class="side-zone-label" data-tooltip="Éloigné — Tir: x0.75 dégâts. Le vaisseau bénéficie d'une réduction des dégâts reçus (x0.75).">Éloigné</div>
+    </div>
+    <div class="side-zone-legend right">
+        <div class="side-zone-label" data-tooltip="Proche — Tir: x1.5 dégâts. Forte attaque mais le vaisseau s'y trouvant subit également x1.5 plus de dégats.">Proche</div>
+        <div class="side-zone-label" data-tooltip="Milieu — Tir : dégâts normaux (puissance du canon). Zone d'équilibre.">Milieu</div>
+        <div class="side-zone-label" data-tooltip="Éloigné — Tir: x0.75 dégâts. Le vaisseau bénéficie d'une réduction des dégâts reçus (x0.75).">Éloigné</div>
     </div>
 
     <div id="game-container">
@@ -163,6 +185,20 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
             <span id="player-magic-power" class="stat-value">1</span>
         </div>
     </div>
+    <div class="stat-item drone-attack" data-tooltip="Drones d'attaque restants">
+        <i class="fas fa-bomb stat-icon"></i>
+        <div class="stat-info">
+            <span class="stat-label">Drones ATK</span>
+            <span id="player-drones-attack" class="stat-value">0</span>
+        </div>
+    </div>
+    <div class="stat-item drone-recon" data-tooltip="Drones de reconnaissance restants">
+        <i class="fas fa-search stat-icon"></i>
+        <div class="stat-info">
+            <span class="stat-label">Drones RCN</span>
+            <span id="player-drones-recon" class="stat-value">0</span>
+        </div>
+    </div>
 </div>
 
 <div class="action-buttons">
@@ -180,6 +216,9 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
     </div>
     <div class="action-button-container">
         <button id="btn-magic" class="action-button" data-tooltip="Utiliser sa magie" disabled><i class="fas fa-wand-magic-sparkles"></i></button>
+    </div>
+    <div class="action-button-container">
+        <button id="btn-recharge" class="action-button" data-tooltip="Recharger (mana + 2 drones)" disabled><i class="fas fa-bolt"></i></button>
     </div>
 </div>
 
@@ -262,6 +301,10 @@ $initial_joueur2_pos = $gameState['joueur2_position'] ?? null;
             joueur2DamageMultiplier: <?php echo $gameState['joueur2_damage_multiplier'] ?? 1.0; ?>,
             joueur1MagicienPuissance: <?php echo $gameState['joueur1_magicien_puissance'] ?? 1; ?>,
             joueur2MagicienPuissance: <?php echo $gameState['joueur2_magicien_puissance'] ?? 1; ?>,
+            joueur1CooldownAttaqueSpeciale: <?php echo $gameState['joueur1_cooldown_attaque_speciale'] ?? 0; ?>,
+            joueur2CooldownAttaqueSpeciale: <?php echo $gameState['joueur2_cooldown_attaque_speciale'] ?? 0; ?>,
+            joueur1Drones: <?php echo $gameState['joueur1_drones'] ?? '[]'; ?>,
+            joueur2Drones: <?php echo $gameState['joueur2_drones'] ?? '[]'; ?>,
             joueurId: '<?php echo $_SESSION['joueur_id'] ?? ''; ?>',
             joueurRole: '<?php echo $_SESSION['joueur_role'] ?? ''; ?>',
             partieId: '<?php echo $partie_id_session; ?>',

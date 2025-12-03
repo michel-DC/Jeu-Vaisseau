@@ -30,9 +30,16 @@ if ($stmt === false) {
 mysqli_stmt_bind_param($stmt, "ss", $partie_id, $joueur_id);
 
 if (mysqli_stmt_execute($stmt)) {
-    $sql_game_state = "INSERT INTO game_state (partie_id, joueur1_hp, joueur2_hp, duree_partie) VALUES (?, 1000, 1000, 0)";
+    // Default starting drones: 2 reconnaissance + 1 attaque
+    $default_drones = json_encode([
+        ['type' => 'reconnaissance'],
+        ['type' => 'reconnaissance'],
+        ['type' => 'attaque']
+    ]);
+
+    $sql_game_state = "INSERT INTO game_state (partie_id, joueur1_hp, joueur2_hp, duree_partie, joueur1_drones, joueur2_drones) VALUES (?, 1000, 1000, 0, ?, ?)";
     $stmt_game_state = mysqli_prepare($link, $sql_game_state);
-    mysqli_stmt_bind_param($stmt_game_state, "s", $partie_id);
+    mysqli_stmt_bind_param($stmt_game_state, "sss", $partie_id, $default_drones, $default_drones);
 
     if (mysqli_stmt_execute($stmt_game_state)) {
         $_SESSION['partie_id'] = $partie_id;

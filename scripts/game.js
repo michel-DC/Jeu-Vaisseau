@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnBackward = document.getElementById("btn-backward");
   const btnShoot = document.getElementById("btn-shoot");
   const btnMagic = document.getElementById("btn-magic");
+  const btnRecharge = document.getElementById("btn-recharge");
+  const btnAbandon = document.getElementById("btn-abandon");
   const quitterGameButton = document.getElementById("quitter-game-button");
   const gameOverPopup = document.getElementById("game-over-popup");
   const gameOverMessage = document.getElementById("game-over-message");
@@ -10,6 +12,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentGameState = { ...initialGameState };
   console.log("Initial Game State:", currentGameState);
+
+  // Audio SFX — keep file names in assets/audio. Files can be added later.
+  const sfx = {
+    laserWeak: new Audio('assets/audio/laser-weak.mp3'),
+    laserStrong: new Audio('assets/audio/laser-strong.mp3'),
+    droneAttack: new Audio('assets/audio/drone-attack.mp3'),
+    droneRecon: new Audio('assets/audio/drone-recon.mp3'),
+    move: new Audio('assets/audio/move.mp3'),
+    recharge: new Audio('assets/audio/recharge.mp3'),
+    magic: new Audio('assets/audio/magic.mp3'),
+    error: new Audio('assets/audio/error.mp3')
+  };
+
+  // Preload SFX where possible
+  Object.values(sfx).forEach(a => { a.preload = 'auto'; a.volume = 0.9; });
 
   // Helper function to get opponent ID
   function getOpponentId() {
@@ -20,6 +37,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return null;
   }
+
+  // Global AJAX error logger (helps diagnose unexpected HTML/500 responses)
+  $(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+    try {
+      console.error('AJAX error:', ajaxSettings.url, jqXHR.status, thrownError);
+      console.error('Response text (truncated):', (jqXHR.responseText || '').slice(0, 1200));
+    } catch (e) {
+      console.error('Error while logging AJAX error', e);
+    }
+  });
 
   // Fonction pour déclencher l'animation du faisceau
   function triggerBeamAnimation(attackerShipElement, defenderShipElement) {
@@ -196,6 +223,36 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       cannonStatItem.classList.remove("cannon-low");
     }
+
+    // --- Drones: afficher le nombre restant de chaque type ---
+    const droneAttackEl = document.getElementById("player-drones-attack");
+    const droneReconEl = document.getElementById("player-drones-recon");
+    if (droneAttackEl && droneReconEl) {
+      // currentGameState stores arrays at joueur1Drones/joueur2Drones
+      const drones = currentGameState[`${myRole}Drones`] || [];
+      // drones may be JSON string if not parsed; handle both
+      let droneArray = drones;
+      if (typeof drones === "string") {
+        try {
+          droneArray = JSON.parse(drones);
+        } catch (e) {
+          droneArray = [];
+        }
+      }
+
+      let attackCount = 0;
+      let reconCount = 0;
+      if (Array.isArray(droneArray)) {
+        droneArray.forEach((d) => {
+          const t = d && d.type ? d.type : d;
+          if (t === "attaque" || t === "attack") attackCount++;
+          else if (t === "reconnaissance" || t === "recon") reconCount++;
+        });
+      }
+
+      droneAttackEl.textContent = attackCount;
+      droneReconEl.textContent = reconCount;
+    }
   }
 
   // Fonction pour mettre à jour l'état des boutons d'action
@@ -214,6 +271,8 @@ document.addEventListener("DOMContentLoaded", () => {
     btnForward.disabled = true;
     btnBackward.disabled = true;
     btnShoot.disabled = true;
+    // cooldown mechanic removed — ensure no badge is present
+    try { btnShoot.removeAttribute('data-cooldown'); } catch(e) {}
     if (btnDrone) btnDrone.disabled = true;
     if (btnMagic) btnMagic.disabled = true;
 
@@ -224,13 +283,32 @@ document.addEventListener("DOMContentLoaded", () => {
         btnBackward.disabled = false;
       }
       // Offensive action buttons
-      if (!hasTakenOffensiveAction) {
+        if (!hasTakenOffensiveAction) {
+        // No longer a cooldown on shooting — allow shoot when no offensive action taken
         btnShoot.disabled = false;
-        if (btnDrone) btnDrone.disabled = false;
-        if (btnMagic) btnMagic.disabled = false;
+        // Drone button should only be enabled if we still have a drone available
+        if (btnDrone) {
+          let droneAvailable = false;
+          try {
+            const drones = currentGameState[`${myRole}Drones`] || [];
+            const parsed = typeof drones === 'string' ? JSON.parse(drones) : drones;
+            if (Array.isArray(parsed) && parsed.length > 0) droneAvailable = true;
+          } catch (e) {
+            droneAvailable = false;
+          }
+          btnDrone.disabled = !droneAvailable;
+        }
+        // Only enable magic if the magicien has mana
+        if (btnMagic) {
+          const mana = parseInt(currentGameState[`${myRole}MagicienMana`] ?? 1, 10);
+          btnMagic.disabled = !(mana > 0);
+        }
       }
-      // Non-offensive actions (heal, recharge) might always be available on your turn
-      // TODO: Enable heal/recharge buttons here
+      // Non-offensive actions (heal, recharge) are available on your turn if applicable.
+      if (btnRecharge) {
+        // Recharge is always available on your turn (it only adds drones and may restore mana)
+        btnRecharge.disabled = false;
+      }
     }
   }
 
@@ -246,15 +324,76 @@ document.addEventListener("DOMContentLoaded", () => {
       success: function (result) {
         if (!result.success) {
           addLocalNarrationEvent(result.error || "Mouvement impossible.");
+        } else {
+          // Immediately update local state so the player can't move again
+          // before the next poll. Keep the turn — movement doesn't end it.
+          const myRole = currentGameState.joueurRole;
+          if (myRole) {
+            currentGameState[`${myRole}ABouge`] = 1;
+          }
+          // disable move buttons in the UI right away for better UX
+          btnForward.disabled = true;
+          btnBackward.disabled = true;
+
+          // Play movement sound
+          try { sfx.move.play().catch(()=>{}); } catch(e) {}
+
+          // Show immediate feedback to the player that move succeeded
+          addLocalNarrationEvent("Déplacement effectué — vous pouvez encore attaquer.");
+
+          // Also show a short temporary message in the turn-status area
+          const turnStatusEl = document.getElementById("turn-status");
+          if (turnStatusEl) {
+            const prevText = turnStatusEl.textContent;
+            turnStatusEl.textContent = "Déplacement effectué — vous pouvez encore agir";
+            turnStatusEl.classList.add("move-done");
+            setTimeout(() => {
+              // Restore to the appropriate message (the poll will keep it accurate too)
+              if (currentGameState.joueurActuel === currentGameState.joueurId) {
+                turnStatusEl.textContent = "C'est votre tour";
+              } else {
+                turnStatusEl.textContent = "Tour de l'adversaire";
+              }
+              turnStatusEl.classList.remove("move-done");
+            }, 2500);
+          }
         }
-        // pollGameState will pick up the position update and update button states
+        // pollGameState will still pick up the position update and update button states
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        console.error(
-          "Erreur lors de la tentative de déplacement:",
-          errorThrown
-        );
-        addLocalNarrationEvent("Erreur réseau lors du déplacement.");
+        console.error("Erreur lors de la tentative de déplacement:", errorThrown);
+
+        // Try to parse server JSON errors (e.g. 403 when player already moved)
+        let serverMsg = null;
+        try {
+          const parsed = JSON.parse(jqXHR.responseText || '{}');
+          serverMsg = parsed.error || parsed.erreur || parsed.message || null;
+        } catch (e) {
+          serverMsg = null;
+        }
+
+        // If the server returned a known 'already moved' message, show a friendly 'Déplacement impossible'
+        if (serverMsg && /déjà boug|déjà bougé|a déjà bougé|déjà bouge/i.test(serverMsg)) {
+          addLocalNarrationEvent('Déplacement impossible.');
+          // Mark locally that we've moved so the UI will gray out the buttons
+          try {
+            const myRole = currentGameState.joueurRole;
+            if (myRole) currentGameState[`${myRole}ABouge`] = 1;
+            btnForward.disabled = true;
+            btnBackward.disabled = true;
+          } catch (e) {}
+          return;
+        }
+
+        // If server returned another clear error message, show it (no sound)
+        if (serverMsg) {
+          addLocalNarrationEvent(serverMsg);
+          return;
+        }
+
+        // Otherwise it's a network / unexpected error — keep the error SFX and message
+        try { sfx.error.play().catch(()=>{}); } catch(e) {}
+        addLocalNarrationEvent('Erreur réseau lors du déplacement. Détails: ' + (errorThrown || textStatus || jqXHR.status || 'unknown'));
       },
     });
   }
@@ -287,6 +426,18 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Résultat de l'attaque:", response);
         if (!response.erreur) {
           // Check for server-side errors
+          // play laser sound according to damage
+          try {
+            const dmg = parseInt(response.degatsInfliges || response.degats || 0, 10);
+            if (!isNaN(dmg)) {
+              if (dmg <= 100) sfx.laserWeak.play().catch(()=>{});
+              else sfx.laserStrong.play().catch(()=>{});
+            } else {
+              // default weak
+              sfx.laserWeak.play().catch(()=>{});
+            }
+          } catch (e) {}
+
           if (response.message) {
             addNarrationEvent(response.message); // Envoyer à la BDD via l'API
           }
@@ -301,7 +452,19 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Erreur lors de l'attaque:", errorThrown);
-        addLocalNarrationEvent("Erreur réseau lors de l'attaque.");
+        try { sfx.error.play().catch(()=>{}); } catch(e) {}
+        // Try to parse server JSON for a clearer message
+        try {
+          const parsed = JSON.parse(jqXHR.responseText || '{}');
+          const msg = parsed.erreur || parsed.error || parsed.message;
+          if (msg) {
+            addLocalNarrationEvent(msg);
+          } else {
+            addLocalNarrationEvent("Erreur réseau lors de l'attaque. Détails: " + (errorThrown || textStatus || jqXHR.status || 'unknown'));
+          }
+        } catch (e) {
+          addLocalNarrationEvent("Erreur réseau lors de l'attaque. Détails: " + (errorThrown || textStatus || jqXHR.status || 'unknown'));
+        }
         // We can't re-enable shoot button here, as pollGameState will do it
         // Or handle disabling/enabling of buttons on error if turn logic fails
       },
@@ -335,35 +498,152 @@ document.addEventListener("DOMContentLoaded", () => {
       success: function (response) {
         console.log("Résultat de la magie:", response);
         if (response.success) {
-          // Afficher le message approprié pour le lanceur
-          if (response.message_lanceur) {
-            addNarrationEvent(response.message_lanceur);
-          }
+          // Envoyer un message structuré en base pour que le journal affiche différemment
+          // selon le lecteur (lanceur vs adversaire). Format: MAGIC:role:msg_lanceur:::msg_cible
+          const ownerRole = currentGameState.joueurRole || 'joueur1';
+          const msgL = (response.message_lanceur || '').replace(/:::/g, '::');
+          const msgC = (response.message_cible || '').replace(/:::/g, '::');
+          const magicMessage = `MAGIC:${ownerRole}:${msgL}:::${msgC}`;
+          addNarrationEvent(magicMessage);
+
+          // Play magic SFX
+          try { sfx.magic.play().catch(()=>{}); } catch(e) {}
 
           // Optionnel: Ajouter une animation visuelle pour la magie
           const myShip = document.getElementById("my-ship");
           const opponentShip = document.getElementById("opponent-ship");
           triggerMagicAnimation(myShip, opponentShip);
+          // Apply an immediate optimistic update to local state so UI reacts quickly
+          try {
+            const myRole = currentGameState.joueurRole;
+            const oppRole = myRole === 'joueur1' ? 'joueur2' : 'joueur1';
+
+            // Magician loses all mana when casting
+            currentGameState[`${myRole}MagicienMana`] = 0;
+
+            // Mark that we've used our offensive action this turn
+            currentGameState[`${myRole}ActionFaite`] = 1;
+
+            // Update HPs locally if server returned them
+            if (response.lanceur_nouveaux_hp !== undefined) {
+              currentGameState[`${myRole}Hp`] = parseInt(response.lanceur_nouveaux_hp, 10);
+            }
+            if (response.cible_nouveaux_hp !== undefined) {
+              currentGameState[`${oppRole}Hp`] = parseInt(response.cible_nouveaux_hp, 10);
+            }
+
+            // Update UI immediately
+            updatePlayerStatsPanel();
+            updateHpDisplay();
+            updateActionButtonsState();
+
+            // Also add a small local feedback message for instant UX
+            if (response.message_lanceur) addLocalNarrationEvent(response.message_lanceur);
+          } catch (e) {
+            // If optimistic update fails, server poll will sync state shortly
+            console.warn('Optimistic update after magic failed:', e);
+          }
         } else if (response.erreur) {
           showErrorPopup(response.erreur);
+          try { btnMagic.disabled = false; } catch(e) {}
         }
         // pollGameState will handle button states
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Erreur lors de l'utilisation de la magie:", errorThrown);
+        try { sfx.error.play().catch(()=>{}); } catch(e) {}
 
         // Essayer de parser la réponse JSON pour afficher l'erreur
         try {
           const errorResponse = JSON.parse(jqXHR.responseText);
-          if (errorResponse.erreur) {
-            showErrorPopup(errorResponse.erreur);
+          const errorMsg = (errorResponse && (errorResponse.erreur || errorResponse.error || errorResponse.message)) || null;
+          if (errorMsg) {
+            showErrorPopup(errorMsg);
+            try { btnMagic.disabled = false; } catch(e) {}
           } else {
-            showErrorPopup("Erreur réseau lors de l'utilisation de la magie.");
+            showErrorPopup("Erreur réseau lors de l'utilisation de la magie. Détails: " + (errorThrown || textStatus || jqXHR.status || 'unknown'));
+            try { btnMagic.disabled = false; } catch(e) {}
           }
         } catch (e) {
-          showErrorPopup("Erreur réseau lors de l'utilisation de la magie.");
+          showErrorPopup("Erreur réseau lors de l'utilisation de la magie. Détails: " + (errorThrown || textStatus || jqXHR.status || 'unknown'));
+          try { btnMagic.disabled = false; } catch(e) {}
         }
       },
+    });
+  }
+
+  function useRecharge() {
+    const joueurId = currentGameState.joueurId;
+    const partieId = currentGameState.partieId;
+
+    if (!joueurId || !partieId) {
+      console.error("Impossible de recharger: IDs manquants.");
+      addLocalNarrationEvent("Erreur: IDs de joueur ou de partie manquants.");
+      return;
+    }
+
+    // Prevent double-click
+    btnRecharge.disabled = true;
+
+    $.ajax({
+      url: "api/recharger.php",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({ partie_id: partieId }),
+      dataType: "json",
+      success: function (response) {
+        console.log("Résultat du rechargement:", response);
+        if (response.success) {
+          // play recharge sound
+          try { sfx.recharge.play().catch(()=>{}); } catch(e) {}
+          if (response.message) {
+            addNarrationEvent(response.message);
+          }
+
+          // Update local game state: restore mana and add drones (optimistic update)
+          try {
+            const myRole = currentGameState.joueurRole;
+            currentGameState[`${myRole}MagicienMana`] = 1;
+
+            const key = `${myRole}Drones`;
+            let drones = currentGameState[key] || [];
+            if (typeof drones === 'string') drones = JSON.parse(drones);
+            if (!Array.isArray(drones)) drones = [];
+            drones.push({ type: 'reconnaissance' });
+            drones.push({ type: 'attaque' });
+            currentGameState[key] = drones;
+            // update UI immediately
+            updatePlayerStatsPanel();
+            // If the server ended the turn, reflect that immediately
+            if (response.joueur_suivant_id) {
+              currentGameState.joueurActuel = response.joueur_suivant_id;
+              // Reset action / move flags locally until poll syncs
+              currentGameState.joueur1ActionFaite = 0;
+              currentGameState.joueur2ActionFaite = 0;
+              currentGameState.joueur1ABouge = 0;
+              currentGameState.joueur2ABouge = 0;
+              updateActionButtonsState();
+            }
+            updateActionButtonsState();
+          } catch (e) {
+            // server poll will sync state
+          }
+
+        } else if (response.erreur) {
+          showErrorPopup(response.erreur);
+        }
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.error("Erreur lors du rechargement:", errorThrown);
+        try { sfx.error.play().catch(()=>{}); } catch(e) {}
+        try {
+          const err = JSON.parse(jqXHR.responseText);
+          if (err.erreur) showErrorPopup(err.erreur);
+          else addLocalNarrationEvent('Erreur réseau lors du rechargement.');
+        } catch (e) {
+          addLocalNarrationEvent('Erreur réseau lors du rechargement.');
+        }
+      }
     });
   }
 
@@ -509,6 +789,16 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
 
+        // special-attack cooldown mechanic removed — ignore any cooldown fields
+
+        // Update drone arrays (if the server sends them as JSON strings or arrays)
+        if (serverState.joueur1_drones !== undefined) {
+          currentGameState.joueur1Drones = serverState.joueur1_drones;
+        }
+        if (serverState.joueur2_drones !== undefined) {
+          currentGameState.joueur2Drones = serverState.joueur2_drones;
+        }
+
         // Update turn-related flags and check if button state needs update
         // Update turn-related flags and check if button state needs update
         // Use loose comparison or default to current value if undefined to prevent breaking
@@ -615,6 +905,46 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnMagic) {
     btnMagic.addEventListener("click", useMagic);
   }
+  if (btnRecharge) {
+    btnRecharge.addEventListener("click", useRecharge);
+  }
+  if (btnAbandon) {
+    btnAbandon.addEventListener("click", function() {
+      if (!confirm('Êtes-vous sûr de vouloir abandonner la partie ? Cela donnera la victoire à votre adversaire.')) return;
+
+      btnAbandon.disabled = true;
+
+      $.ajax({
+        url: 'api/abandonner.php',
+        method: 'POST',
+        dataType: 'json',
+        success: function(res) {
+          if (res.success) {
+            try { sfx.error.play().catch(()=>{}); } catch(e) {}
+            addNarrationEvent(res.message || 'Vous avez abandonné la partie.');
+            // redirect back to menu after short delay to let narration / poll update
+            setTimeout(() => { window.location.href = 'choix-joueur.php'; }, 800);
+          } else if (res.erreur) {
+            showErrorPopup(res.erreur);
+            btnAbandon.disabled = false;
+          }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          try {
+            const parsed = JSON.parse(jqXHR.responseText || '{}');
+            const msg = parsed.erreur || parsed.error || parsed.message;
+            if (msg) {
+              showErrorPopup(msg);
+              btnAbandon.disabled = false;
+              return;
+            }
+          } catch (e) {}
+          showErrorPopup('Erreur réseau lors de la tentative d\'abandon. Détails: ' + (errorThrown || textStatus || jqXHR.status || 'unknown'));
+          btnAbandon.disabled = false;
+        }
+      });
+    });
+  }
 
   // Drone button functionality
   const btnDrone = document.getElementById("btn-drone");
@@ -684,6 +1014,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const myShip = document.getElementById("my-ship");
           triggerDroneAnimation(myShip, droneType);
+
+          // Play drone SFX
+          try {
+            if (droneType === 'attaque') sfx.droneAttack.play().catch(()=>{});
+            else sfx.droneRecon.play().catch(()=>{});
+          } catch (e) {}
+
+          // Update local drone inventory immediately for better UX.
+          try {
+            const myRole = currentGameState.joueurRole;
+            const key = `${myRole}Drones`;
+            let drones = currentGameState[key] || [];
+            if (typeof drones === 'string') drones = JSON.parse(drones);
+            if (Array.isArray(drones)) {
+              // remove one drone of requested type
+              const idx = drones.findIndex(d => (d.type || d) === (droneType === 'attaque' ? 'attaque' : 'reconnaissance'));
+              if (idx !== -1) drones.splice(idx, 1);
+              currentGameState[key] = drones;
+            }
+            updatePlayerStatsPanel();
+          } catch (e) {
+            // silently ignore any parse errors; server poll will sync
+          }
         } else if (response.erreur) {
           // Afficher un popup d'erreur
           showErrorPopup(response.erreur);
@@ -691,6 +1044,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error("Erreur lors du lancer de drone:", errorThrown);
+        try { sfx.error.play().catch(()=>{}); } catch(e) {}
 
         // Essayer de parser la réponse JSON pour afficher l'erreur
         try {
@@ -698,10 +1052,10 @@ document.addEventListener("DOMContentLoaded", () => {
           if (errorResponse.erreur) {
             showErrorPopup(errorResponse.erreur);
           } else {
-            showErrorPopup("Erreur réseau lors du lancer de drone.");
+            showErrorPopup("Erreur réseau lors du lancer de drone. Détails: " + (errorThrown || textStatus || jqXHR.status || 'unknown'));
           }
         } catch (e) {
-          showErrorPopup("Erreur réseau lors du lancer de drone.");
+          showErrorPopup("Erreur réseau lors du lancer de drone. Détails: " + (errorThrown || textStatus || jqXHR.status || 'unknown'));
         }
       },
     });

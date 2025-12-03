@@ -3,7 +3,8 @@ require_once '../class/vaisseau.php';
 
 function gerer_debut_tour($link, $partie_id, $joueur_id) {
     // 1. Fetch current state of the player
-    $sql = "SELECT p.joueur1_id, p.joueur2_id, gs.joueur1_hp, gs.joueur2_hp, gs.joueur1_effets, gs.joueur2_effets FROM parties p JOIN game_state gs ON p.partie_id = gs.partie_id WHERE p.partie_id = ?";
+    // Also fetch cooldown fields so we can decrement them at the start of the player's turn
+    $sql = "SELECT p.joueur1_id, p.joueur2_id, gs.joueur1_hp, gs.joueur2_hp, gs.joueur1_effets, gs.joueur2_effets, gs.joueur1_cooldown_attaque_speciale, gs.joueur2_cooldown_attaque_speciale FROM parties p JOIN game_state gs ON p.partie_id = gs.partie_id WHERE p.partie_id = ?";
     $stmt = mysqli_prepare($link, $sql);
     
     if (!$stmt) {
@@ -66,6 +67,8 @@ function gerer_debut_tour($link, $partie_id, $joueur_id) {
                 mysqli_stmt_close($stmt_narr);
             }
         }
+
+        // (No special attack cooldowns handled here — mechanic removed)
     }
     
     return $resultat;

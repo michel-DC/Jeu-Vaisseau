@@ -233,9 +233,15 @@ class Vaisseau
         return "Déplacement impossible. Le vaisseau est déjà à la limite ou la direction est invalide.";
     }
 
-    public function recevoirDegats($quantite)
+    /**
+     * Subtract HP from this ship.
+     * $quantite: base damage before defender zone & subis modifiers
+     * $zoneMultiplier: an additional multiplier depending on defender's zone (e.g. 0.75 if defender is 'proche')
+     */
+    public function recevoirDegats($quantite, $zoneMultiplier = 1.0)
     {
-        $this->pointDeVie -= $quantite * $this->modificateur_degats_subis;
+        $applied = $quantite * $zoneMultiplier * $this->modificateur_degats_subis;
+        $this->pointDeVie -= $applied;
         if ($this->pointDeVie < 0) {
             $this->pointDeVie = 0;
         }

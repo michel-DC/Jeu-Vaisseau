@@ -113,6 +113,17 @@
   box-shadow: 0 0 15px #00ffff;
 }
 
+#btn-recharge {
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+#btn-recharge:hover {
+  background-color: #ffffff;
+  color: #000;
+  box-shadow: 0 0 15px #ffffff;
+}
+
 #btn-heal {
   color: #ffffff;
   border-color: #ffffff;
@@ -139,4 +150,24 @@
 .action-button[disabled]:hover {
   transform: none;
   box-shadow: none;
+}
+
+/* Cooldown badge for actions (uses data-cooldown attribute) */
+.action-button[data-cooldown]:before {
+  content: attr(data-cooldown);
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 0, 0, 0.95);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 20;
+  box-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
 }

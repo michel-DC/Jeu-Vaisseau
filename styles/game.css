@@ -105,23 +105,24 @@ html {
 
 .player-ship {
   position: absolute;
-  width: 250px;
+  /* Make ship scale with its zone and ensure it fits entirely */
+  width: 70%;
+  max-width: 220px; /* keep a reasonable cap */
   height: auto;
+  max-height: 85%;
   object-fit: contain;
   z-index: 5;
-  transition: transform 0.2s ease-out;
-}
-
-#opponent-ship {
-  left: calc(100% * 11 / 12); 
-  top: 50%;
-  transform: translate(-50%, -50%) scaleX(-1); 
-}
-
-#my-ship {
-  left: calc(100% * 1 / 12); 
+  transition: transform 0.2s ease-out, width 0.2s ease-out;
+  left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* my/opponent differ only by x-flip for the opponent */
+/* #my-ship styling intentionally inherits .player-ship (no overrides) */
+
+#opponent-ship {
+  transform: translate(-50%, -50%) scaleX(-1);
 }
 
 
@@ -280,3 +281,109 @@ html {
     background-position: 0 -100%;
   }
 }
+
+/* Zone labels shown above each column with hover tooltip */
+.zone-label {
+  position: absolute;
+  /* place labels lower so they are not obscured by the top UI bar */
+  top: 8vh;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  font-weight: 700;
+  text-transform: capitalize;
+  font-size: 14px;
+  letter-spacing: 0.6px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: help;
+  z-index: 30;
+}
+
+.zone-label::after {
+  /* fixed-position bubble shown on hover — placed near top of viewport but not flush to the very top */
+  content: attr(data-tooltip);
+  position: fixed;
+  top: 12vh; /* near top but not at the very top */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20,20,20,0.95);
+  color: #fff;
+  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  max-width: 70vw;
+  text-align: center;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  z-index: 99999; /* ensure tooltip appears above all other graphics */
+  pointer-events: none; /* tooltip itself won't capture pointer — purely informative */
+}
+
+.zone-label:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+/* Side legend for both players (left/right) */
+.side-zone-legend {
+  position: fixed;
+  top: 35vh; /* start roughly in the middle vertically */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.side-zone-legend.left {
+  left: 12px;
+  align-items: flex-start;
+}
+
+.side-zone-legend.right {
+  right: 12px;
+  align-items: flex-end;
+}
+
+.side-zone-label {
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: help;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.side-zone-label::after {
+  /* reuse the same fixed tooltip shown near top */
+  content: attr(data-tooltip);
+  position: fixed;
+  top: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20,20,20,0.95);
+  color: #fff;
+  font-size: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  max-width: 70vw;
+  text-align: center;
+  white-space: normal;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  z-index: 99999;
+  pointer-events: none;
+}
+
+.side-zone-label:hover::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-4px); }

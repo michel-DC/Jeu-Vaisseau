@@ -6,7 +6,7 @@ class Magicien
   private $mana;
   private $puissance;
 
-  public function __construct($nom, $mana = 1, $puissance)
+  public function __construct($nom, $mana = 1, $puissance = 1)
   {
     $this->nom = $nom;
     $this->mana = $mana;

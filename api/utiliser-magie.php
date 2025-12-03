@@ -1,16 +1,67 @@
 <?php
+// Defensive: always return JSON and capture errors; convert warnings/notices to exceptions
+// IMPORTANT: set buffering/handlers BEFORE any includes so warnings or accidental output
+// from included files are captured and won't leak HTML to the client.
+ini_set('display_errors', '0');
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    // convert to exceptions so we can always return JSON
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+});
+set_exception_handler(function($e) {
+    // Write a concise debug trace to a local file.
+    $logFile = __DIR__ . '/magie-debug.log';
+    $debugMsg = date('c') . " - Unhandled exception: " . $e->getMessage() . " in " . $e->getFile() . ':' . $e->getLine() . "\n" . $e->getTraceAsString() . "\n";
+    @file_put_contents($logFile, $debugMsg, FILE_APPEND);
+
+    // Clear output and send a safe JSON error with a short debug hint
+    while (ob_get_level() > 0) { @ob_end_clean(); }
+    http_response_code(500);
+    header('Content-Type: application/json');
+    $short = substr($e->getMessage(), 0, 120);
+    echo json_encode(['erreur' => 'Erreur interne serveur lors de l\'utilisation de la magie. (debug: ' . $short . ')']);
+    exit();
+});
+ob_start();
+
 require_once '../database/db.php';
 require_once '../class/vaisseau.php';
 require_once '../class/magicien.php';
 require_once '../class/magie.php';
 require_once 'gestion-tour.php';
+// Wrap the main processing in a try/catch to capture and log unexpected exceptions
+// (keeps existing global handlers but provides a local debug log file for easier diagnosis)
+try {
+function send_json($data, $status = 200) {
+    // clear any accidental output and return a clean JSON response
+    while (ob_get_level() > 0) {
+        @ob_end_clean();
+    }
+    http_response_code($status);
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit();
+}
+
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR])) {
+        // Clean any buffered output (likely HTML) and return JSON
+        @ob_end_clean();
+        $logFile = __DIR__ . '/magie-debug.log';
+        @file_put_contents($logFile, date('c') . " - Fatal shutdown error: " . var_export($err, true) . "\n", FILE_APPEND);
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode(['erreur' => 'Erreur interne serveur lors de l\'utilisation de la magie.']);
+    }
+});
+
 session_start();
 
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['erreur' => 'Méthode non autorisée. Seul POST est accepté.']);
+    send_json(['erreur' => 'Méthode non autorisée. Seul POST est accepté.'], 405);
     exit();
 }
 
@@ -21,21 +72,18 @@ $lanceur_id = $data['lanceur_id'] ?? null;
 $cible_id = $data['cible_id'] ?? null;
 
 if (!$partie_id_from_client || !$lanceur_id || !$cible_id) {
-    http_response_code(400);
-    echo json_encode(['erreur' => 'ID de partie, lanceur ou cible manquant.']);
+    send_json(['erreur' => 'ID de partie, lanceur ou cible manquant.'], 400);
     exit();
 }
 
 $partie_id_session = $_SESSION['partie_id'] ?? null;
 if (!$partie_id_session) {
-    http_response_code(401);
-    echo json_encode(['erreur' => 'Session de partie expirée ou non définie.']);
+    send_json(['erreur' => 'Session de partie expirée ou non définie.'], 401);
     exit();
 }
 
 if ($partie_id_from_client !== $partie_id_session) {
-    http_response_code(403);
-    echo json_encode(['erreur' => 'ID de partie incohérent avec la session.']);
+    send_json(['erreur' => 'ID de partie incohérent avec la session.'], 403);
     exit();
 }
 
@@ -47,9 +95,8 @@ $sql_game_state = "SELECT p.joueur1_id, p.joueur2_id, gs.joueur1_hp, gs.joueur2_
 $stmt_game_state = mysqli_prepare($link, $sql_game_state);
 
 if ($stmt_game_state === false) {
-    http_response_code(500);
     error_log('Erreur de préparation SQL pour l\'état du jeu : ' . mysqli_error($link));
-    echo json_encode(['erreur' => 'Erreur de préparation SQL pour l\'état du jeu : ' . mysqli_error($link)]);
+    send_json(['erreur' => 'Erreur de préparation SQL pour l\'état du jeu.'], 500);
     mysqli_close($link);
     exit();
 }
@@ -59,8 +106,7 @@ mysqli_stmt_execute($stmt_game_state);
 $result_game_state = mysqli_stmt_get_result($stmt_game_state);
 
 if (!$result_game_state || mysqli_num_rows($result_game_state) === 0) {
-    http_response_code(404);
-    echo json_encode(['erreur' => 'Partie non trouvée ou état de jeu introuvable pour ID: ' . $partie_id]);
+    send_json(['erreur' => 'Partie non trouvée ou état de jeu introuvable pour ID: ' . $partie_id], 404);
     mysqli_close($link);
     exit();
 }
@@ -74,23 +120,20 @@ if ($game_state['joueur1_id'] === $lanceur_id) {
 } elseif ($game_state['joueur2_id'] === $lanceur_id) {
     $lanceur_role = 'joueur2';
 } else {
-    http_response_code(403);
-    echo json_encode(['erreur' => 'Le lanceur spécifié ne participe pas à cette partie.']);
+    send_json(['erreur' => 'Le lanceur spécifié ne participe pas à cette partie.'], 403);
     mysqli_close($link);
     exit();
 }
 
 if ($game_state['joueur_actuel'] !== $lanceur_id) {
-    http_response_code(403);
-    echo json_encode(['erreur' => 'Ce n\'est pas votre tour de jouer.']);
+    send_json(['erreur' => 'Ce n\'est pas votre tour de jouer.'], 403);
     mysqli_close($link);
     exit();
 }
 
 $action_faite_column = "{$lanceur_role}_action_faite";
 if ($game_state[$action_faite_column] == 1) {
-    http_response_code(403);
-    echo json_encode(['erreur' => 'Vous avez déjà effectué une action offensive ce tour.']);
+    send_json(['erreur' => 'Vous avez déjà effectué une action offensive ce tour.'], 403);
     mysqli_close($link);
     exit();
 }
@@ -133,10 +176,17 @@ $cibleVaisseau->setStatusEffects($cibleData['effets']);
 $magie = new Magie();
 $resultatMagie = $magie->lancerSort($magicien, $cibleVaisseau, $lanceurVaisseau);
 
+// Defensive: ensure we got a valid array result and expected keys
+if (!is_array($resultatMagie) || !array_key_exists('success', $resultatMagie)) {
+    error_log('utiliser-magie.php: Magie::lancerSort returned unexpected value: ' . var_export($resultatMagie, true));
+    send_json(['erreur' => 'Erreur interne lors du lancement du sort.'], 500);
+    mysqli_close($link);
+    exit();
+}
+
 // Vérifier si le sort a réussi
 if (!$resultatMagie['success']) {
-    http_response_code(400);
-    echo json_encode(['erreur' => $resultatMagie['message_lanceur']]);
+    send_json(['erreur' => $resultatMagie['message_lanceur']], 400);
     mysqli_close($link);
     exit();
 }
@@ -189,9 +239,8 @@ $params_update[] = $partie_id;
 $stmt_update_game_state = mysqli_prepare($link, $sql_update_game_state);
 
 if ($stmt_update_game_state === false) {
-    http_response_code(500);
     error_log('Erreur de préparation SQL pour l\'UPDATE : ' . mysqli_error($link) . ' (Requête générée: ' . $sql_update_game_state . ')');
-    echo json_encode(['erreur' => 'Erreur de préparation SQL pour l\'UPDATE : ' . mysqli_error($link) . ' (Requête générée: ' . $sql_update_game_state . ')']);
+    send_json(['erreur' => 'Erreur de préparation SQL pour l\'UPDATE.'], 500);
     mysqli_close($link);
     exit();
 }
@@ -212,7 +261,7 @@ if ($execute_success) {
         // Gérer les effets de début de tour pour le joueur suivant
         gerer_debut_tour($link, $partie_id, $joueur_suivant_id);
 
-        echo json_encode([
+        send_json([
             'success' => true,
             'message_lanceur' => $resultatMagie['message_lanceur'],
             'message_cible' => $resultatMagie['message_cible'],
@@ -223,13 +272,29 @@ if ($execute_success) {
     } else {
         error_log('Erreur lors de la mise à jour de l\'état de la partie : Aucune ligne affectée. La partie_id était-elle correcte ? Client ID: ' . $partie_id_from_client . ', Session ID: ' . ($_SESSION['partie_id'] ?? 'NOT SET'));
         http_response_code(500);
-        echo json_encode(['erreur' => 'Erreur lors de la mise à jour de l\'état de la partie : Aucune ligne affectée. La partie_id était-elle correcte ?']);
+        send_json(['erreur' => 'Erreur lors de la mise à jour de l\'état de la partie : Aucune ligne affectée. La partie_id était-elle correcte ?'], 500);
     }
 } else {
     error_log('Erreur lors de l\'exécution de l\'UPDATE : ' . mysqli_stmt_error($stmt_update_game_state) . ' (Partie ID: ' . $partie_id . ')');
-    http_response_code(500);
-    echo json_encode(['erreur' => 'Erreur lors de la mise à jour de l\'état de la partie après l\'utilisation de la magie. Détails : ' . mysqli_stmt_error($stmt_update_game_state)]);
+    send_json(['erreur' => 'Erreur lors de la mise à jour de l\'état de la partie après l\'utilisation de la magie.'], 500);
 }
 
 mysqli_stmt_close($stmt_update_game_state);
 mysqli_close($link);
+} catch (Throwable $e) {
+    // Write a concise debug trace to a local log file (helps the developer inspect on the server)
+    $logFile = __DIR__ . '/magie-debug.log';
+    $debugMsg = date('c') . " - Exception: " . $e->getMessage() . " in " . $e->getFile() . ':' . $e->getLine() . "\n" . $e->getTraceAsString() . "\n";
+    @file_put_contents($logFile, $debugMsg, FILE_APPEND);
+
+    // Capture any accidental output that may have been buffered
+    $buf = '';
+    if (ob_get_level() > 0) {
+        $buf = ob_get_contents();
+    }
+    if ($buf) @file_put_contents($logFile, "BUFFER:" . substr($buf, 0, 2000) . "\n", FILE_APPEND);
+
+    // Send a JSON error with a short debug hint (truncated message) so the client gets something useful
+    $short = substr($e->getMessage(), 0, 180);
+    send_json(['erreur' => "Erreur interne serveur lors de l'utilisation de la magie. (debug: $short)"], 500);
+}

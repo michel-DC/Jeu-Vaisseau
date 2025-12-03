@@ -38,6 +38,16 @@
   text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
 }
 
+.stat-item.drone-attack .stat-icon {
+  color: #ffb347; /* warm orange */
+  text-shadow: 0 0 10px rgba(255, 155, 60, 0.8);
+}
+
+.stat-item.drone-recon .stat-icon {
+  color: #7dd3fc; /* light blue */
+  text-shadow: 0 0 10px rgba(125, 211, 252, 0.8);
+}
+
 .stat-info {
   display: flex;
   flex-direction: column;

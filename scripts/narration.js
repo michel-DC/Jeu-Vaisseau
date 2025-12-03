@@ -33,23 +33,50 @@ function addLocalNarrationEvent(localMessage) {
 
 function parseAndTranslateNarration(rawMessage) {
   const myRole = initialGameState.joueurRole;
-
   const parts = rawMessage.split(":");
+
+  // Helper to return structured result
+  const asResult = (text, owner = "system") => ({ text, owner });
+
+  // Format MAGIC:joueur_role:message_lanceur:::message_cible
+  if (parts.length > 2 && parts[0] === "MAGIC") {
+    const [, ownerRole, ...rest] = parts;
+    const restStr = rest.join(":");
+    // split the two messages by a delimiter we choose ':::'. If not present, fallback to whole
+    const split = restStr.split(":::");
+    const messageLanceur = split[0] || "";
+    const messageCible = split[1] || "";
+    const isMine = ownerRole === myRole;
+    if (isMine) {
+      return asResult(messageLanceur, "you");
+    } else {
+      // adapt wording for opponent view: replace leading 'Votre' with 'Le' / 'Le magicien adverse'
+      let adapted = messageLanceur
+        .replace(/^Votre magicien/g, "Le magicien adverse")
+        .replace(/Votre magicien/g, "Le magicien adverse")
+        .replace(/Votre/g, "Le")
+        .replace(/votre/g, "le");
+      // if server provided a specific message_cible, prefer adapted message_cible for opponent
+      if (messageCible) {
+        adapted = messageCible.replace(/^Vous/g, "Le magicien adverse a");
+      }
+      return asResult(adapted, "opponent");
+    }
+  }
 
   // Format DRONE:joueur_role:message_complet
   if (parts.length > 2 && parts[0] === "DRONE") {
     const [, droneOwnerRole, ...messageParts] = parts;
     const message = messageParts.join(":");
     const isMyDrone = droneOwnerRole === myRole;
-
-    // Remplacer "Votre drone" par "Le drone de l'adversaire" si ce n'est pas le nôtre
     if (!isMyDrone) {
-      return message
+      const adapted = message
         .replace(/Votre drone/g, "Le drone de l'adversaire")
         .replace(/Votre/g, "Sa")
         .replace(/votre/g, "son");
+      return asResult(adapted, "opponent");
     }
-    return message;
+    return asResult(message, "you");
   }
 
   // Format ATTACK:joueur_role:message_complet
@@ -57,15 +84,13 @@ function parseAndTranslateNarration(rawMessage) {
     const [, attackerRole, ...messageParts] = parts;
     const message = messageParts.join(":");
     const isMyAttack = attackerRole === myRole;
-
-    // Remplacer "Vous" et "l'adversaire" selon qui attaque
     if (!isMyAttack) {
-      return message
+      const adapted = message
         .replace(/Vous avez/g, "L'adversaire a")
-        .replace(/l'adversaire/g, "vous")
-        .replace(/L'adversaire a/g, "L'adversaire a");
+        .replace(/l'adversaire/g, "vous");
+      return asResult(adapted, "opponent");
     }
-    return message;
+    return asResult(message, "you");
   }
 
   // Format DRONE_ATTACK:joueur_role:multiplicateur
@@ -73,17 +98,12 @@ function parseAndTranslateNarration(rawMessage) {
     const [, droneOwnerRole, multiplicateur] = parts;
     const isMyDrone = droneOwnerRole === myRole;
     const droneOwner = isMyDrone ? "Votre" : "Le drone de l'adversaire";
-
     if (multiplicateur === "1.5") {
-      return `${droneOwner} drone d'attaque a trouvé une faille ! ${
-        isMyDrone ? "Votre" : "Sa"
-      } prochaine attaque infligera 1.5x dégâts.`;
+      return asResult(`${droneOwner} drone d'attaque a trouvé une faille ! ${isMyDrone ? "Votre" : "Sa"} prochaine attaque infligera 1.5x dégâts.`, isMyDrone ? "you" : "opponent");
     } else if (multiplicateur === "1.0") {
-      return `${droneOwner} drone d'attaque n'a rien trouvé d'exceptionnel. Attaque normale.`;
+      return asResult(`${droneOwner} drone d'attaque n'a rien trouvé d'exceptionnel. Attaque normale.`, isMyDrone ? "you" : "opponent");
     } else if (multiplicateur === "2.0") {
-      return `${droneOwner} drone d'attaque a trouvé une énorme faille ! ${
-        isMyDrone ? "Votre" : "Sa"
-      } prochaine attaque infligera 2x dégâts.`;
+      return asResult(`${droneOwner} drone d'attaque a trouvé une énorme faille ! ${isMyDrone ? "Votre" : "Sa"} prochaine attaque infligera 2x dégâts.`, isMyDrone ? "you" : "opponent");
     }
   }
 
@@ -93,17 +113,12 @@ function parseAndTranslateNarration(rawMessage) {
     const isMyDrone = droneOwnerRole === myRole;
     const droneOwner = isMyDrone ? "Votre" : "Le";
     const possessif = isMyDrone ? "votre" : "son";
-
     if (type === "magicien") {
-      return `${droneOwner} drone de reconnaissance a trouvé un magicien plus puissant (Puissance: ${valeur}) ! Il remplace ${possessif} ancien magicien.`;
+      return asResult(`${droneOwner} drone de reconnaissance a trouvé un magicien plus puissant (Puissance: ${valeur}) ! Il remplace ${possessif} ancien magicien.`, isMyDrone ? "you" : "opponent");
     } else if (type === "canon") {
-      return `${droneOwner} drone a trouvé un meilleur canon ! ${
-        isMyDrone ? "Votre" : "Sa"
-      } puissance de tir est maintenant de ${valeur}.`;
+      return asResult(`${droneOwner} drone a trouvé un meilleur canon ! ${isMyDrone ? "Votre" : "Sa"} puissance de tir est maintenant de ${valeur}.`, isMyDrone ? "you" : "opponent");
     } else if (type === "soin") {
-      return `${droneOwner} drone a trouvé une étoile de soin ! ${
-        isMyDrone ? "Votre" : "Son"
-      } vaisseau a récupéré ${valeur} points de vie.`;
+      return asResult(`${droneOwner} drone a trouvé une étoile de soin ! ${isMyDrone ? "Votre" : "Son"} vaisseau a récupéré ${valeur} points de vie.`, isMyDrone ? "you" : "opponent");
     }
   }
 
@@ -112,15 +127,13 @@ function parseAndTranslateNarration(rawMessage) {
     const [, playerRole, ...messageParts] = parts;
     const message = messageParts.join(":");
     const isMyMove = playerRole === myRole;
-
-    // Remplacer "Vous" par "L'adversaire" si ce n'est pas notre mouvement
     if (!isMyMove) {
-      return message.replace(/Vous/g, "L'adversaire");
+      return asResult(message.replace(/Vous/g, "L'adversaire"), "opponent");
     }
-    return message;
+    return asResult(message, "you");
   }
 
-  return rawMessage;
+  return asResult(rawMessage, "system");
 }
 
 let lastRenderedEventId = 0; // Garde la trace du dernier ID d'événement rendu
@@ -134,10 +147,17 @@ function renderNarrationEvents(events) {
   );
 
   newEvents.reverse().forEach((event) => {
-    const message = parseAndTranslateNarration(event.message);
+    const res = parseAndTranslateNarration(event.message);
+    const message = res && res.text ? res.text : event.message;
+    const owner = res && res.owner ? res.owner : "system";
     if (message) {
       const eventDiv = document.createElement("div");
-      eventDiv.className = "narration-event";
+      // assign class based on owner: you / opponent / system
+      let cls = "narration-event";
+      if (owner === "you") cls += " you";
+      else if (owner === "opponent") cls += " opponent";
+      else cls += " system";
+      eventDiv.className = cls;
       eventDiv.innerHTML = `<span class="timestamp">[${event.time}]</span> <span class="message">${message}</span>`;
       eventsContainer.prepend(eventDiv);
       lastRenderedEventId = Math.max(lastRenderedEventId, event.event_id);

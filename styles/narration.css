@@ -41,6 +41,17 @@
   color: var(--primary-color, #d9d0ff);
 }
 
+/* Per-author colors */
+.narration-event.you .message {
+  color: #9be39b; /* green-ish for player's own events */
+}
+.narration-event.opponent .message {
+  color: #ffb3a7; /* warm color for opponent events */
+}
+.narration-event.system .message {
+  color: var(--primary-color, #d9d0ff);
+}
+
 
 .narration-box::-webkit-scrollbar {
   width: 8px;

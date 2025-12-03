@@ -58,7 +58,7 @@ class Drone
                 return "Votre drone d'attaque a trouvé une faille ! Votre prochaine attaque infligera 1.5x dégâts.";
             } elseif ($chance <= 70) {
                 $vaisseauLanceur->setModificateurDegatsInfliges(1.0);
-                return "Votre drone d'attaque n'a rien trouvé d'exceptionnel. Attaque normale.";
+                return "Votre drone s'est cassé en plein vol ! La prochaine fois vous réflechirez à deux fois avant de l'acheter sur Temu !";
             } else {
                 $vaisseauLanceur->setModificateurDegatsInfliges(2.0);
                 return "Votre drone d'attaque a trouvé une énorme faille ! Votre prochaine attaque infligera 2x dégâts.";
@@ -77,26 +77,36 @@ class Drone
                     $puissanceMagicien = mt_rand(2, 5);
                     $nouveauMagicien = new Magicien("Nouveau Sage", 1, $puissanceMagicien);
                     $vaisseauLanceur->setMagicienActuel($nouveauMagicien);
-                    $message = "Votre drone de reconnaissance a trouvé un magicien plus puissant (Puissance: " . $puissanceMagicien . ") ! Il remplace votre ancien magicien.";
+                    $message = "Votre drone de reconnaissance a trouvé un magicien plus puissant (Puissance: " . $puissanceMagicien . ") ! Il remplace votre ancien magicien et vous le jeter par ailleurs dans le vide spatial.";
                 } else {
                     $nouvellePuissanceTir = mt_rand(80, 170);
-                    $vaisseauLanceur->setPuissanceDeTir($nouvellePuissanceTir);
-                    $message = "Votre drone a trouvé un meilleur canon ! Votre puissance de tir est maintenant de " . $nouvellePuissanceTir . ".";
+                    $currentPower = $vaisseauLanceur->getPuissanceDeTir();
+                    if ($nouvellePuissanceTir > $currentPower) {
+                        $vaisseauLanceur->setPuissanceDeTir($nouvellePuissanceTir);
+                        $message = "Votre drone a trouvé un meilleur canon ! Votre puissance de tir est maintenant de " . $nouvellePuissanceTir . ".";
+                    } else {
+                        $message = "Votre drone a trouvé un canon de " . $nouvellePuissanceTir . " de puissance, vous le jetez dans le vide spatial car vous n'en avez pas besoin, bon débarras !";
+                    }
                 }
             } else {
                 if ($chance <= 33) {
                     $puissanceMagicien = mt_rand(2, 5);
                     $nouveauMagicien = new Magicien("Nouveau Sage", 1, $puissanceMagicien);
                     $vaisseauLanceur->setMagicienActuel($nouveauMagicien);
-                    $message = "Votre drone de reconnaissance a trouvé un magicien plus puissant (Puissance: " . $puissanceMagicien . ") ! Il remplace votre ancien magicien.";
+                    $message = "Votre drone de reconnaissance a trouvé un magicien plus puissant (Puissance: " . $puissanceMagicien . ") ! Il remplace votre ancien magicien et vous le jeter par ailleurs dans le vide spatial.";
                 } elseif ($chance <= 66) {
                     $nouvellePuissanceTir = mt_rand(80, 170);
-                    $vaisseauLanceur->setPuissanceDeTir($nouvellePuissanceTir);
-                    $message = "Votre drone a trouvé un meilleur canon ! Votre puissance de tir est maintenant de " . $nouvellePuissanceTir . ".";
+                    $currentPower = $vaisseauLanceur->getPuissanceDeTir();
+                    if ($nouvellePuissanceTir > $currentPower) {
+                        $vaisseauLanceur->setPuissanceDeTir($nouvellePuissanceTir);
+                        $message = "Votre drone a trouvé un meilleur canon ! Votre puissance de tir est maintenant de " . $nouvellePuissanceTir . ".";
+                    } else {
+                        $message = "Votre drone a trouvé un canon de " . $nouvellePuissanceTir . " de puissance, vous le jetez dans le vide spatial car vous n'en avez pas besoin, bon débarras !";
+                    }
                 } else {
                     $soin = floor($maxVie / 10);
                     $vaisseauLanceur->recevoirSoins($soin);
-                    $message = "Votre drone a trouvé une étoile de soin ! Votre vaisseau a récupéré " . $soin . " points de vie.";
+                    $message = "Votre drone a trouvé une trousse de secours dans l'espace ! Votre vaisseau a récupéré " . $soin . " points de vie.";
                 }
             }
             return $message;
